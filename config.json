@@ -1,0 +1,16 @@
+{
+  "base_url": "http://habs-doctor.netlify.app/",
+  "site_title": "Bệnh viện Nhi đồng 2",
+  "site_description": "Trang web dành cho bác sĩ dùng để quản lý hồ sơ và hàng đợi của Bệnh viện Nhi đồng 2",
+  "site_keywords": [
+    {
+      "keyword": "Bệnh viện Nhi đồng 2"
+    },
+    {
+      "keyword": "Bệnh viện"
+    },
+    {
+      "keyword": "HABS"
+    }
+  ]
+}
