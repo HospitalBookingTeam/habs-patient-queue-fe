@@ -1,9 +1,9 @@
 import type { NextPage } from 'next'
 import Typography from '@mui/material/Typography'
-import Link from '../src/Link'
-import PageLayout from '../src/components/PageLayout'
-import BasicMeta from '../src/components/meta/BasicMeta'
-import OpenGraphMeta from '../src/components/meta/OpenGraphMeta'
+import Link from '../Link'
+import PageLayout from '../components/PageLayout'
+import BasicMeta from '../components/meta/BasicMeta'
+import OpenGraphMeta from '../components/meta/OpenGraphMeta'
 
 const Home: NextPage = () => {
 	const url = '/'
