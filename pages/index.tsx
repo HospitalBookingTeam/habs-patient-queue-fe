@@ -1,33 +1,24 @@
-import * as React from 'react'
 import type { NextPage } from 'next'
-import Container from '@mui/material/Container'
 import Typography from '@mui/material/Typography'
-import Box from '@mui/material/Box'
 import Link from '../src/Link'
-import Copyright from '../src/Copyright'
-import ButtonAppBar from '../components/ButtonAppBar'
+import PageLayout from '../src/components/PageLayout'
+import BasicMeta from '../src/components/meta/BasicMeta'
+import OpenGraphMeta from '../src/components/meta/OpenGraphMeta'
 
 const Home: NextPage = () => {
+	const url = '/'
+	const title = 'Trang chủ'
 	return (
-		<Container maxWidth="lg">
-			<Box
-				sx={{
-					display: 'flex',
-					flexDirection: 'column',
-					justifyContent: 'center',
-					alignItems: 'center',
-				}}
-			>
-				<ButtonAppBar />
-				<Typography variant="h4" component="h1" gutterBottom>
-					Trang chủ
-				</Typography>
-				<Link href="/about" color="secondary">
-					Xem hàng chờ
-				</Link>
-				<Copyright />
-			</Box>
-		</Container>
+		<PageLayout>
+			<BasicMeta url={url} title={title} />
+			<OpenGraphMeta url={url} title={title} />
+			<Typography variant="h4" component="h1" gutterBottom>
+				Trang chủ
+			</Typography>
+			<Link href="/queue" color="secondary">
+				Xem hàng chờ
+			</Link>
+		</PageLayout>
 	)
 }
 
