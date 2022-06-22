@@ -9,9 +9,12 @@ import OpenGraphMeta from '../../components/meta/OpenGraphMeta'
 import { PaginationData } from '../../entities/base'
 import { atom, selectorFamily, useRecoilState, useRecoilValue } from 'recoil'
 import { useEffect } from 'react'
-import apiHelper from '../../../utils/apiHelper'
+import apiHelper from '../../utils/apiHelper'
 import Error from 'next/error'
 import { authAtom } from '../../hooks/useAuth'
+import { Divider, Paper, Stack } from '@mui/material'
+import styled from '@emotion/styled'
+import { renderEnumCheckupRecordStatus } from '../../utils/renderEnums'
 
 export type QueueDetailData = {
 	id: number
@@ -45,12 +48,34 @@ const queueQuery = selectorFamily({
 			const response = await apiHelper.get('checkup-queue', {
 				params: { 'room-id': roomId },
 			})
-			return response
+			return response?.data
 		} catch (error) {
 			console.log(error)
 		}
 	},
 })
+
+const Item = styled(Paper)(({ theme }) => ({
+	textAlign: 'center',
+	color: '#1C1B1F',
+	height: 60,
+	lineHeight: '60px',
+	background: '#f9f9f9',
+	padding: '12px 1rem',
+	cursor: 'pointer',
+	position: 'relative',
+	'&:hover': {
+		background: '#fff',
+	},
+}))
+
+const CustomLink = styled(Link)`
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 100%;
+	height: 100%;
+`
 
 const Queue: NextPage = () => {
 	const url = '/queue'
@@ -59,6 +84,7 @@ const Queue: NextPage = () => {
 	const authData = useRecoilValue(authAtom)
 	const queueData = useRecoilValue(queueQuery(authData?.roomId ?? 0))
 
+	console.log('queueData', queueData)
 	return (
 		<PageLayout>
 			<BasicMeta url={url} title={title} />
@@ -66,6 +92,36 @@ const Queue: NextPage = () => {
 			<Typography variant="h4" component="h1" gutterBottom>
 				Hàng chờ bệnh nhân
 			</Typography>
+
+			<Box mt={3}>
+				<Stack
+					direction="column"
+					divider={<Divider orientation="horizontal" flexItem />}
+					spacing={2}
+				>
+					{queueData &&
+						queueData?.data?.map((queue: QueueDetailData) => (
+							<Item key={queue?.numericalOrder}>
+								<Stack
+									width={'100%'}
+									height={'100%'}
+									alignItems={'center'}
+									justifyContent={'space-between'}
+									direction="row"
+								>
+									<Typography>{queue?.numericalOrder}</Typography>
+									<Typography fontWeight={'bold'}>
+										{queue?.patientName}
+									</Typography>
+									<Typography>
+										{renderEnumCheckupRecordStatus(queue?.status)}
+									</Typography>
+								</Stack>
+								<CustomLink href={`queue/${queue?.patientId}`} />
+							</Item>
+						))}
+				</Stack>
+			</Box>
 		</PageLayout>
 	)
 }

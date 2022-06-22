@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useSetRecoilState } from 'recoil'
-import apiHelper from '../../../utils/apiHelper'
+import apiHelper from '../../utils/apiHelper'
 import { authAtom } from '../../hooks/useAuth'
 
 const Login = () => {
