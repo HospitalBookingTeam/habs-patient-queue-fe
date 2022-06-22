@@ -5,7 +5,7 @@ import Box from '@mui/material/Box'
 import Copyright from '../Copyright'
 import ButtonAppBar from './ButtonAppBar'
 import Sidebar from './Sidebar'
-import { CssBaseline, Toolbar } from '@mui/material'
+import { Toolbar } from '@mui/material'
 import Head from 'next/head'
 import useAuth from '../hooks/useAuth'
 import Login from '../pages/login'
@@ -38,7 +38,6 @@ const PageLayout: NextPage<Props> = ({ children }: Props) => {
 					}}
 				>
 					<Box sx={{ display: 'flex' }}>
-						<CssBaseline />
 						<Sidebar />
 						<Box
 							component="main"

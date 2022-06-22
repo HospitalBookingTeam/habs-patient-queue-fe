@@ -9,17 +9,30 @@ import { atom } from 'recoil'
 
 const { persistAtom } = recoilPersist()
 
+export type AuthInformation = {
+	id: number
+	username: string
+	type: number
+	name: string
+	phoneNo: string
+}
+
 export type AuthData = {
 	token: string
 	isAuthenticated: boolean
+	roomId?: number
+	information?: AuthInformation
 }
 
+const DEFAULT_STATE: AuthData = {
+	token: '',
+	isAuthenticated: false,
+	roomId: undefined,
+	information: undefined,
+}
 export const authAtom = atom<AuthData>({
 	key: 'auth',
-	default: {
-		token: '',
-		isAuthenticated: false,
-	},
+	default: DEFAULT_STATE,
 	effects_UNSTABLE: [persistAtom],
 })
 
@@ -29,11 +42,20 @@ const useAuth = () => {
 	const [authData, setAuthData] = useRecoilState(authAtom)
 
 	const logout = () => {
-		setAuthData({ token: '', isAuthenticated: false })
+		setAuthData(DEFAULT_STATE)
 	}
 
-	const login = (_token: string) => {
-		setAuthData({ token: _token, isAuthenticated: true })
+	const login = (
+		_token: string,
+		_roomId: number,
+		_information: AuthInformation
+	) => {
+		setAuthData({
+			token: _token,
+			isAuthenticated: true,
+			roomId: _roomId,
+			information: _information,
+		})
 	}
 
 	useEffect(() => {

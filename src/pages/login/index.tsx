@@ -45,14 +45,19 @@ const Login = () => {
 		room: { value: roomId },
 	}: any) => {
 		try {
-			const loginData: { token: string } = await apiHelper
+			const loginData: any = await apiHelper
 				.post('login', {
 					username,
 					password,
 					roomId,
 				})
 				.then((response) => response?.data)
-			setAuthData({ token: loginData?.token, isAuthenticated: true })
+			setAuthData({
+				token: loginData?.token,
+				isAuthenticated: true,
+				roomId,
+				information: loginData?.information,
+			})
 			router.push('/')
 		} catch (error) {
 			console.log(error)

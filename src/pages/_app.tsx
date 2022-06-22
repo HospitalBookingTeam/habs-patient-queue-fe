@@ -40,7 +40,7 @@ export default function MyApp(props: MyAppProps) {
 	}, [router.events])
 
 	useEffect(() => {
-		const timeout = setTimeout(() => setLoading(false), 2000)
+		const timeout = setTimeout(() => setLoading(false), 0)
 		return () => clearTimeout(timeout)
 	}, [])
 
