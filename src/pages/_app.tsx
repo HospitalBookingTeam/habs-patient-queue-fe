@@ -20,6 +20,29 @@ interface MyAppProps extends AppProps {
 	emotionCache?: EmotionCache
 }
 
+const memoize = (fn: any) => {
+	let cache = {}
+	return (...args: any) => {
+		let n: keyof Object = args[0]
+		if (n in cache) {
+			return cache[n]
+		} else {
+			let result = fn(n)
+			cache[n] = result
+			return result
+		}
+	}
+}
+
+// ignore in-browser next/js recoil warnings until its fixed.
+const mutedConsole = memoize((console: Console) => ({
+	...console,
+	warn: (...args: any) =>
+		args[0].includes('Duplicate atom key') ? null : console.warn(...args),
+}))
+
+global.console = mutedConsole(global.console)
+
 export default function MyApp(props: MyAppProps) {
 	const { Component, emotionCache = clientSideEmotionCache, pageProps } = props
 	const [loading, setLoading] = useState(true)

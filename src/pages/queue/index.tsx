@@ -8,13 +8,14 @@ import BasicMeta from '../../components/meta/BasicMeta'
 import OpenGraphMeta from '../../components/meta/OpenGraphMeta'
 import { PaginationData } from '../../entities/base'
 import { atom, selectorFamily, useRecoilState, useRecoilValue } from 'recoil'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import apiHelper from '../../utils/apiHelper'
 import Error from 'next/error'
 import { authAtom } from '../../hooks/useAuth'
 import { Divider, Paper, Stack } from '@mui/material'
 import styled from '@emotion/styled'
 import { renderEnumCheckupRecordStatus } from '../../utils/renderEnums'
+import { getCookie } from 'cookies-next'
 
 export type QueueDetailData = {
 	id: number
@@ -28,7 +29,7 @@ export type QueueData = {
 	data: QueueDetailData[]
 } & PaginationData
 
-const DEFAULT_STATE: QueueData = {
+const DEFAULT_QUEUE_STATE: QueueData = {
 	data: [],
 	pageIndex: 0,
 	pageSize: 0,
@@ -38,21 +39,7 @@ const DEFAULT_STATE: QueueData = {
 
 export const queueAtom = atom<QueueData>({
 	key: 'queue',
-	default: DEFAULT_STATE,
-})
-
-const queueQuery = selectorFamily({
-	key: 'queue',
-	get: (roomId: number) => async () => {
-		try {
-			const response = await apiHelper.get('checkup-queue', {
-				params: { 'room-id': roomId },
-			})
-			return response?.data
-		} catch (error) {
-			console.log(error)
-		}
-	},
+	default: DEFAULT_QUEUE_STATE,
 })
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -81,10 +68,24 @@ const Queue: NextPage = () => {
 	const url = '/queue'
 	const title = 'Hàng chờ'
 
+	const [queueData, setQueueData] = useState<QueueData>(DEFAULT_QUEUE_STATE)
 	const authData = useRecoilValue(authAtom)
-	const queueData = useRecoilValue(queueQuery(authData?.roomId ?? 0))
 
-	console.log('queueData', queueData)
+	useEffect(() => {
+		const queryQueueData = async () => {
+			try {
+				const response = await apiHelper.get('checkup-queue', {
+					params: { 'room-id': authData?.roomId },
+				})
+				setQueueData(response?.data)
+			} catch (error) {
+				console.log(error)
+			}
+		}
+		if (!authData?.roomId) return
+		queryQueueData()
+	}, [authData])
+
 	return (
 		<PageLayout>
 			<BasicMeta url={url} title={title} />
@@ -117,7 +118,7 @@ const Queue: NextPage = () => {
 										{renderEnumCheckupRecordStatus(queue?.status)}
 									</Typography>
 								</Stack>
-								<CustomLink href={`queue/${queue?.patientId}`} />
+								<CustomLink href={`/queue/${queue?.patientId}`} />
 							</Item>
 						))}
 				</Stack>

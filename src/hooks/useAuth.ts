@@ -5,6 +5,7 @@ import { NAME_CONFIG } from '../utils/constants'
 import { useRouter } from 'next/router'
 import { recoilPersist } from 'recoil-persist'
 import { atom } from 'recoil'
+import { setCookies } from 'cookies-next'
 
 const { persistAtom } = recoilPersist()
 
