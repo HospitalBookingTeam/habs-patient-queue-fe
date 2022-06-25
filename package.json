@@ -23,6 +23,7 @@
     "react": "latest",
     "react-dom": "latest",
     "react-hook-form": "^7.32.2",
+    "react-pdf": "^5.7.2",
     "recoil": "^0.7.3",
     "recoil-persist": "^4.2.0"
   },
@@ -30,6 +31,8 @@
     "@babel/core": "^7.18.5",
     "@types/node": "latest",
     "@types/react": "latest",
+    "@types/react-pdf": "^5.7.2",
+    "copy-webpack-plugin": "^11.0.0",
     "eslint": "latest",
     "eslint-config-next": "latest",
     "typescript": "latest"
