@@ -4,3 +4,8 @@ export type PaginationData = {
 	totalItem: number
 	totalPage: number
 }
+
+export type AutocompleteOption = {
+	label: string
+	value: string | number
+}

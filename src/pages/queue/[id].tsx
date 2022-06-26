@@ -16,6 +16,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { IcdData } from '../../entities/icd'
 import { Box } from '@mui/system'
 import PdfViewer from '../../components/PdfViewer'
+import RequestDepartmentDialog from './components/RequestDepartmentsDialog'
 
 const ATOM_KEY = 'checkup-record'
 
@@ -34,6 +35,8 @@ const QueueDetailPage = () => {
 	>(undefined)
 
 	const [isEdit, setIsEdit] = useState(false)
+	const [isRequestDepartmentsOpen, setIsRequestDepartmentsOpen] =
+		useState(false)
 
 	const {
 		register,
@@ -103,10 +106,7 @@ const QueueDetailPage = () => {
 					}))
 				)
 				setData(dataResponse?.data)
-				console.log('icd', {
-					value: dataResponse?.data?.icdDiseaseId,
-					label: `${dataResponse?.data?.icdCode} - ${dataResponse?.data?.icdDiseaseName}`,
-				})
+
 				reset(
 					{
 						...dataResponse?.data,
@@ -125,7 +125,6 @@ const QueueDetailPage = () => {
 		queryData()
 	}, [id, data])
 
-	console.log('icdList', icdList)
 	const getOpObj = (option: any) => {
 		if (!option?.value) option = icdList?.find((op) => op.label === option)
 		return option
@@ -159,6 +158,7 @@ const QueueDetailPage = () => {
 					color={'secondary'}
 					variant="contained"
 					disabled={!isEdit}
+					onClick={() => setIsRequestDepartmentsOpen(true)}
 				>
 					Chuyển khoa
 				</Button>
@@ -302,6 +302,14 @@ const QueueDetailPage = () => {
 				</Stack>
 				<PdfViewer url="/data/testRecord.pdf" width={720} pageNumber={1} />
 			</Stack>
+
+			{!!data && (
+				<RequestDepartmentDialog
+					id={data.id}
+					open={isRequestDepartmentsOpen}
+					closeModal={() => setIsRequestDepartmentsOpen(false)}
+				/>
+			)}
 		</PageLayout>
 	)
 }
