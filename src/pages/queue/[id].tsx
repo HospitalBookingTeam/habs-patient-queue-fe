@@ -17,6 +17,7 @@ import { IcdData } from '../../entities/icd'
 import { Box } from '@mui/system'
 import PdfViewer from '../../components/PdfViewer'
 import RequestDepartmentDialog from './components/RequestDepartmentsDialog'
+import RequestOperationsDialog from './components/RequestOperationsDialog'
 
 const ATOM_KEY = 'checkup-record'
 
@@ -37,6 +38,7 @@ const QueueDetailPage = () => {
 	const [isEdit, setIsEdit] = useState(false)
 	const [isRequestDepartmentsOpen, setIsRequestDepartmentsOpen] =
 		useState(false)
+	const [isRequestOperationsOpen, setIsRequestOperationsOpen] = useState(false)
 
 	const {
 		register,
@@ -175,6 +177,7 @@ const QueueDetailPage = () => {
 					color={'info'}
 					variant="outlined"
 					disabled={!isEdit}
+					onClick={() => setIsRequestOperationsOpen(true)}
 				>
 					Đặt thêm xét nghiệm
 				</Button>
@@ -304,11 +307,18 @@ const QueueDetailPage = () => {
 			</Stack>
 
 			{!!data && (
-				<RequestDepartmentDialog
-					id={data.id}
-					open={isRequestDepartmentsOpen}
-					closeModal={() => setIsRequestDepartmentsOpen(false)}
-				/>
+				<>
+					<RequestDepartmentDialog
+						id={data.id}
+						open={isRequestDepartmentsOpen}
+						closeModal={() => setIsRequestDepartmentsOpen(false)}
+					/>
+					<RequestOperationsDialog
+						id={data.id}
+						open={isRequestOperationsOpen}
+						closeModal={() => setIsRequestOperationsOpen(false)}
+					/>
+				</>
 			)}
 		</PageLayout>
 	)
