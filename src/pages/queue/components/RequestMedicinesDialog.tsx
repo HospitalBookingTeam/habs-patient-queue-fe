@@ -18,8 +18,9 @@ import {
 	Stack,
 } from '@mui/material'
 import { OperationData } from '../../../entities/operation'
+import { MedicineData } from '../../../entities/medicine'
 
-const RequestOperationsDialog = ({
+const RequestMedicinesDialog = ({
 	id,
 	open,
 	closeModal,
@@ -28,7 +29,7 @@ const RequestOperationsDialog = ({
 	open: boolean
 	closeModal: () => void
 }) => {
-	const [data, setData] = useState<OperationData[] | undefined>(undefined)
+	const [data, setData] = useState<MedicineData[] | undefined>(undefined)
 
 	const {
 		register,
@@ -38,15 +39,15 @@ const RequestOperationsDialog = ({
 		formState: { isDirty },
 	} = useForm({
 		defaultValues: {
-			examOperationIds: [],
+			details: [],
 		},
 	})
 
 	useEffect(() => {
 		const queryData = async () => {
 			try {
-				const { data: _data }: { data: OperationData[] } = await apiHelper.get(
-					`operations`
+				const { data: _data }: { data: MedicineData[] } = await apiHelper.get(
+					`medicines`
 				)
 
 				setData(_data)
@@ -58,14 +59,20 @@ const RequestOperationsDialog = ({
 		queryData()
 	}, [id, data])
 
-	const onSubmit = async ({
-		examOperationIds,
-	}: {
-		examOperationIds: number[]
-	}) => {
+	const onSubmit = async ({ details }: { details: number[] }) => {
+		const mappedDetails = details?.map((detail) => ({
+			medicineId: detail,
+			quantity: 1,
+			usage: ' ',
+			morningDose: 1,
+			middayDose: 1,
+			eveningDose: 1,
+			nightDose: 1,
+		}))
 		try {
-			await apiHelper.post(`checkup-records/${id}/tests`, {
-				examOperationIds,
+			await apiHelper.post(`checkup-records/${id}/prescription`, {
+				note: 'demo',
+				details: mappedDetails,
 			})
 		} catch (error) {
 			console.log(error)
@@ -76,7 +83,7 @@ const RequestOperationsDialog = ({
 
 	return (
 		<Dialog open={open} onClose={closeModal} maxWidth="md" fullWidth>
-			<DialogTitle>Chọn xét nghiệm</DialogTitle>
+			<DialogTitle>Chọn đơn thuốc</DialogTitle>
 			<form onSubmit={handleSubmit(onSubmit)}>
 				<DialogContent>
 					<DialogContentText mb={4}>
@@ -85,7 +92,7 @@ const RequestOperationsDialog = ({
 
 					<Stack spacing={2}>
 						<Controller
-							name={'examOperationIds'}
+							name={'details'}
 							control={control}
 							rules={{
 								required: true,
@@ -100,7 +107,6 @@ const RequestOperationsDialog = ({
 													{...field}
 													color="primary"
 													onChange={() => {
-														console.log('field.value', field.value)
 														if (!(field.value as number[]).includes(item.id)) {
 															field.onChange([...field.value, item.id])
 															return
@@ -133,4 +139,4 @@ const RequestOperationsDialog = ({
 	)
 }
 
-export default RequestOperationsDialog
+export default RequestMedicinesDialog

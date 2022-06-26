@@ -18,6 +18,7 @@ import { Box } from '@mui/system'
 import PdfViewer from '../../components/PdfViewer'
 import RequestDepartmentDialog from './components/RequestDepartmentsDialog'
 import RequestOperationsDialog from './components/RequestOperationsDialog'
+import RequestMedicinesDialog from './components/RequestMedicinesDialog'
 
 const ATOM_KEY = 'checkup-record'
 
@@ -39,6 +40,7 @@ const QueueDetailPage = () => {
 	const [isRequestDepartmentsOpen, setIsRequestDepartmentsOpen] =
 		useState(false)
 	const [isRequestOperationsOpen, setIsRequestOperationsOpen] = useState(false)
+	const [isRequestMedicinesOpen, setIsRequestMedicinesOpen] = useState(false)
 
 	const {
 		register,
@@ -169,6 +171,7 @@ const QueueDetailPage = () => {
 					color={'info'}
 					variant="contained"
 					disabled={!isEdit}
+					onClick={() => setIsRequestMedicinesOpen(true)}
 				>
 					Kê đơn
 				</Button>
@@ -317,6 +320,11 @@ const QueueDetailPage = () => {
 						id={data.id}
 						open={isRequestOperationsOpen}
 						closeModal={() => setIsRequestOperationsOpen(false)}
+					/>
+					<RequestMedicinesDialog
+						id={data.id}
+						open={isRequestMedicinesOpen}
+						closeModal={() => setIsRequestMedicinesOpen(false)}
 					/>
 				</>
 			)}
