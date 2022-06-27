@@ -12,14 +12,17 @@ const Home: NextPage = () => {
 		<PageLayout>
 			<BasicMeta url={url} title={title} />
 			<OpenGraphMeta url={url} title={title} />
-			<Typography variant="h4" component="h1" gutterBottom>
-				Trang chủ
-			</Typography>
-			<Link href="/queue" color="secondary">
-				Xem hàng chờ
-			</Link>
 		</PageLayout>
 	)
+}
+
+export async function getServerSideProps() {
+	return {
+		redirect: {
+			destination: '/queue',
+			permanent: false,
+		},
+	}
 }
 
 export default Home

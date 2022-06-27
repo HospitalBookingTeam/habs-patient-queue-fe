@@ -11,7 +11,7 @@ import { atom, selectorFamily, useRecoilState, useRecoilValue } from 'recoil'
 import { useEffect, useState } from 'react'
 import apiHelper from '../../utils/apiHelper'
 import Error from 'next/error'
-import { authAtom } from '../../hooks/useAuth'
+import useAuth, { authAtom } from '../../hooks/useAuth'
 import { Divider, Paper, Stack } from '@mui/material'
 import styled from '@emotion/styled'
 import { renderEnumCheckupRecordStatus } from '../../utils/renderEnums'
@@ -42,7 +42,7 @@ export const queueAtom = atom<QueueData>({
 	default: DEFAULT_QUEUE_STATE,
 })
 
-const Item = styled(Paper)(({ theme }) => ({
+const Item = styled(Link)(({ theme }) => ({
 	textAlign: 'center',
 	color: '#1C1B1F',
 	height: 60,
@@ -54,6 +54,7 @@ const Item = styled(Paper)(({ theme }) => ({
 	'&:hover': {
 		background: '#fff',
 	},
+	textDecoration: 'none',
 }))
 
 const CustomLink = styled(Link)`
@@ -69,32 +70,49 @@ const Queue: NextPage = () => {
 	const title = 'Hàng chờ'
 
 	const [queueData, setQueueData] = useState<QueueData>(DEFAULT_QUEUE_STATE)
-	const authData = useRecoilValue(authAtom)
+	const { roomId } = useAuth()
 
 	useEffect(() => {
 		const queryQueueData = async () => {
 			try {
 				const response = await apiHelper.get('checkup-queue', {
-					params: { 'room-id': authData?.roomId },
+					params: { 'room-id': roomId },
 				})
 				setQueueData(response?.data)
 			} catch (error) {
 				console.log(error)
 			}
 		}
-		if (!authData?.roomId) return
+		if (!roomId) return
 		queryQueueData()
-	}, [authData])
+	}, [roomId])
 
 	return (
 		<PageLayout>
 			<BasicMeta url={url} title={title} />
 			<OpenGraphMeta url={url} title={title} />
 			<Typography variant="h4" component="h1" gutterBottom>
-				Hàng chờ bệnh nhân
+				Bệnh nhân chờ khám
 			</Typography>
 
 			<Box mt={3}>
+				<Stack
+					width={'100%'}
+					height={'100%'}
+					alignItems={'center'}
+					justifyContent={'space-between'}
+					direction="row"
+					padding="12px 1rem"
+					color="GrayText"
+				>
+					<Typography flex="1 1 10%">STT</Typography>
+					<Typography textAlign={'left'} flex="1 1 60%">
+						Họ Tên
+					</Typography>
+					<Typography flex="1 1 30%">Trạng thái</Typography>
+				</Stack>
+
+				{/* List */}
 				<Stack
 					direction="column"
 					divider={<Divider orientation="horizontal" flexItem />}
@@ -102,7 +120,10 @@ const Queue: NextPage = () => {
 				>
 					{queueData &&
 						queueData?.data?.map((queue: QueueDetailData) => (
-							<Item key={queue?.numericalOrder}>
+							<Item
+								key={queue?.numericalOrder}
+								href={`/queue/${queue?.patientId}`}
+							>
 								<Stack
 									width={'100%'}
 									height={'100%'}
@@ -110,15 +131,20 @@ const Queue: NextPage = () => {
 									justifyContent={'space-between'}
 									direction="row"
 								>
-									<Typography>{queue?.numericalOrder}</Typography>
-									<Typography fontWeight={'bold'}>
+									<Typography flex="1 1 10%" textAlign={'left'}>
+										{queue?.numericalOrder}
+									</Typography>
+									<Typography
+										fontWeight={'bold'}
+										textAlign={'left'}
+										flex="1 1 60%"
+									>
 										{queue?.patientName}
 									</Typography>
-									<Typography>
+									<Typography flex="1 1 30%" textAlign={'left'}>
 										{renderEnumCheckupRecordStatus(queue?.status)}
 									</Typography>
 								</Stack>
-								<CustomLink href={`/queue/${queue?.patientId}`} />
 							</Item>
 						))}
 				</Stack>
