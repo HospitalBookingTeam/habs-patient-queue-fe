@@ -13,6 +13,7 @@ import { AutocompleteOption } from '../../../entities/base'
 import { IcdData } from '../../../entities/icd'
 import { CheckupRecordData } from '../../../entities/record'
 import apiHelper from '../../../utils/apiHelper'
+import { CheckupRecordStatus } from '../../../utils/renderEnums'
 import RequestDepartmentDialog from './RequestDepartmentsDialog'
 import RequestMedicinesDialog from './RequestMedicinesDialog'
 import RequestOperationsDialog from './RequestOperationsDialog'
@@ -53,7 +54,7 @@ const CheckupTab = ({
 		}
 
 		try {
-			await apiHelper.put(`checkup-queue/${data?.id}`)
+			await apiHelper.post(`checkup-queue/confirm/${data?.id}`)
 			setIsEdit(true)
 		} catch (err) {
 			console.log(err)
@@ -102,6 +103,12 @@ const CheckupTab = ({
 		)
 	}, [data])
 
+	useEffect(() => {
+		if (data?.status === CheckupRecordStatus.DANG_KHAM) {
+			setIsEdit(true)
+		}
+	}, [data])
+
 	return (
 		<div>
 			<Button
@@ -110,6 +117,7 @@ const CheckupTab = ({
 				color={isEdit ? 'warning' : 'primary'}
 				onClick={handleConfirmQueue}
 				disabled={!data}
+				sx={{ display: isEdit ? 'none !important' : 'block' }}
 			>
 				{isEdit ? 'Huỷ' : 'Bắt đầu khám'}
 			</Button>

@@ -9,10 +9,13 @@ import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
 import InboxIcon from '@mui/icons-material/MoveToInbox'
 import MailIcon from '@mui/icons-material/Mail'
+import { useRouter } from 'next/router'
 
 const drawerWidth = 240
 
 export default function Sidebar() {
+	const router = useRouter()
+
 	return (
 		<Drawer
 			variant="permanent"
@@ -27,7 +30,7 @@ export default function Sidebar() {
 				<List>
 					{['Hàng chờ'].map((text, index) => (
 						<ListItem key={text} disablePadding>
-							<ListItemButton>
+							<ListItemButton onClick={() => router.push('/queue')}>
 								<ListItemIcon>
 									{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
 								</ListItemIcon>

@@ -1,4 +1,4 @@
-enum CheckupRecordStatus {
+export enum CheckupRecordStatus {
 	CHO_TAI_KHAM,
 	DA_DAT_LICH,
 	DA_THANH_TOAN,
