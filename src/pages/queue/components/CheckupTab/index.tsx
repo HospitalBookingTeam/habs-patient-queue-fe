@@ -8,14 +8,16 @@ import {
 import { Box } from '@mui/system'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import PdfViewer from '../../../components/PdfViewer'
-import { AutocompleteOption } from '../../../entities/base'
-import { IcdData } from '../../../entities/icd'
-import { CheckupRecordData } from '../../../entities/record'
-import apiHelper from '../../../utils/apiHelper'
-import RequestDepartmentDialog from './RequestDepartmentsDialog'
-import RequestMedicinesDialog from './RequestMedicinesDialog'
-import RequestOperationsDialog from './RequestOperationsDialog'
+import PdfViewer from '../../../../components/PdfViewer'
+import { AutocompleteOption } from '../../../../entities/base'
+import { IcdData } from '../../../../entities/icd'
+import { CheckupRecordData } from '../../../../entities/record'
+import apiHelper from '../../../../utils/apiHelper'
+import { CheckupRecordStatus } from '../../../../utils/renderEnums'
+import RequestDepartmentDialog from '../RequestDepartmentsDialog'
+import RequestMedicinesDialog from '../RequestMedicinesDialog'
+import RequestOperationsDialog from '../RequestOperationsDialog'
+import Medicine from './Medicine'
 
 const CheckupTab = ({
 	data,
@@ -28,7 +30,6 @@ const CheckupTab = ({
 	const [isRequestDepartmentsOpen, setIsRequestDepartmentsOpen] =
 		useState(false)
 	const [isRequestOperationsOpen, setIsRequestOperationsOpen] = useState(false)
-	const [isRequestMedicinesOpen, setIsRequestMedicinesOpen] = useState(false)
 
 	const {
 		register,
@@ -53,7 +54,7 @@ const CheckupTab = ({
 		}
 
 		try {
-			await apiHelper.put(`checkup-queue/${data?.id}`)
+			await apiHelper.post(`checkup-queue/confirm/${data?.id}`)
 			setIsEdit(true)
 		} catch (err) {
 			console.log(err)
@@ -84,11 +85,6 @@ const CheckupTab = ({
 		[isEdit, data]
 	)
 
-	const getOpObj = (option: any) => {
-		if (!option?.value) option = icdList?.find((op) => op.label === option)
-		return option
-	}
-
 	useEffect(() => {
 		reset(
 			{
@@ -102,6 +98,12 @@ const CheckupTab = ({
 		)
 	}, [data])
 
+	useEffect(() => {
+		if (data?.status === CheckupRecordStatus.DANG_KHAM) {
+			setIsEdit(true)
+		}
+	}, [data])
+
 	return (
 		<div>
 			<Button
@@ -110,6 +112,7 @@ const CheckupTab = ({
 				color={isEdit ? 'warning' : 'primary'}
 				onClick={handleConfirmQueue}
 				disabled={!data}
+				style={{ display: isEdit ? 'none' : 'block' }}
 			>
 				{isEdit ? 'Huỷ' : 'Bắt đầu khám'}
 			</Button>
@@ -124,15 +127,7 @@ const CheckupTab = ({
 					>
 						Chuyển khoa
 					</Button>
-					<Button
-						type="button"
-						color={'info'}
-						variant="contained"
-						disabled={!isEdit}
-						onClick={() => setIsRequestMedicinesOpen(true)}
-					>
-						Kê đơn
-					</Button>
+
 					<Button
 						type="button"
 						color={'info'}
@@ -174,70 +169,6 @@ const CheckupTab = ({
 									{...register('temperature', { required: true })}
 								/>
 							</Stack>
-
-							<Controller
-								name="icdDisease"
-								render={({
-									field: { ref, ...field },
-									fieldState: { error },
-								}) => {
-									return (
-										<Autocomplete
-											{...field}
-											options={icdList ?? []}
-											getOptionLabel={(option) =>
-												getOpObj(option) ? getOpObj(option)?.label : ''
-											}
-											isOptionEqualToValue={(option, value) => {
-												return option.value === getOpObj(value)?.value
-											}}
-											readOnly={!isEdit}
-											sx={{ width: '100%' }}
-											renderInput={(params) => {
-												console.log('params', params?.inputProps)
-												console.log(
-													icdList?.find(
-														(icd) =>
-															icd.value?.toString() ===
-															params?.inputProps?.value
-													)?.value
-												)
-												return (
-													<TextField
-														{...params}
-														// value={
-														// 	icdList?.find(
-														// 		(icd) =>
-														// 			icd.value?.toString() ===
-														// 			params?.inputProps?.value
-														// 	)?.value
-														// }
-														inputRef={ref}
-														label="Icd"
-														error={!!error}
-														helperText={error?.message}
-													/>
-												)
-											}}
-											onChange={(e, value) => field.onChange(value)}
-											onInputChange={(_, data) => {
-												if (data) field.onChange(data)
-											}}
-										/>
-									)
-								}}
-								rules={{ required: true }}
-								control={control}
-							/>
-
-							<TextField
-								inputProps={{ readOnly: !isEdit }}
-								label="Lời khuyên bác sĩ"
-								multiline
-								type="text"
-								rows={3}
-								{...register('doctorAdvice', { required: true })}
-							/>
 						</Stack>
 
 						<Box textAlign="right">
@@ -271,6 +202,10 @@ const CheckupTab = ({
 				</Stack>
 			</Box>
 
+			<Box id="medicine" mt={4}>
+				<Medicine />
+			</Box>
+
 			{!!data && (
 				<>
 					<RequestDepartmentDialog
@@ -282,11 +217,6 @@ const CheckupTab = ({
 						id={data.id}
 						open={isRequestOperationsOpen}
 						closeModal={() => setIsRequestOperationsOpen(false)}
-					/>
-					<RequestMedicinesDialog
-						id={data.id}
-						open={isRequestMedicinesOpen}
-						closeModal={() => setIsRequestMedicinesOpen(false)}
 					/>
 				</>
 			)}

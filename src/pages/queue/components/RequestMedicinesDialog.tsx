@@ -82,9 +82,15 @@ const RequestMedicinesDialog = ({
 	}
 
 	return (
-		<Dialog open={open} onClose={closeModal} maxWidth="md" fullWidth>
-			<DialogTitle>Chọn đơn thuốc</DialogTitle>
-			<form onSubmit={handleSubmit(onSubmit)}>
+		<form onSubmit={handleSubmit(onSubmit)}>
+			<Dialog
+				open={open}
+				onClose={closeModal}
+				maxWidth="md"
+				fullWidth
+				scroll="paper"
+			>
+				<DialogTitle>Chọn đơn thuốc</DialogTitle>
 				<DialogContent>
 					<DialogContentText mb={4}>
 						Vui lòng chọn chuyên khoa để bàn giao người bệnh.
@@ -134,8 +140,8 @@ const RequestMedicinesDialog = ({
 						Xác nhận
 					</Button>
 				</DialogActions>
-			</form>
-		</Dialog>
+			</Dialog>
+		</form>
 	)
 }
 

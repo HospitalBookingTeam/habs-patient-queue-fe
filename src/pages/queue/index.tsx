@@ -24,20 +24,12 @@ export type QueueDetailData = {
 	estimatedStartTime: string
 	patientName: string
 	patientId: number
-}
-export type QueueData = {
-	data: QueueDetailData[]
-} & PaginationData
-
-const DEFAULT_QUEUE_STATE: QueueData = {
-	data: [],
-	pageIndex: 0,
-	pageSize: 0,
-	totalItem: 0,
-	totalPage: 0,
+	isReExam: boolean
 }
 
-export const queueAtom = atom<QueueData>({
+const DEFAULT_QUEUE_STATE: QueueDetailData[] = []
+
+export const queueAtom = atom<QueueDetailData[]>({
 	key: 'queue',
 	default: DEFAULT_QUEUE_STATE,
 })
@@ -69,7 +61,8 @@ const Queue: NextPage = () => {
 	const url = '/queue'
 	const title = 'Hàng chờ'
 
-	const [queueData, setQueueData] = useState<QueueData>(DEFAULT_QUEUE_STATE)
+	const [queueData, setQueueData] =
+		useState<QueueDetailData[]>(DEFAULT_QUEUE_STATE)
 	const { roomId } = useAuth()
 
 	useEffect(() => {
@@ -119,11 +112,8 @@ const Queue: NextPage = () => {
 					spacing={2}
 				>
 					{queueData &&
-						queueData?.data?.map((queue: QueueDetailData) => (
-							<Item
-								key={queue?.numericalOrder}
-								href={`/queue/${queue?.patientId}`}
-							>
+						queueData?.map((queue: QueueDetailData) => (
+							<Item key={queue?.numericalOrder} href={`/queue/${queue?.id}`}>
 								<Stack
 									width={'100%'}
 									height={'100%'}
