@@ -49,14 +49,6 @@ const Item = styled(Link)(({ theme }) => ({
 	textDecoration: 'none',
 }))
 
-const CustomLink = styled(Link)`
-	position: absolute;
-	top: 0;
-	right: 0;
-	width: 100%;
-	height: 100%;
-`
-
 const Queue: NextPage = () => {
 	const url = '/queue'
 	const title = 'Hàng chờ'

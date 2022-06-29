@@ -8,16 +8,15 @@ import {
 import { Box } from '@mui/system'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import PdfViewer from '../../../../components/PdfViewer'
-import { AutocompleteOption } from '../../../../entities/base'
-import { IcdData } from '../../../../entities/icd'
-import { CheckupRecordData } from '../../../../entities/record'
-import apiHelper from '../../../../utils/apiHelper'
-import { CheckupRecordStatus } from '../../../../utils/renderEnums'
-import RequestDepartmentDialog from '../RequestDepartmentsDialog'
-import RequestMedicinesDialog from '../RequestMedicinesDialog'
-import RequestOperationsDialog from '../RequestOperationsDialog'
-import Medicine from './Medicine'
+import PdfViewer from '../../../components/PdfViewer'
+import { AutocompleteOption } from '../../../entities/base'
+import { IcdData } from '../../../entities/icd'
+import { CheckupRecordData } from '../../../entities/record'
+import apiHelper from '../../../utils/apiHelper'
+import { CheckupRecordStatus } from '../../../utils/renderEnums'
+import RequestDepartmentDialog from './RequestDepartmentsDialog'
+import RequestMedicinesDialog from './RequestMedicinesDialog'
+import RequestOperationsDialog from './RequestOperationsDialog'
 
 const CheckupTab = ({
 	data,
@@ -112,7 +111,7 @@ const CheckupTab = ({
 				color={isEdit ? 'warning' : 'primary'}
 				onClick={handleConfirmQueue}
 				disabled={!data}
-				style={{ display: isEdit ? 'none' : 'block' }}
+				sx={{ display: isEdit ? 'none !important' : 'block' }}
 			>
 				{isEdit ? 'Huỷ' : 'Bắt đầu khám'}
 			</Button>
