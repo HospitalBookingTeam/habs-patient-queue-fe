@@ -41,8 +41,6 @@ const CheckupTab = ({
 			bloodPressure: 0,
 			temperature: 0,
 			pulse: 0,
-			icdDisease: { value: 0, label: ' ' },
-			doctorAdvice: ' ',
 		},
 	})
 
@@ -62,20 +60,12 @@ const CheckupTab = ({
 
 	const handleUpdateCheckupRecord = useCallback(
 		async (values: any) => {
-			const {
-				bloodPressure,
-				pulse,
-				temperature,
-				doctorAdvice,
-				icdDisease: { value: icdDiseaseId },
-			}: CheckupRecordData & { icdDisease: { value: string } } = values
+			const { bloodPressure, pulse, temperature }: CheckupRecordData = values
 			try {
 				await apiHelper.put(`checkup-records/${data?.id}`, {
 					bloodPressure,
 					pulse,
 					temperature,
-					doctorAdvice,
-					icdDiseaseId,
 				})
 			} catch (err) {
 				console.log(err)
@@ -88,10 +78,6 @@ const CheckupTab = ({
 		reset(
 			{
 				...data,
-				icdDisease: {
-					value: data?.icdDiseaseId,
-					label: `${data?.icdCode} - ${data?.icdDiseaseName}`,
-				},
 			},
 			{ keepDirty: true }
 		)
@@ -165,19 +151,19 @@ const CheckupTab = ({
 								<TextField
 									inputProps={{ readOnly: !isEdit }}
 									label="Nhịp tim"
-									type="text"
+									type="number"
 									{...register('bloodPressure', { required: true })}
 								/>
 								<TextField
 									inputProps={{ readOnly: !isEdit }}
 									label="Huyết áp"
-									type="text"
+									type="number"
 									{...register('pulse', { required: true })}
 								/>
 								<TextField
 									inputProps={{ readOnly: !isEdit }}
 									label="Nhiệt độ"
-									type="text"
+									type="number"
 									{...register('temperature', { required: true })}
 								/>
 							</Stack>
