@@ -213,7 +213,7 @@ const CheckupTab = ({
 					<PdfViewer url="/data/testRecord.pdf" width={720} pageNumber={1} />
 				</Stack>
 				<Box id="medicine" mt={4} ref={medicineRef}>
-					<Medicine icdList={icdList} />
+					<Medicine data={data} icdList={icdList} />
 				</Box>
 			</Box>
 

@@ -37,6 +37,7 @@ const Medicine = ({
 	const { register, control, handleSubmit } = useForm()
 	const [isRequestMedicinesOpen, setIsRequestMedicinesOpen] = useState(false)
 
+	console.log('data', data)
 	const [toastOpen, setToastOpen] = useState(false)
 	const [medicineList, setMedicineList] = useState<
 		(MedicineDetailData & Partial<MedicineData>)[]
