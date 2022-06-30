@@ -20,16 +20,23 @@ import {
 	Typography,
 } from '@mui/material'
 import { OperationData } from '../../../entities/operation'
-import { MedicineData } from '../../../entities/medicine'
+import {
+	MedicineData,
+	MedicineDetailData,
+	MedicineRequestData,
+} from '../../../entities/medicine'
+import { DetailData } from '../../../entities/record'
 
 const RequestMedicinesDialog = ({
 	id,
 	open,
 	closeModal,
+	onAdd,
 }: {
 	id: number
 	open: boolean
 	closeModal: () => void
+	onAdd: (details: MedicineDetailData & Partial<MedicineData>) => void
 }) => {
 	const [data, setData] = useState<MedicineData[] | undefined>(undefined)
 
@@ -57,6 +64,8 @@ const RequestMedicinesDialog = ({
 		},
 	})
 
+	console.log('id', id)
+
 	useEffect(() => {
 		const queryData = async () => {
 			try {
@@ -69,26 +78,41 @@ const RequestMedicinesDialog = ({
 				console.log(error)
 			}
 		}
-		if (!id || !!data) return
 		queryData()
-	}, [id, data])
+	}, [])
 
+	const usageRef = register('usage')
 	const onSubmit = async (values: any) => {
 		try {
-			await apiHelper.post(`checkup-records/${id}/prescription`, {
-				note: values?.usage,
-				details: [
-					{
-						usage: values?.usage,
-						quantity: Number(values?.quantity),
-						morningDose: Number(values?.morningDose),
-						middayDose: Number(values?.middayDose),
-						eveningDose: Number(values?.eveningDose),
-						nightDose: Number(values?.nightDose),
-						medicineId: Number(values?.medicine?.id),
-					},
-				],
+			console.log('values', values)
+			const medicine = data?.find(
+				(item) => item.id === Number(values?.medicine?.id)
+			)
+			console.log('medicine', medicine)
+			onAdd({
+				...medicine,
+				usage: values?.usage,
+				quantity: Number(values?.quantity),
+				morningDose: Number(values?.morningDose),
+				middayDose: Number(values?.middayDose),
+				eveningDose: Number(values?.eveningDose),
+				nightDose: Number(values?.nightDose),
+				medicineId: Number(values?.medicine?.id),
 			})
+			// await apiHelper.post(`checkup-records/${id}/prescription`, {
+			// 	note: values?.usage,
+			// 	details: [
+			// 		{
+			// 			usage: medicine?.usage,
+			// 			quantity: Number(values?.quantity),
+			// 			morningDose: Number(values?.morningDose),
+			// 			middayDose: Number(values?.middayDose),
+			// 			eveningDose: Number(values?.eveningDose),
+			// 			nightDose: Number(values?.nightDose),
+			// 			medicineId: Number(values?.medicine?.id),
+			// 		},
+			// 	],
+			// })
 		} catch (error) {
 			console.log(error)
 		} finally {
@@ -293,7 +317,8 @@ const RequestMedicinesDialog = ({
 							multiline
 							type="text"
 							rows={3}
-							{...register('usage')}
+							{...usageRef}
+							onChange={(e) => usageRef?.onChange(e)}
 						/>
 					</Stack>
 				</form>

@@ -10,3 +10,18 @@ export interface MedicineData {
 	medicineCategoryId: number
 	medicineCategory: string
 }
+
+export interface MedicineDetailData {
+	quantity: number
+	usage: string
+	morningDose: number
+	middayDose: number
+	eveningDose: number
+	nightDose: number
+	medicineId: number
+}
+
+export interface MedicineRequestData {
+	note: string
+	details: MedicineDetailData[]
+}

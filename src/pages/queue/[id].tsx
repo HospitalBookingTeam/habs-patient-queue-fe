@@ -66,9 +66,9 @@ const QueueDetailPage = () => {
 				console.log(error)
 			}
 		}
-		if (!id || !!data) return
+		if (!id) return
 		queryData()
-	}, [id, data])
+	}, [id])
 
 	return (
 		<PageLayout>

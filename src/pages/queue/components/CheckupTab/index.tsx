@@ -6,17 +6,16 @@ import {
 	Typography,
 } from '@mui/material'
 import { Box } from '@mui/system'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import PdfViewer from '../../../components/PdfViewer'
-import { AutocompleteOption } from '../../../entities/base'
-import { IcdData } from '../../../entities/icd'
-import { CheckupRecordData } from '../../../entities/record'
-import apiHelper from '../../../utils/apiHelper'
-import { CheckupRecordStatus } from '../../../utils/renderEnums'
-import RequestDepartmentDialog from './RequestDepartmentsDialog'
-import RequestMedicinesDialog from './RequestMedicinesDialog'
-import RequestOperationsDialog from './RequestOperationsDialog'
+import PdfViewer from '../../../../components/PdfViewer'
+import { AutocompleteOption } from '../../../../entities/base'
+import { CheckupRecordData } from '../../../../entities/record'
+import apiHelper from '../../../../utils/apiHelper'
+import { CheckupRecordStatus } from '../../../../utils/renderEnums'
+import RequestDepartmentDialog from '../RequestDepartmentsDialog'
+import RequestOperationsDialog from '../RequestOperationsDialog'
+import Medicine from './Medicine'
 
 const CheckupTab = ({
 	data,
@@ -30,6 +29,7 @@ const CheckupTab = ({
 		useState(false)
 	const [isRequestOperationsOpen, setIsRequestOperationsOpen] = useState(false)
 
+	const medicineRef = useRef<HTMLDivElement>(null)
 	const {
 		register,
 		handleSubmit,
@@ -130,6 +130,19 @@ const CheckupTab = ({
 					<Button
 						type="button"
 						color={'info'}
+						variant="contained"
+						disabled={!isEdit}
+						onClick={() => {
+							if (medicineRef) {
+								medicineRef.current?.scrollIntoView({ behavior: 'smooth' })
+							}
+						}}
+					>
+						Kê đơn
+					</Button>
+					<Button
+						type="button"
+						color={'info'}
 						variant="outlined"
 						disabled={!isEdit}
 						onClick={() => setIsRequestOperationsOpen(true)}
@@ -199,10 +212,9 @@ const CheckupTab = ({
 					</Stack>
 					<PdfViewer url="/data/testRecord.pdf" width={720} pageNumber={1} />
 				</Stack>
-			</Box>
-
-			<Box id="medicine" mt={4}>
-				<Medicine />
+				<Box id="medicine" mt={4} ref={medicineRef}>
+					<Medicine icdList={icdList} />
+				</Box>
 			</Box>
 
 			{!!data && (
