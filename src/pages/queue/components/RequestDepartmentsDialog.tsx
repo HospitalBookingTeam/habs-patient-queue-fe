@@ -10,7 +10,14 @@ import { Controller, useForm } from 'react-hook-form'
 import apiHelper from '../../../utils/apiHelper'
 import { DepartmentData } from '../../../entities/department'
 import { AutocompleteOption } from '../../../entities/base'
-import { Autocomplete } from '@mui/material'
+import { Alert, Autocomplete, Snackbar, Stack, Typography } from '@mui/material'
+import { Box } from '@mui/system'
+import styled from '@emotion/styled'
+
+export interface RedirectData {
+	departmentId: number
+	clinicalSymptom: string
+}
 
 const RequestDepartmentDialog = ({
 	id,
@@ -21,15 +28,24 @@ const RequestDepartmentDialog = ({
 	open: boolean
 	closeModal: () => void
 }) => {
-	const [data, setData] = useState<AutocompleteOption[] | undefined>(undefined)
+	const [data, setData] = useState<
+		(AutocompleteOption & { symptom?: string })[] | undefined
+	>(undefined)
+	const [redirectData, setRedirectData] = useState<RedirectData[]>([])
 
+	const [toastOpen, setToastOpen] = useState(false)
 	const {
 		register,
 		handleSubmit,
 		control,
 		reset,
+		getValues,
+		setValue,
+		watch,
 		formState: { isDirty },
-	} = useForm({
+	} = useForm<{
+		redirectDepartments: (AutocompleteOption & { symptom?: string })[]
+	}>({
 		defaultValues: {
 			redirectDepartments: [],
 		},
@@ -45,6 +61,7 @@ const RequestDepartmentDialog = ({
 				const redirectDepartments = _data?.map((d) => ({
 					value: d.id,
 					label: d.name,
+					symptom: '',
 				}))
 				setData(redirectDepartments)
 			} catch (error) {
@@ -63,12 +80,16 @@ const RequestDepartmentDialog = ({
 	const onSubmit = async ({
 		redirectDepartments,
 	}: {
-		redirectDepartments: AutocompleteOption[]
+		redirectDepartments: (AutocompleteOption & { symptom?: string })[]
 	}) => {
-		const redirectDepartmentIds = redirectDepartments?.map((item) => item.value)
+		console.log('redirectDepartments', redirectDepartments)
+		const redirectDepartmentIds = redirectDepartments?.map((item) => ({
+			departmentId: item.value,
+			clinicalSymptom: item?.symptom ?? '',
+		}))
 		try {
 			await apiHelper.post(`checkup-records/${id}/redirect`, {
-				redirectDepartmentIds,
+				details: redirectDepartmentIds,
 			})
 		} catch (error) {
 			console.log(error)
@@ -76,6 +97,8 @@ const RequestDepartmentDialog = ({
 			closeModal()
 		}
 	}
+
+	console.log('get values', watch('redirectDepartments'))
 
 	return (
 		<Dialog open={open} onClose={closeModal} maxWidth="md" fullWidth>
@@ -94,7 +117,6 @@ const RequestDepartmentDialog = ({
 									multiple
 									options={data ?? []}
 									getOptionLabel={(option) => {
-										console.log('option', getOpObj(option))
 										return getOpObj(option) ? getOpObj(option)?.label : ''
 									}}
 									isOptionEqualToValue={(option, value) => {
@@ -112,7 +134,10 @@ const RequestDepartmentDialog = ({
 											/>
 										)
 									}}
-									onChange={(e, value) => field.onChange(value)}
+									onChange={(e, value) => {
+										console.log('value', value)
+										field.onChange(value)
+									}}
 									onInputChange={(_, data) => {
 										if (data) field.onChange(data)
 									}}
@@ -122,6 +147,37 @@ const RequestDepartmentDialog = ({
 						rules={{ required: true }}
 						control={control}
 					/>
+
+					<Box mt={3}></Box>
+					{watch('redirectDepartments')?.map(({ value, label, symptom }) => (
+						<Stack
+							direction="row"
+							spacing={4}
+							mb={2}
+							key={`${value}`}
+							alignItems={'center'}
+						>
+							<Typography>{label}</Typography>
+							<StyledInput
+								type="text"
+								value={symptom}
+								onChange={(e) => {
+									setValue(
+										'redirectDepartments',
+										getValues('redirectDepartments')?.map((d: any) => {
+											if (d.value === value) {
+												return {
+													...d,
+													symptom: e.target.value?.toString().trim(),
+												}
+											}
+											return d
+										})
+									)
+								}}
+							/>
+						</Stack>
+					))}
 				</DialogContent>
 				<DialogActions>
 					<Button onClick={closeModal} color="warning" type="button">
@@ -132,8 +188,26 @@ const RequestDepartmentDialog = ({
 					</Button>
 				</DialogActions>
 			</form>
+
+			<Snackbar
+				open={toastOpen}
+				autoHideDuration={6000}
+				onClose={() => setToastOpen(false)}
+			>
+				<Alert
+					onClose={() => setToastOpen(false)}
+					severity="success"
+					sx={{ width: '100%' }}
+				>
+					Thành công
+				</Alert>
+			</Snackbar>
 		</Dialog>
 	)
 }
 
 export default RequestDepartmentDialog
+
+const StyledInput = styled.input`
+	padding: 12px 16px;
+`
