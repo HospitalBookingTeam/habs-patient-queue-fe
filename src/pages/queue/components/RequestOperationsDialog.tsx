@@ -16,8 +16,10 @@ import {
 	FormControlLabel,
 	FormGroup,
 	Stack,
+	Typography,
 } from '@mui/material'
 import { OperationData } from '../../../entities/operation'
+import { Box } from '@mui/system'
 
 const RequestOperationsDialog = ({
 	id,
@@ -28,15 +30,20 @@ const RequestOperationsDialog = ({
 	open: boolean
 	closeModal: () => void
 }) => {
-	const [data, setData] = useState<OperationData[] | undefined>(undefined)
+	const [data, setData] = useState<
+		(OperationData & { value: number; label: string })[] | undefined
+	>(undefined)
 
 	const {
 		register,
+		watch,
 		handleSubmit,
 		control,
 		reset,
 		formState: { isDirty },
-	} = useForm({
+	} = useForm<{
+		examOperationIds: (OperationData & { value: number; label: string })[]
+	}>({
 		defaultValues: {
 			examOperationIds: [],
 		},
@@ -49,7 +56,9 @@ const RequestOperationsDialog = ({
 					`operations`
 				)
 
-				setData(_data)
+				setData(
+					_data.map((item) => ({ ...item, value: item.id, label: item.name }))
+				)
 			} catch (error) {
 				console.log(error)
 			}
@@ -61,11 +70,11 @@ const RequestOperationsDialog = ({
 	const onSubmit = async ({
 		examOperationIds,
 	}: {
-		examOperationIds: number[]
+		examOperationIds: (OperationData & { value: number; label: string })[]
 	}) => {
 		try {
 			await apiHelper.post(`checkup-records/${id}/tests`, {
-				examOperationIds,
+				examOperationIds: examOperationIds?.map((e) => e.id),
 			})
 		} catch (error) {
 			console.log(error)
@@ -74,17 +83,22 @@ const RequestOperationsDialog = ({
 		}
 	}
 
+	const getOpObj = (option: any) => {
+		if (!option?.value) option = data?.find((op) => op.name === option)
+		return option
+	}
+
 	return (
 		<Dialog open={open} onClose={closeModal} maxWidth="md" fullWidth>
 			<DialogTitle>Chọn xét nghiệm</DialogTitle>
 			<form onSubmit={handleSubmit(onSubmit)}>
 				<DialogContent>
 					<DialogContentText mb={4}>
-						Vui lòng chọn chuyên khoa để bàn giao người bệnh.
+						Vui lòng chọn loại xét nghiệm cho người bệnh.
 					</DialogContentText>
 
 					<Stack spacing={2}>
-						<Controller
+						{/* <Controller
 							name={'examOperationIds'}
 							control={control}
 							rules={{
@@ -117,7 +131,76 @@ const RequestOperationsDialog = ({
 									))}
 								</>
 							)}
+						/> */}
+
+						<Controller
+							name="examOperationIds"
+							render={({ field: { ref, ...field }, fieldState: { error } }) => {
+								return (
+									<Autocomplete
+										{...field}
+										multiple
+										options={data ?? []}
+										getOptionLabel={(option) => {
+											return getOpObj(option) ? getOpObj(option)?.name : ''
+										}}
+										isOptionEqualToValue={(option, value) => {
+											return option.id === getOpObj(value)?.id
+										}}
+										sx={{ width: '100%' }}
+										renderInput={(params) => {
+											return (
+												<TextField
+													{...params}
+													inputRef={ref}
+													label="Loại xét nghiệm"
+													error={!!error}
+													helperText={error?.message}
+												/>
+											)
+										}}
+										onChange={(e, value) => {
+											console.log('value', value)
+											field.onChange(value)
+										}}
+										onInputChange={(_, data) => {
+											if (data) field.onChange(data)
+										}}
+									/>
+								)
+							}}
+							rules={{ required: true }}
+							control={control}
 						/>
+
+						<Box mt={'40px !important'} />
+						<Stack
+							direction="row"
+							spacing={4}
+							sx={{ mb: 4 }}
+							alignItems={'center'}
+						>
+							<Typography width={'50%'}>Tên</Typography>
+							<Typography width={'20%'}>Giá</Typography>
+							<Typography color="GrayText" width={'30%'}>
+								Ghi chú
+							</Typography>
+						</Stack>
+						{watch('examOperationIds')?.map((item) => (
+							<Stack
+								direction="row"
+								spacing={4}
+								mb={2}
+								key={`${item.id}`}
+								alignItems={'center'}
+							>
+								<Typography width={'50%'}>{item.name}</Typography>
+								<Typography fontWeight={'bold'} width={'20%'}>
+									{item.price}
+								</Typography>
+								<Typography width={'30%'}>{item.note}</Typography>
+							</Stack>
+						))}
 					</Stack>
 				</DialogContent>
 				<DialogActions>

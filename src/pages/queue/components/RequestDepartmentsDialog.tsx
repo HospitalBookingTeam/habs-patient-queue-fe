@@ -84,12 +84,12 @@ const RequestDepartmentDialog = ({
 	}) => {
 		console.log('redirectDepartments', redirectDepartments)
 		const redirectDepartmentIds = redirectDepartments?.map((item) => ({
-			departmentId: item.value,
+			departmentId: /*item.value */ 10003,
 			clinicalSymptom: item?.symptom ?? '',
 		}))
 		try {
 			await apiHelper.post(`checkup-records/${id}/redirect`, {
-				details: redirectDepartmentIds,
+				details: redirectDepartmentIds?.slice(0, 1),
 			})
 		} catch (error) {
 			console.log(error)
