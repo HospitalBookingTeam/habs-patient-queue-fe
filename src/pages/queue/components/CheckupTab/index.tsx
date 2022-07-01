@@ -16,6 +16,7 @@ import { CheckupRecordStatus } from '../../../../utils/renderEnums'
 import RequestDepartmentDialog from '../RequestDepartmentsDialog'
 import RequestOperationsDialog from '../RequestOperationsDialog'
 import Medicine from './Medicine'
+import TestRecords from './TestRecords'
 
 const CheckupTab = ({
 	data,
@@ -187,16 +188,7 @@ const CheckupTab = ({
 					borderRadius={'4px'}
 					sx={{ boxShadow: '2px 2px 2px 2px #00000040' }}
 				>
-					<Typography color={'GrayText'}>Thông tin xét nghiệm</Typography>
-					<Stack spacing={4} mb={4}>
-						{data?.testRecords?.map((test) => (
-							<Stack key={test.id} spacing={2} direction="row">
-								<Typography>{test?.operationName}</Typography>
-								<Typography>{test?.roomNumber}</Typography>
-							</Stack>
-						))}
-					</Stack>
-					<PdfViewer url="/data/testRecord.pdf" width={720} pageNumber={1} />
+					<TestRecords testRecords={data?.testRecords} />
 				</Stack>
 				<Box id="medicine" mt={4} ref={medicineRef}>
 					<Medicine data={data} icdList={icdList} />
