@@ -18,6 +18,7 @@ import { Box } from '@mui/system'
 import TabPanel from '../../components/TabPanel'
 import PatientInfoTab from './components/PatientInfoTab'
 import CheckupTab from './components/CheckupTab'
+import RecordTabs from './components/RecordsTab'
 
 const ATOM_KEY = 'checkup-record'
 
@@ -108,7 +109,9 @@ const QueueDetailPage = () => {
 			<TabPanel value={tab} index={0}>
 				<PatientInfoTab patientData={data?.patientData} />
 			</TabPanel>
-			<TabPanel value={tab} index={1}></TabPanel>
+			<TabPanel value={tab} index={1}>
+				<RecordTabs data={data} />
+			</TabPanel>
 			<TabPanel value={tab} index={2}>
 				<CheckupTab data={data} icdList={icdList} />
 			</TabPanel>

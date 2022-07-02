@@ -1,3 +1,5 @@
+import { CheckupRecordStatus } from '../utils/renderEnums'
+
 export interface PatientData {
 	id: number
 	phoneNumber: string
@@ -73,5 +75,16 @@ export interface CheckupRecordData {
 	icdDiseaseId: number
 	icdDiseaseName: string
 	icdCode: string
+	isReExam: boolean
+}
+
+export type RecordItemData = {
+	id: number
+	status: CheckupRecordStatus
+	numericalOrder: any
+	date: any
+	doctorName: any
+	patientName: string
+	departmentName: any
 	isReExam: boolean
 }
