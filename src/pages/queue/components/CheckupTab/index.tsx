@@ -52,7 +52,10 @@ const CheckupTab = ({
 	}, [isEdit, data])
 
 	useEffect(() => {
-		if (data?.status === CheckupRecordStatus['Đang khám']) {
+		if (
+			data?.status === CheckupRecordStatus['Đang khám'] ||
+			data?.status === CheckupRecordStatus['Đã có KQXN']
+		) {
 			setIsEdit(true)
 		}
 	}, [data])

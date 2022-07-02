@@ -14,6 +14,7 @@ import { Alert, Autocomplete, Snackbar, Stack, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 import styled from '@emotion/styled'
 import { StyledDialogTitle } from '../../../components/StyledModal'
+import { useRouter } from 'next/router'
 
 // export interface RedirectData {
 // 	departmentId: number
@@ -35,6 +36,7 @@ const RequestDepartmentDialog = ({
 	const [isConfirmed, setIsConfirmed] = useState(false)
 
 	const [toastOpen, setToastOpen] = useState(false)
+	const router = useRouter()
 	const {
 		register,
 		handleSubmit,
@@ -103,6 +105,7 @@ const RequestDepartmentDialog = ({
 		} finally {
 			setIsConfirmed(false)
 			closeModal()
+			router.push('/queue')
 		}
 	}
 

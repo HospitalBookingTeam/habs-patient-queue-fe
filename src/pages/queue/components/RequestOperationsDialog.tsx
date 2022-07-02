@@ -23,6 +23,7 @@ import { Box } from '@mui/system'
 import { renderEnumInsuranceStatus } from '../../../utils/renderEnums'
 import { formatCurrency } from '../../../utils/formats'
 import { StyledDialogTitle } from '../../../components/StyledModal'
+import { useRouter } from 'next/router'
 
 const RequestOperationsDialog = ({
 	id,
@@ -38,7 +39,7 @@ const RequestOperationsDialog = ({
 	>(undefined)
 
 	const [isConfirmed, setIsConfirmed] = useState(false)
-
+	const router = useRouter()
 	const {
 		register,
 		watch,
@@ -91,6 +92,7 @@ const RequestOperationsDialog = ({
 		} finally {
 			closeModal()
 			setIsConfirmed(false)
+			router.push('/queue')
 		}
 	}
 
