@@ -46,8 +46,6 @@ const Medicine = ({
 		try {
 			await Promise.all([
 				await apiHelper.put(`checkup-records/${data?.id}`, {
-					diagnosis: values?.diagnosis,
-					doctorAdvice: values?.doctorAdvice,
 					icdDiseaseId: values?.icdDisease?.value,
 				}),
 				await apiHelper.post(`checkup-records/${data?.id}/prescription`, {
@@ -122,21 +120,6 @@ const Medicine = ({
 						}}
 						rules={{ required: true }}
 						control={control}
-					/>
-
-					<TextField
-						label="Lời khuyên bác sĩ"
-						multiline
-						type="text"
-						rows={3}
-						{...register('doctorAdvice', { required: true })}
-					/>
-					<TextField
-						label="Mô tả"
-						multiline
-						type="text"
-						rows={3}
-						{...register('diagnosis', { required: true })}
 					/>
 				</Stack>
 

@@ -26,6 +26,7 @@ import {
 	MedicineRequestData,
 } from '../../../entities/medicine'
 import { DetailData } from '../../../entities/record'
+import { StyledDialogTitle } from '../../../components/StyledModal'
 
 const RequestMedicinesDialog = ({
 	id,
@@ -127,63 +128,68 @@ const RequestMedicinesDialog = ({
 
 	return (
 		<Dialog open={open} onClose={closeModal} maxWidth="md" fullWidth>
-			<DialogTitle>Chọn đơn thuốc</DialogTitle>
+			<StyledDialogTitle>Chọn đơn thuốc</StyledDialogTitle>
 			<DialogContent>
 				<DialogContentText mb={4}>
 					Vui lòng chọn đơn thuốc phù hợp.
 				</DialogContentText>
 				<form onSubmit={handleSubmit(onSubmit)}>
 					<Stack spacing={4}>
-						<Controller
-							name="medicine"
-							render={({ field: { ref, ...field }, fieldState: { error } }) => {
-								return (
-									<Autocomplete
-										{...field}
-										options={
-											data?.map((option) => ({
-												id: option.id,
-												name: option.name,
-											})) ?? []
-										}
-										getOptionLabel={(option) =>
-											getOpObj(option) ? getOpObj(option)?.name : ''
-										}
-										isOptionEqualToValue={(option, value) => {
-											return option.id === getOpObj(value)?.id
-										}}
-										sx={{ width: '100%' }}
-										renderInput={(params) => {
-											return (
-												<TextField
-													{...params}
-													inputRef={ref}
-													label="Thuốc"
-													error={!!error}
-													helperText={error?.message}
-												/>
-											)
-										}}
-										onChange={(e, value) => field.onChange(value)}
-										onInputChange={(_, data) => {
-											if (data) field.onChange(data)
-										}}
-									/>
-								)
-							}}
-							rules={{ required: true }}
-							control={control}
-						/>
-
-						<Box maxWidth={250}>
-							<TextField
-								label="Số lượng"
-								type="number"
-								{...register('quantity', { required: true })}
+						<Stack spacing={2} direction="row">
+							<Controller
+								name="medicine"
+								render={({
+									field: { ref, ...field },
+									fieldState: { error },
+								}) => {
+									return (
+										<Autocomplete
+											{...field}
+											options={
+												data?.map((option) => ({
+													id: option.id,
+													name: option.name,
+												})) ?? []
+											}
+											getOptionLabel={(option) =>
+												getOpObj(option) ? getOpObj(option)?.name : ''
+											}
+											isOptionEqualToValue={(option, value) => {
+												return option.id === getOpObj(value)?.id
+											}}
+											sx={{ width: '100%' }}
+											renderInput={(params) => {
+												return (
+													<TextField
+														{...params}
+														inputRef={ref}
+														label="Thuốc"
+														error={!!error}
+														helperText={error?.message}
+													/>
+												)
+											}}
+											onChange={(e, value) => field.onChange(value)}
+											onInputChange={(_, data) => {
+												if (data) field.onChange(data)
+											}}
+										/>
+									)
+								}}
+								rules={{ required: true }}
+								control={control}
 							/>
-						</Box>
 
-						<Stack spacing={2}>
+							<Box maxWidth={250}>
+								<TextField
+									label="Số lượng"
+									type="number"
+									{...register('quantity', { required: true })}
+								/>
+							</Box>
+						</Stack>
+
+						<Stack spacing={4} direction="row">
 							<Stack direction={'row'} spacing={2} alignItems={'center'}>
 								<Checkbox
 									value={isMorning}
@@ -195,7 +201,7 @@ const RequestMedicinesDialog = ({
 									}}
 								/>
 
-								<Typography>Buổi sáng</Typography>
+								<Typography>Sáng</Typography>
 
 								<TextField
 									sx={{
@@ -207,13 +213,6 @@ const RequestMedicinesDialog = ({
 									size="small"
 									{...register('morningDose', { required: true })}
 								/>
-								<Typography
-									sx={{
-										display: isMorning ? 'block' : 'none !important',
-									}}
-								>
-									viên
-								</Typography>
 							</Stack>
 
 							<Stack direction={'row'} spacing={2} alignItems={'center'}>
@@ -227,7 +226,7 @@ const RequestMedicinesDialog = ({
 									}}
 								/>
 
-								<Typography>Buổi trưa</Typography>
+								<Typography>Trưa</Typography>
 
 								<TextField
 									sx={{
@@ -239,13 +238,6 @@ const RequestMedicinesDialog = ({
 									size="small"
 									{...register('middayDose', { required: true })}
 								/>
-								<Typography
-									sx={{
-										display: isMidday ? 'block' : 'none !important',
-									}}
-								>
-									viên
-								</Typography>
 							</Stack>
 							<Stack direction={'row'} spacing={2} alignItems={'center'}>
 								<Checkbox
@@ -258,7 +250,7 @@ const RequestMedicinesDialog = ({
 									}}
 								/>
 
-								<Typography>Buổi chiều</Typography>
+								<Typography>Chiều</Typography>
 
 								<TextField
 									sx={{
@@ -270,13 +262,6 @@ const RequestMedicinesDialog = ({
 									size="small"
 									{...register('eveningDose', { required: true })}
 								/>
-								<Typography
-									sx={{
-										display: isEvening ? 'block' : 'none !important',
-									}}
-								>
-									viên
-								</Typography>
 							</Stack>
 
 							<Stack direction={'row'} spacing={2} alignItems={'center'}>
@@ -290,7 +275,7 @@ const RequestMedicinesDialog = ({
 									}}
 								/>
 
-								<Typography>Buổi tối</Typography>
+								<Typography>Tối</Typography>
 
 								<TextField
 									sx={{
@@ -302,13 +287,6 @@ const RequestMedicinesDialog = ({
 									size="small"
 									{...register('nightDose', { required: true })}
 								/>
-								<Typography
-									sx={{
-										display: isNight ? 'block' : 'none !important',
-									}}
-								>
-									viên
-								</Typography>
 							</Stack>
 						</Stack>
 

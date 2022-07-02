@@ -13,8 +13,11 @@ import { AutocompleteOption } from '../../../../entities/base'
 import { CheckupRecordData } from '../../../../entities/record'
 import apiHelper from '../../../../utils/apiHelper'
 import { CheckupRecordStatus } from '../../../../utils/renderEnums'
+import EmergencyConfirmDialog from '../EmergencyConfirmDialog'
+import FinishRecordDialog from '../FinishRecordDialog'
 import RequestDepartmentDialog from '../RequestDepartmentsDialog'
 import RequestOperationsDialog from '../RequestOperationsDialog'
+import Checkup from './Checkup'
 import Medicine from './Medicine'
 import TestRecords from './TestRecords'
 
@@ -29,21 +32,10 @@ const CheckupTab = ({
 	const [isRequestDepartmentsOpen, setIsRequestDepartmentsOpen] =
 		useState(false)
 	const [isRequestOperationsOpen, setIsRequestOperationsOpen] = useState(false)
+	const [isFinishRecordOpen, setIsFinishRecordOpen] = useState(false)
+	const [isEmergencyOpen, setIsEmergencyOpen] = useState(false)
 
 	const medicineRef = useRef<HTMLDivElement>(null)
-	const {
-		register,
-		handleSubmit,
-		control,
-		reset,
-		formState: { isDirty },
-	} = useForm({
-		defaultValues: {
-			bloodPressure: 0,
-			temperature: 0,
-			pulse: 0,
-		},
-	})
 
 	const handleConfirmQueue = useCallback(async () => {
 		if (isEdit) {
@@ -59,33 +51,8 @@ const CheckupTab = ({
 		}
 	}, [isEdit, data])
 
-	const handleUpdateCheckupRecord = useCallback(
-		async (values: any) => {
-			const { bloodPressure, pulse, temperature }: CheckupRecordData = values
-			try {
-				await apiHelper.put(`checkup-records/${data?.id}`, {
-					bloodPressure,
-					pulse,
-					temperature,
-				})
-			} catch (err) {
-				console.log(err)
-			}
-		},
-		[isEdit, data]
-	)
-
 	useEffect(() => {
-		reset(
-			{
-				...data,
-			},
-			{ keepDirty: true }
-		)
-	}, [data])
-
-	useEffect(() => {
-		if (data?.status === CheckupRecordStatus.DANG_KHAM) {
+		if (data?.status === CheckupRecordStatus['Đang khám']) {
 			setIsEdit(true)
 		}
 	}, [data])
@@ -103,39 +70,57 @@ const CheckupTab = ({
 				{isEdit ? 'Huỷ' : 'Bắt đầu khám'}
 			</Button>
 			<Box display={isEdit ? 'block' : 'none'}>
-				<Stack spacing={4} direction={'row'} alignItems={'center'} mb={4}>
-					<Button
-						type="button"
-						color={'secondary'}
-						variant="contained"
-						disabled={!isEdit}
-						onClick={() => setIsRequestDepartmentsOpen(true)}
-					>
-						Chuyển khoa
-					</Button>
+				<Stack direction={'row'} justifyContent={'space-between'}>
+					<Stack spacing={4} direction={'row'} alignItems={'center'} mb={4}>
+						<Button
+							type="button"
+							color={'secondary'}
+							variant="contained"
+							onClick={() => setIsRequestDepartmentsOpen(true)}
+						>
+							Chuyển khoa
+						</Button>
 
-					<Button
-						type="button"
-						color={'info'}
-						variant="contained"
-						disabled={!isEdit}
-						onClick={() => {
-							if (medicineRef) {
-								medicineRef.current?.scrollIntoView({ behavior: 'smooth' })
-							}
-						}}
-					>
-						Kê đơn
-					</Button>
-					<Button
-						type="button"
-						color={'info'}
-						variant="outlined"
-						disabled={!isEdit}
-						onClick={() => setIsRequestOperationsOpen(true)}
-					>
-						Đặt thêm xét nghiệm
-					</Button>
+						<Button
+							type="button"
+							color={'info'}
+							variant="contained"
+							onClick={() => {
+								if (medicineRef) {
+									medicineRef.current?.scrollIntoView({ behavior: 'smooth' })
+								}
+							}}
+						>
+							Kê đơn
+						</Button>
+						<Button
+							type="button"
+							color={'info'}
+							variant="outlined"
+							onClick={() => setIsRequestOperationsOpen(true)}
+						>
+							Đặt thêm xét nghiệm
+						</Button>
+					</Stack>
+
+					<Stack direction="row" spacing={2} height="fit-content">
+						<Button
+							type="button"
+							color={'error'}
+							variant="contained"
+							onClick={() => setIsEmergencyOpen(true)}
+						>
+							Nhập viện
+						</Button>
+						<Button
+							type="button"
+							color={'warning'}
+							variant="contained"
+							onClick={() => setIsFinishRecordOpen(true)}
+						>
+							Kết thúc khám
+						</Button>
+					</Stack>
 				</Stack>
 				<Stack
 					spacing={4}
@@ -145,51 +130,28 @@ const CheckupTab = ({
 					mb={4}
 				>
 					<Typography color={'GrayText'}>Thông tin khám bệnh</Typography>
+					<Typography color={'GrayText'}>
+						Khoa: <span style={{ color: 'black' }}>{data?.departmentName}</span>
+					</Typography>
 
-					<form onSubmit={handleSubmit(handleUpdateCheckupRecord)}>
-						<Stack spacing={4} mb={4}>
-							<Stack direction="row" flex={'1 1 auto'} spacing={4}>
-								<TextField
-									inputProps={{ readOnly: !isEdit }}
-									label="Nhịp tim"
-									type="number"
-									{...register('bloodPressure', { required: true })}
-								/>
-								<TextField
-									inputProps={{ readOnly: !isEdit }}
-									label="Huyết áp"
-									type="number"
-									{...register('pulse', { required: true })}
-								/>
-								<TextField
-									inputProps={{ readOnly: !isEdit }}
-									label="Nhiệt độ"
-									type="number"
-									{...register('temperature', { required: true })}
-								/>
-							</Stack>
-						</Stack>
-
-						<Box textAlign="right">
-							<Button
-								type="submit"
-								color={'primary'}
-								disabled={!isEdit || !isDirty}
-								variant="contained"
-							>
-								Cập nhật
-							</Button>
-						</Box>
-					</form>
+					<Checkup data={data} />
 				</Stack>
+
 				<Stack
 					spacing={4}
 					p={2}
 					borderRadius={'4px'}
-					sx={{ boxShadow: '2px 2px 2px 2px #00000040' }}
+					sx={{
+						boxShadow: '2px 2px 2px 2px #00000040',
+						display:
+							!data?.testRecords || data?.testRecords?.length > 0
+								? 'flex'
+								: 'none !important',
+					}}
 				>
 					<TestRecords testRecords={data?.testRecords} />
 				</Stack>
+
 				<Box id="medicine" mt={4} ref={medicineRef}>
 					<Medicine data={data} icdList={icdList} />
 				</Box>
@@ -206,6 +168,16 @@ const CheckupTab = ({
 						id={data.id}
 						open={isRequestOperationsOpen}
 						closeModal={() => setIsRequestOperationsOpen(false)}
+					/>
+					<FinishRecordDialog
+						data={data}
+						open={isFinishRecordOpen}
+						closeModal={() => setIsFinishRecordOpen(false)}
+					/>
+					<EmergencyConfirmDialog
+						data={data}
+						open={isEmergencyOpen}
+						closeModal={() => setIsEmergencyOpen(false)}
 					/>
 				</>
 			)}

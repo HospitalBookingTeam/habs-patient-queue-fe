@@ -22,6 +22,8 @@ export interface TestRecordData {
 	roomId: number
 	patientId: number
 	checkupRecordId: number
+	doctorName: any
+	doctorId: any
 }
 
 export interface DetailData {
@@ -71,4 +73,5 @@ export interface CheckupRecordData {
 	icdDiseaseId: number
 	icdDiseaseName: string
 	icdCode: string
+	isReExam: boolean
 }

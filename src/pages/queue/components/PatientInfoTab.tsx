@@ -9,6 +9,7 @@ import {
 import React from 'react'
 import { PatientData } from '../../../entities/record'
 import { green } from '@mui/material/colors'
+import { formatDate } from '../../../utils/formats'
 
 const PatientInfoTab = ({ patientData }: { patientData?: PatientData }) => {
 	return (
@@ -27,7 +28,9 @@ const PatientInfoTab = ({ patientData }: { patientData?: PatientData }) => {
 						<Typography variant="body2" color="text.secondary" minWidth={'20%'}>
 							Ngày sinh
 						</Typography>
-						<Typography variant="body2">{patientData?.dateOfBirth}</Typography>
+						<Typography variant="body2">
+							{formatDate(patientData?.dateOfBirth ?? '')}
+						</Typography>
 					</Stack>
 
 					<Stack direction="row" spacing={4} alignItems={'baseline'}>
@@ -57,9 +60,7 @@ const PatientInfoTab = ({ patientData }: { patientData?: PatientData }) => {
 						<Typography variant="body2" color="text.secondary" minWidth={'20%'}>
 							BHYT
 						</Typography>
-						<Typography variant="body2">
-							{patientData?.bhyt === '0' ? 'Có' : 'Không'}
-						</Typography>
+						<Typography variant="body2">{patientData?.bhyt}</Typography>
 					</Stack>
 				</Stack>
 			</CardContent>

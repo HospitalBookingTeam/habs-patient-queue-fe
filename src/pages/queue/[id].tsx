@@ -82,6 +82,19 @@ const QueueDetailPage = () => {
 				<Typography variant="h5">
 					Bệnh nhân <span style={{ color: 'green' }}>{data?.patientName}</span>
 				</Typography>
+
+				{data?.isReExam && (
+					<Typography
+						sx={{
+							p: 2,
+							background: '#87eab1',
+							borderRadius: '8px',
+							fontSize: '13px',
+						}}
+					>
+						Tái khám
+					</Typography>
+				)}
 			</Stack>
 
 			<Box sx={{ borderBottom: 1, borderColor: 'divider' }}>

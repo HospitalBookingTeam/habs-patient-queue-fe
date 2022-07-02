@@ -13,11 +13,12 @@ import { AutocompleteOption } from '../../../entities/base'
 import { Alert, Autocomplete, Snackbar, Stack, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 import styled from '@emotion/styled'
+import { StyledDialogTitle } from '../../../components/StyledModal'
 
-export interface RedirectData {
-	departmentId: number
-	clinicalSymptom: string
-}
+// export interface RedirectData {
+// 	departmentId: number
+// 	clinicalSymptom: string
+// }
 
 const RequestDepartmentDialog = ({
 	id,
@@ -31,7 +32,7 @@ const RequestDepartmentDialog = ({
 	const [data, setData] = useState<
 		(AutocompleteOption & { symptom?: string })[] | undefined
 	>(undefined)
-	const [redirectData, setRedirectData] = useState<RedirectData[]>([])
+	const [isConfirmed, setIsConfirmed] = useState(false)
 
 	const [toastOpen, setToastOpen] = useState(false)
 	const {
@@ -72,6 +73,11 @@ const RequestDepartmentDialog = ({
 		queryData()
 	}, [id, data])
 
+	useEffect(() => {
+		setIsConfirmed(false)
+		reset()
+	}, [])
+
 	const getOpObj = (option: any) => {
 		if (!option?.value) option = data?.find((op) => op.label === option)
 		return option
@@ -91,65 +97,89 @@ const RequestDepartmentDialog = ({
 			await apiHelper.post(`checkup-records/${id}/redirect`, {
 				details: redirectDepartmentIds?.slice(0, 1),
 			})
+			setToastOpen(true)
 		} catch (error) {
 			console.log(error)
 		} finally {
+			setIsConfirmed(false)
 			closeModal()
 		}
 	}
 
-	console.log('get values', watch('redirectDepartments'))
-
+	const redirectDepartmentsWatch = watch('redirectDepartments')
 	return (
 		<Dialog open={open} onClose={closeModal} maxWidth="md" fullWidth>
-			<DialogTitle>Chọn chuyên khoa</DialogTitle>
+			<StyledDialogTitle>
+				{isConfirmed ? 'Xác nhận chuyển khoa' : 'Chọn chuyên khoa'}
+			</StyledDialogTitle>
 			<form onSubmit={handleSubmit(onSubmit)}>
 				<DialogContent>
 					<DialogContentText mb={4}>
-						Vui lòng chọn chuyên khoa để bàn giao người bệnh.
+						{isConfirmed
+							? 'Vui lòng xác nhận thông tin chuyển khoa'
+							: 'Vui lòng chọn chuyên khoa để bàn giao người bệnh'}
 					</DialogContentText>
-					<Controller
-						name="redirectDepartments"
-						render={({ field: { ref, ...field }, fieldState: { error } }) => {
-							return (
-								<Autocomplete
-									{...field}
-									multiple
-									options={data ?? []}
-									getOptionLabel={(option) => {
-										return getOpObj(option) ? getOpObj(option)?.label : ''
-									}}
-									isOptionEqualToValue={(option, value) => {
-										return option.value === getOpObj(value)?.value
-									}}
-									sx={{ width: '100%' }}
-									renderInput={(params) => {
-										return (
-											<TextField
-												{...params}
-												inputRef={ref}
-												label="Chuyên khoa"
-												error={!!error}
-												helperText={error?.message}
-											/>
-										)
-									}}
-									onChange={(e, value) => {
-										console.log('value', value)
-										field.onChange(value)
-									}}
-									onInputChange={(_, data) => {
-										if (data) field.onChange(data)
-									}}
-								/>
-							)
-						}}
-						rules={{ required: true }}
-						control={control}
-					/>
+					<Box width={'100%'} display={isConfirmed ? 'none' : 'block'}>
+						<Controller
+							name="redirectDepartments"
+							render={({ field: { ref, ...field }, fieldState: { error } }) => {
+								return (
+									<Autocomplete
+										{...field}
+										multiple
+										options={data ?? []}
+										getOptionLabel={(option) => {
+											return getOpObj(option) ? getOpObj(option)?.label : ''
+										}}
+										isOptionEqualToValue={(option, value) => {
+											return option.value === getOpObj(value)?.value
+										}}
+										sx={{ width: '100%' }}
+										renderInput={(params) => {
+											return (
+												<TextField
+													{...params}
+													inputRef={ref}
+													label="Chuyên khoa"
+													error={!!error}
+													helperText={error?.message}
+												/>
+											)
+										}}
+										onChange={(e, value) => {
+											console.log('value', value)
+											field.onChange(value)
+										}}
+										onInputChange={(_, data) => {
+											if (data) field.onChange(data)
+										}}
+									/>
+								)
+							}}
+							rules={{ required: true }}
+							control={control}
+						/>
+					</Box>
 
 					<Box mt={3}></Box>
-					{watch('redirectDepartments')?.map(({ value, label, symptom }) => (
+
+					<Stack
+						direction="row"
+						spacing={4}
+						mb={2}
+						alignItems={'center'}
+						sx={{
+							display: redirectDepartmentsWatch?.length > 0 ? 'flex' : 'none',
+						}}
+					>
+						<Typography width={'20%'} color="GrayText">
+							Tên khoa
+						</Typography>
+						<Typography width={'80%'} color="GrayText">
+							Triệu chứng ban đầu
+						</Typography>
+					</Stack>
+					{redirectDepartmentsWatch?.map(({ value, label, symptom }) => (
 						<Stack
 							direction="row"
 							spacing={4}
@@ -157,25 +187,31 @@ const RequestDepartmentDialog = ({
 							key={`${value}`}
 							alignItems={'center'}
 						>
-							<Typography>{label}</Typography>
-							<StyledInput
-								type="text"
-								value={symptom}
-								onChange={(e) => {
-									setValue(
-										'redirectDepartments',
-										getValues('redirectDepartments')?.map((d: any) => {
-											if (d.value === value) {
-												return {
-													...d,
-													symptom: e.target.value?.toString().trim(),
+							<Typography width={'20%'} color="GrayText">
+								{label}
+							</Typography>
+							{isConfirmed ? (
+								<Typography width={'80%'}>{symptom}</Typography>
+							) : (
+								<StyledInput
+									rows={3}
+									value={symptom}
+									onChange={(e) => {
+										setValue(
+											'redirectDepartments',
+											getValues('redirectDepartments')?.map((d: any) => {
+												if (d.value === value) {
+													return {
+														...d,
+														symptom: e.target.value?.toString().trim(),
+													}
 												}
-											}
-											return d
-										})
-									)
-								}}
-							/>
+												return d
+											})
+										)
+									}}
+								/>
+							)}
 						</Stack>
 					))}
 				</DialogContent>
@@ -183,8 +219,20 @@ const RequestDepartmentDialog = ({
 					<Button onClick={closeModal} color="warning" type="button">
 						Huỷ
 					</Button>
-					<Button type="submit" variant="contained">
+					<Button
+						type="submit"
+						variant="contained"
+						sx={{ display: isConfirmed ? 'block' : 'none' }}
+					>
 						Xác nhận
+					</Button>
+					<Button
+						type="button"
+						variant="contained"
+						onClick={() => setIsConfirmed(true)}
+						sx={{ display: !isConfirmed ? 'block' : 'none' }}
+					>
+						Tiếp tục
 					</Button>
 				</DialogActions>
 			</form>
@@ -208,6 +256,8 @@ const RequestDepartmentDialog = ({
 
 export default RequestDepartmentDialog
 
-const StyledInput = styled.input`
+const StyledInput = styled.textarea`
 	padding: 12px 16px;
+	width: 80%;
+	resize: none;
 `

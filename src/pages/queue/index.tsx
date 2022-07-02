@@ -14,7 +14,10 @@ import Error from 'next/error'
 import useAuth, { authAtom } from '../../hooks/useAuth'
 import { Divider, Paper, Stack } from '@mui/material'
 import styled from '@emotion/styled'
-import { renderEnumCheckupRecordStatus } from '../../utils/renderEnums'
+import {
+	CheckupRecordStatus,
+	renderEnumCheckupRecordStatus,
+} from '../../utils/renderEnums'
 import { getCookie } from 'cookies-next'
 
 export type QueueDetailData = {
@@ -124,7 +127,13 @@ const Queue: NextPage = () => {
 										{queue?.patientName}
 									</Typography>
 									<Typography flex="1 1 30%" textAlign={'left'}>
-										{renderEnumCheckupRecordStatus(queue?.status)}
+										{queue?.isReExam
+											? queue?.status === CheckupRecordStatus['Chờ khám']
+												? 'Tái khám'
+												: queue?.status === CheckupRecordStatus['Đã có KQXN']
+												? 'Đã có KQXN(tái khám)'
+												: renderEnumCheckupRecordStatus(queue?.status)
+											: renderEnumCheckupRecordStatus(queue?.status)}
 									</Typography>
 								</Stack>
 							</Item>

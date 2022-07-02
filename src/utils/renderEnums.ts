@@ -1,10 +1,11 @@
 export enum CheckupRecordStatus {
-	CHO_TAI_KHAM,
+	'Chờ tái khám',
 	DA_DAT_LICH,
-	DA_THANH_TOAN,
-	DANG_KHAM,
+	'Chờ khám',
+	'Đang khám',
+	CHO_THANH_TOAN_PHI_XN,
 	CHO_KQXN,
-	DA_CO_KQXN,
+	'Đã có KQXN',
 	KET_THUC,
 	CHUYEN_KHOA,
 	NHAP_VIEN,
@@ -14,3 +15,12 @@ export enum CheckupRecordStatus {
 
 export const renderEnumCheckupRecordStatus = (status: number) =>
 	CheckupRecordStatus[status]
+
+export enum InsuranceSupportStatus {
+	KHONG_HO_TRO,
+	HO_TRO_MOT_PHAN,
+	HO_TRO_TOAN_PHAN,
+}
+
+export const renderEnumInsuranceStatus = (status: number) =>
+	InsuranceSupportStatus[status]
