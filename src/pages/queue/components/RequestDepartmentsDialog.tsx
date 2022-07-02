@@ -76,7 +76,7 @@ const RequestDepartmentDialog = ({
 	useEffect(() => {
 		setIsConfirmed(false)
 		reset()
-	}, [])
+	}, [open])
 
 	const getOpObj = (option: any) => {
 		if (!option?.value) option = data?.find((op) => op.label === option)

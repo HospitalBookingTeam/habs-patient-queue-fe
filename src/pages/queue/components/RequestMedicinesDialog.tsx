@@ -82,6 +82,10 @@ const RequestMedicinesDialog = ({
 		queryData()
 	}, [])
 
+	useEffect(() => {
+		reset()
+	}, [open])
+
 	const usageRef = register('usage')
 	const onSubmit = async (values: any) => {
 		try {

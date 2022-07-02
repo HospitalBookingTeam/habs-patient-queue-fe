@@ -75,7 +75,7 @@ const RequestOperationsDialog = ({
 	useEffect(() => {
 		setIsConfirmed(false)
 		reset()
-	}, [])
+	}, [open])
 
 	const onSubmit = async ({
 		examOperationIds,
