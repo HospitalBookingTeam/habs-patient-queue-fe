@@ -3,22 +3,49 @@ import { Button, Collapse, Link, Stack, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 import { useState } from 'react'
 import PdfViewer from '../../../../components/PdfViewer'
-import { TestRecordData } from '../../../../entities/record'
+import { CheckupRecordData, TestRecordData } from '../../../../entities/record'
 import { formatDate } from '../../../../utils/formats'
+import RequestOperationsDialog from '../RequestOperationsDialog'
 
-const TestRecords = ({ testRecords }: { testRecords?: TestRecordData[] }) => {
+const TestRecords = ({
+	data,
+	testRecords,
+}: {
+	data?: CheckupRecordData
+	testRecords?: TestRecordData[]
+}) => {
+	const [isRequestOperationsOpen, setIsRequestOperationsOpen] = useState(false)
+
 	return (
 		<Stack>
-			<Typography color={'GrayText'}>Các xét nghiệm</Typography>
+			<Stack direction="row" justifyContent="space-between">
+				<Typography color={'GrayText'}>Các xét nghiệm</Typography>
+				<Button
+					type="button"
+					color={'info'}
+					variant="outlined"
+					onClick={() => setIsRequestOperationsOpen(true)}
+				>
+					Đặt thêm xét nghiệm
+				</Button>
+			</Stack>
 			<Stack spacing={4} mb={4}>
 				{testRecords && testRecords?.length > 0 ? (
 					testRecords?.map((test) => <TestRecord key={test.id} record={test} />)
 				) : (
-					<Box p={5}>
+					<Box p={4} mx="auto">
 						<Typography color="GrayText">Chưa có xét nghiệm nào</Typography>
 					</Box>
 				)}
 			</Stack>
+
+			{!!data && (
+				<RequestOperationsDialog
+					id={data.id}
+					open={isRequestOperationsOpen}
+					closeModal={() => setIsRequestOperationsOpen(false)}
+				/>
+			)}
 		</Stack>
 	)
 }

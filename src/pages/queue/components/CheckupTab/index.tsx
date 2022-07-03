@@ -31,11 +31,9 @@ const CheckupTab = ({
 	const [isEdit, setIsEdit] = useState(false)
 	const [isRequestDepartmentsOpen, setIsRequestDepartmentsOpen] =
 		useState(false)
-	const [isRequestOperationsOpen, setIsRequestOperationsOpen] = useState(false)
 	const [isFinishRecordOpen, setIsFinishRecordOpen] = useState(false)
 	const [isEmergencyOpen, setIsEmergencyOpen] = useState(false)
-
-	const medicineRef = useRef<HTMLDivElement>(null)
+	const [isSave, setIsSave] = useState(false)
 
 	const handleConfirmQueue = useCallback(async () => {
 		if (isEdit) {
@@ -60,71 +58,33 @@ const CheckupTab = ({
 		}
 	}, [data])
 
+	useEffect(() => {
+		if (!isSave) return
+		const timeout = setTimeout(() => setIsSave(false), 0)
+
+		return () => clearTimeout(timeout)
+	}, [isSave])
+
 	return (
 		<div>
-			<Button
-				type="button"
-				variant="contained"
-				color={isEdit ? 'warning' : 'primary'}
-				onClick={handleConfirmQueue}
-				disabled={!data}
-				sx={{ display: isEdit ? 'none !important' : 'block' }}
-			>
-				{isEdit ? 'Huỷ' : 'Bắt đầu khám'}
-			</Button>
+			<Box textAlign="right" ml="auto" mb={2}>
+				<Button
+					type="button"
+					variant="contained"
+					color={'primary'}
+					onClick={() => {
+						if (!isEdit) {
+							handleConfirmQueue()
+							return
+						}
+						setIsSave(true)
+					}}
+					disabled={!data}
+				>
+					{isEdit ? 'Lưu' : 'Bắt đầu khám'}
+				</Button>
+			</Box>
 			<Box display={isEdit ? 'block' : 'none'}>
-				<Stack direction={'row'} justifyContent={'space-between'}>
-					<Stack spacing={4} direction={'row'} alignItems={'center'} mb={4}>
-						<Button
-							type="button"
-							color={'secondary'}
-							variant="contained"
-							onClick={() => setIsRequestDepartmentsOpen(true)}
-						>
-							Chuyển khoa
-						</Button>
-
-						<Button
-							type="button"
-							color={'info'}
-							variant="contained"
-							onClick={() => {
-								if (medicineRef) {
-									medicineRef.current?.scrollIntoView({ behavior: 'smooth' })
-								}
-							}}
-						>
-							Kê đơn
-						</Button>
-						<Button
-							type="button"
-							color={'info'}
-							variant="outlined"
-							onClick={() => setIsRequestOperationsOpen(true)}
-						>
-							Đặt thêm xét nghiệm
-						</Button>
-					</Stack>
-
-					<Stack direction="row" spacing={2} height="fit-content">
-						<Button
-							type="button"
-							color={'error'}
-							variant="contained"
-							onClick={() => setIsEmergencyOpen(true)}
-						>
-							Nhập viện
-						</Button>
-						<Button
-							type="button"
-							color={'warning'}
-							variant="contained"
-							onClick={() => setIsFinishRecordOpen(true)}
-						>
-							Kết thúc khám
-						</Button>
-					</Stack>
-				</Stack>
 				<Stack
 					spacing={4}
 					p={2}
@@ -137,7 +97,7 @@ const CheckupTab = ({
 						Khoa: <span style={{ color: 'black' }}>{data?.departmentName}</span>
 					</Typography>
 
-					<Checkup data={data} />
+					<Checkup data={data} isSave={isSave} />
 				</Stack>
 
 				<Stack
@@ -146,18 +106,41 @@ const CheckupTab = ({
 					borderRadius={'4px'}
 					sx={{
 						boxShadow: '2px 2px 2px 2px #00000040',
-						display:
-							!data?.testRecords || data?.testRecords?.length > 0
-								? 'flex'
-								: 'none !important',
 					}}
 				>
-					<TestRecords testRecords={data?.testRecords} />
+					<TestRecords testRecords={data?.testRecords} data={data} />
 				</Stack>
 
-				<Box id="medicine" mt={4} ref={medicineRef}>
-					<Medicine data={data} icdList={icdList} />
+				<Box id="medicine" mt={4}>
+					<Medicine data={data} icdList={icdList} isSave={isSave} />
 				</Box>
+				<Stack direction={'row'} justifyContent={'flex-end'} spacing={2} mt={4}>
+					<Button
+						type="button"
+						color={'secondary'}
+						variant="contained"
+						onClick={() => setIsRequestDepartmentsOpen(true)}
+					>
+						Chuyển khoa
+					</Button>
+
+					<Button
+						type="button"
+						color={'error'}
+						variant="contained"
+						onClick={() => setIsEmergencyOpen(true)}
+					>
+						Nhập viện
+					</Button>
+					<Button
+						type="button"
+						color={'warning'}
+						variant="contained"
+						onClick={() => setIsFinishRecordOpen(true)}
+					>
+						Kết thúc khám
+					</Button>
+				</Stack>
 			</Box>
 
 			{!!data && (
@@ -167,11 +150,7 @@ const CheckupTab = ({
 						open={isRequestDepartmentsOpen}
 						closeModal={() => setIsRequestDepartmentsOpen(false)}
 					/>
-					<RequestOperationsDialog
-						id={data.id}
-						open={isRequestOperationsOpen}
-						closeModal={() => setIsRequestOperationsOpen(false)}
-					/>
+
 					<FinishRecordDialog
 						data={data}
 						open={isFinishRecordOpen}

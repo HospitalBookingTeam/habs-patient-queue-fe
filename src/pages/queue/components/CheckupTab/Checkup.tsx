@@ -4,7 +4,13 @@ import { useForm } from 'react-hook-form'
 import { CheckupRecordData } from '../../../../entities/record'
 import apiHelper from '../../../../utils/apiHelper'
 
-const Checkup = ({ data }: { data?: CheckupRecordData }) => {
+const Checkup = ({
+	data,
+	isSave,
+}: {
+	data?: CheckupRecordData
+	isSave: boolean
+}) => {
 	const {
 		register,
 		handleSubmit,
@@ -54,6 +60,12 @@ const Checkup = ({ data }: { data?: CheckupRecordData }) => {
 			{ keepDirty: true }
 		)
 	}, [data])
+
+	useEffect(() => {
+		if (!isSave) return
+		handleSubmit(handleUpdateCheckupRecord)()
+	}, [isSave])
+
 	return (
 		<form onSubmit={handleSubmit(handleUpdateCheckupRecord)}>
 			<Stack spacing={4} mb={4}>
@@ -90,16 +102,6 @@ const Checkup = ({ data }: { data?: CheckupRecordData }) => {
 					{...register('diagnosis', { required: true })}
 				/>
 			</Stack>
-			<Box textAlign="right">
-				<Button
-					type="submit"
-					color={'primary'}
-					disabled={!isDirty}
-					variant="contained"
-				>
-					Cập nhật
-				</Button>
-			</Box>
 		</form>
 	)
 }

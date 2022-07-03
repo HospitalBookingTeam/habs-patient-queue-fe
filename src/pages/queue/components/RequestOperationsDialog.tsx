@@ -12,6 +12,9 @@ import { DepartmentData } from '../../../entities/department'
 import { AutocompleteOption } from '../../../entities/base'
 import {
 	Autocomplete,
+	Card,
+	CardContent,
+	CardHeader,
 	Checkbox,
 	FormControlLabel,
 	FormGroup,
@@ -24,6 +27,7 @@ import { renderEnumInsuranceStatus } from '../../../utils/renderEnums'
 import { formatCurrency } from '../../../utils/formats'
 import { StyledDialogTitle } from '../../../components/StyledModal'
 import { useRouter } from 'next/router'
+import { TestResponseData } from '../../../entities/test'
 
 const RequestOperationsDialog = ({
 	id,
@@ -37,6 +41,9 @@ const RequestOperationsDialog = ({
 	const [data, setData] = useState<
 		(OperationData & { value: number; label: string })[] | undefined
 	>(undefined)
+
+	const [responseData, setResponseData] = useState<TestResponseData[]>([])
+	const [showResponse, setShowResponse] = useState(false)
 
 	const [isConfirmed, setIsConfirmed] = useState(false)
 	const router = useRouter()
@@ -75,6 +82,7 @@ const RequestOperationsDialog = ({
 
 	useEffect(() => {
 		setIsConfirmed(false)
+		setShowResponse(false)
 		reset()
 	}, [open])
 
@@ -84,15 +92,16 @@ const RequestOperationsDialog = ({
 		examOperationIds: (OperationData & { value: number; label: string })[]
 	}) => {
 		try {
-			await apiHelper.post(`checkup-records/${id}/tests`, {
+			const resp = await apiHelper.post(`checkup-records/${id}/tests`, {
 				examOperationIds: examOperationIds?.map((e) => e.id),
 			})
+
+			setResponseData(resp?.data)
 		} catch (error) {
 			console.log(error)
 		} finally {
-			closeModal()
 			setIsConfirmed(false)
-			router.push('/queue')
+			setShowResponse(true)
 		}
 	}
 
@@ -107,20 +116,35 @@ const RequestOperationsDialog = ({
 		return Number(Number(prev + Number(curr.price)).toFixed(0))
 	}, 0)
 	return (
-		<Dialog open={open} onClose={closeModal} maxWidth="md" fullWidth>
+		<Dialog
+			open={open}
+			onClose={() => {
+				closeModal()
+				if (showResponse) {
+					router.push('/queue')
+				}
+			}}
+			maxWidth="md"
+			fullWidth={!showResponse}
+		>
 			<StyledDialogTitle>
-				{isConfirmed ? 'Xác nhận xét nghiệm' : 'Chọn xét nghiệm'}
+				{showResponse
+					? 'Thông tin xét nghiệm'
+					: isConfirmed
+					? 'Xác nhận xét nghiệm'
+					: 'Chọn xét nghiệm'}
 			</StyledDialogTitle>
-			<form onSubmit={handleSubmit(onSubmit)}>
-				<DialogContent>
-					<DialogContentText mb={4}>
-						{isConfirmed
-							? 'Vui lòng xác nhận xét nghiệm cho phiên khám này'
-							: 'Vui lòng chọn loại xét nghiệm cho người bệnh'}
-					</DialogContentText>
+			<Box display={showResponse ? 'none' : 'block'} width="100%">
+				<form onSubmit={handleSubmit(onSubmit)}>
+					<DialogContent>
+						<DialogContentText mb={4}>
+							{isConfirmed
+								? 'Vui lòng xác nhận xét nghiệm cho phiên khám này'
+								: 'Vui lòng chọn loại xét nghiệm cho người bệnh'}
+						</DialogContentText>
 
-					<Stack spacing={2}>
-						{/* <Controller
+						<Stack spacing={2}>
+							{/* <Controller
 							name={'examOperationIds'}
 							control={control}
 							rules={{
@@ -154,140 +178,180 @@ const RequestOperationsDialog = ({
 								</>
 							)}
 						/> */}
-						<Box width={'100%'} display={!isConfirmed ? 'block' : 'none'}>
-							<Controller
-								name="examOperationIds"
-								render={({
-									field: { ref, ...field },
-									fieldState: { error },
-								}) => {
-									return (
-										<Autocomplete
-											{...field}
-											multiple
-											options={data ?? []}
-											getOptionLabel={(option) => {
-												return getOpObj(option) ? getOpObj(option)?.name : ''
-											}}
-											isOptionEqualToValue={(option, value) => {
-												return option.id === getOpObj(value)?.id
-											}}
-											sx={{ width: '100%' }}
-											renderInput={(params) => {
-												return (
-													<TextField
-														{...params}
-														inputRef={ref}
-														label="Loại xét nghiệm"
-														error={!!error}
-														helperText={error?.message}
-													/>
-												)
-											}}
-											onChange={(e, value) => {
-												console.log('value', value)
-												field.onChange(value)
-											}}
-											onInputChange={(_, data) => {
-												if (data) field.onChange(data)
-											}}
-										/>
-									)
-								}}
-								rules={{ required: true }}
-								control={control}
-							/>
-						</Box>
+							<Box width={'100%'} display={!isConfirmed ? 'block' : 'none'}>
+								<Controller
+									name="examOperationIds"
+									render={({
+										field: { ref, ...field },
+										fieldState: { error },
+									}) => {
+										return (
+											<Autocomplete
+												{...field}
+												multiple
+												options={data ?? []}
+												getOptionLabel={(option) => {
+													return getOpObj(option) ? getOpObj(option)?.name : ''
+												}}
+												isOptionEqualToValue={(option, value) => {
+													return option.id === getOpObj(value)?.id
+												}}
+												sx={{ width: '100%' }}
+												renderInput={(params) => {
+													return (
+														<TextField
+															{...params}
+															inputRef={ref}
+															label="Loại xét nghiệm"
+															error={!!error}
+															helperText={error?.message}
+														/>
+													)
+												}}
+												onChange={(e, value) => {
+													console.log('value', value)
+													field.onChange(value)
+												}}
+												onInputChange={(_, data) => {
+													if (data) field.onChange(data)
+												}}
+											/>
+										)
+									}}
+									rules={{ required: true }}
+									control={control}
+								/>
+							</Box>
 
-						<Box mt={'40px !important'} />
-						<Stack
-							direction="row"
-							spacing={4}
-							sx={{
-								mb: 4,
-								display: examOperationsIdWatch?.length > 0 ? 'flex' : 'none',
-								pb: 2,
-							}}
-							alignItems={'center'}
-							borderBottom={'1px solid lightgray'}
-							color="GrayText"
-						>
-							<Typography width={'5%'} textAlign="right">
-								STT
-							</Typography>
-							<Typography width={'30%'}>Tên</Typography>
-							<Typography width={'20%'}>BHYT</Typography>
-							<Typography width={'30%'}>Ghi chú</Typography>
-							<Typography width={'15%'} textAlign="right">
-								Giá
-							</Typography>
-						</Stack>
-						{examOperationsIdWatch?.map((item, index) => (
+							<Box mt={'40px !important'} />
 							<Stack
 								direction="row"
 								spacing={4}
-								key={`${item.id}`}
+								sx={{
+									mb: 4,
+									display: examOperationsIdWatch?.length > 0 ? 'flex' : 'none',
+									pb: 2,
+								}}
 								alignItems={'center'}
+								borderBottom={'1px solid lightgray'}
+								color="GrayText"
 							>
 								<Typography width={'5%'} textAlign="right">
-									{index + 1}
+									STT
 								</Typography>
-								<Typography width={'30%'}>{item.name}</Typography>
-								<Typography width={'20%'}>
-									{renderEnumInsuranceStatus(item.insuranceStatus)}
-								</Typography>
-								<Typography width={'30%'}>{item.note}</Typography>
-								<Typography fontWeight={'bold'} width={'15%'} textAlign="right">
-									{formatCurrency(item.price)}
+								<Typography width={'25%'}>Tên</Typography>
+								<Typography width={'25%'}>BHYT</Typography>
+								<Typography width={'30%'}>Ghi chú</Typography>
+								<Typography width={'15%'} textAlign="right">
+									Giá
 								</Typography>
 							</Stack>
-						))}
+							{examOperationsIdWatch?.map((item, index) => (
+								<Stack
+									direction="row"
+									spacing={4}
+									key={`${item.id}`}
+									alignItems={'center'}
+								>
+									<Typography width={'5%'} textAlign="right">
+										{index + 1}
+									</Typography>
+									<Typography width={'25%'}>{item.name}</Typography>
+									<Typography width={'25%'}>
+										{renderEnumInsuranceStatus(item.insuranceStatus)}
+									</Typography>
+									<Typography width={'30%'}>{item.note}</Typography>
+									<Typography
+										fontWeight={'bold'}
+										width={'15%'}
+										textAlign="right"
+									>
+										{formatCurrency(item.price)}
+									</Typography>
+								</Stack>
+							))}
 
-						<Stack
-							direction="row"
-							spacing={4}
-							sx={{
-								mb: 4,
-								display: examOperationsIdWatch?.length > 0 ? 'flex' : 'none',
-								py: 2,
-							}}
-							alignItems={'center'}
-							justifyContent={'flex-end'}
-							borderTop={'1px solid lightgray'}
-						>
-							<Typography textAlign="right">Tổng cộng</Typography>
-							<Typography
-								width={'200px'}
-								fontWeight="bold"
-								fontSize="20px"
-								textAlign="right"
+							<Stack
+								direction="row"
+								spacing={4}
+								sx={{
+									mb: 4,
+									display: examOperationsIdWatch?.length > 0 ? 'flex' : 'none',
+									py: 2,
+								}}
+								alignItems={'center'}
+								justifyContent={'flex-end'}
+								borderTop={'1px solid lightgray'}
 							>
-								{formatCurrency(totalPrice)}
-							</Typography>
+								<Typography textAlign="right">Tổng cộng</Typography>
+								<Typography
+									width={'200px'}
+									fontWeight="bold"
+									fontSize="20px"
+									textAlign="right"
+								>
+									{formatCurrency(totalPrice)}
+								</Typography>
+							</Stack>
 						</Stack>
+					</DialogContent>
+					<DialogActions>
+						<Button onClick={closeModal} color="warning" type="button">
+							Huỷ
+						</Button>
+						<Button
+							type="submit"
+							variant="contained"
+							sx={{ display: isConfirmed ? 'block' : 'none' }}
+						>
+							Xác nhận
+						</Button>
+						<Button
+							type="button"
+							variant="contained"
+							sx={{ display: !isConfirmed ? 'block' : 'none' }}
+							onClick={() => setIsConfirmed(true)}
+						>
+							Tiếp tục
+						</Button>
+					</DialogActions>
+				</form>
+			</Box>
+
+			<Box display={showResponse ? 'block' : 'none'}>
+				<DialogContent>
+					<Stack mb={4}>
+						<DialogContentText>
+							Người bệnh cần hoàn thành các xét nghiệm sau
+						</DialogContentText>
+					</Stack>
+					<Stack spacing={2}>
+						{!!responseData &&
+							!!responseData?.length &&
+							responseData?.map((item) => (
+								<Card key={item.operationId}>
+									<CardContent>
+										<Typography fontWeight={'bold'} mb={2}>
+											{item.operationName}
+										</Typography>
+										<Stack spacing={2}>
+											<Stack direction="row" spacing={2}>
+												<Typography width={80}>STT:</Typography>
+												<Typography>{item.numericalOrder}</Typography>
+											</Stack>
+											<Stack direction="row" spacing={2}>
+												<Typography width={80}>Nơi khám:</Typography>
+												<Typography>
+													Phòng {item.roomNumber} - Tầng {item.floor}
+												</Typography>
+											</Stack>
+										</Stack>
+									</CardContent>
+								</Card>
+							))}
 					</Stack>
 				</DialogContent>
-				<DialogActions>
-					<Button onClick={closeModal} color="warning" type="button">
-						Huỷ
-					</Button>
-					<Button
-						type="submit"
-						variant="contained"
-						sx={{ display: isConfirmed ? 'block' : 'none' }}
-					>
-						Xác nhận
-					</Button>
-					<Button
-						type="button"
-						variant="contained"
-						sx={{ display: !isConfirmed ? 'block' : 'none' }}
-						onClick={() => setIsConfirmed(true)}
-					>
-						Tiếp tục
-					</Button>
-				</DialogActions>
-			</form>
+			</Box>
 		</Dialog>
 	)
 }

@@ -15,7 +15,7 @@ import {
 	Typography,
 } from '@mui/material'
 import { Box } from '@mui/system'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { AutocompleteOption } from '../../../../entities/base'
 import {
@@ -30,9 +30,11 @@ import RequestMedicinesDialog from '../RequestMedicinesDialog'
 const Medicine = ({
 	data,
 	icdList,
+	isSave,
 }: {
 	data?: CheckupRecordData
 	icdList?: AutocompleteOption[]
+	isSave: boolean
 }) => {
 	const { register, control, handleSubmit } = useForm()
 	const [isRequestMedicinesOpen, setIsRequestMedicinesOpen] = useState(false)
@@ -73,6 +75,11 @@ const Medicine = ({
 		return option
 	}
 
+	useEffect(() => {
+		if (!isSave) return
+		handleSubmit(onSubmit)()
+	}, [isSave])
+
 	return (
 		<Stack
 			spacing={5}
@@ -80,9 +87,19 @@ const Medicine = ({
 			borderRadius={'4px'}
 			sx={{ boxShadow: '2px 2px 2px 2px #00000040' }}
 		>
-			<Typography fontWeight="bold" color={'GrayText'}>
-				Đơn thuốc
-			</Typography>
+			<Stack direction="row" justifyContent="space-between" alignItems="center">
+				<Typography color={'GrayText'}>Đơn thuốc</Typography>
+				<Box maxWidth={200}>
+					<Button
+						type="button"
+						color={'info'}
+						variant="contained"
+						onClick={() => setIsRequestMedicinesOpen(true)}
+					>
+						Thêm thuốc
+					</Button>
+				</Box>
+			</Stack>
 
 			<form onSubmit={handleSubmit(onSubmit)}>
 				<Stack spacing={2}>
@@ -124,17 +141,6 @@ const Medicine = ({
 				</Stack>
 
 				<Stack spacing={2} mt={4}>
-					<Box maxWidth={200}>
-						<Button
-							type="button"
-							color={'info'}
-							variant="contained"
-							onClick={() => setIsRequestMedicinesOpen(true)}
-						>
-							Thêm thuốc
-						</Button>
-					</Box>
-
 					{medicineList && medicineList?.length > 0 && (
 						<TableContainer component={Paper}>
 							<Table sx={{ minWidth: 700 }} aria-label="customized table">
@@ -167,12 +173,6 @@ const Medicine = ({
 						rows={3}
 						{...register('note', { required: true })}
 					/>
-
-					<Box ml="auto !important">
-						<Button type="submit" variant="contained">
-							Lưu
-						</Button>
-					</Box>
 				</Stack>
 			</form>
 
