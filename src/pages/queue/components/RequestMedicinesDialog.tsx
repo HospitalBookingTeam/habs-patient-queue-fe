@@ -180,7 +180,7 @@ const RequestMedicinesDialog = ({
 										/>
 									)
 								}}
-								rules={{ required: true }}
+								rules={{}}
 								control={control}
 							/>
 
@@ -188,7 +188,7 @@ const RequestMedicinesDialog = ({
 								<TextField
 									label="Số lượng"
 									type="number"
-									{...register('quantity', { required: true })}
+									{...register('quantity', {})}
 								/>
 							</Box>
 						</Stack>
@@ -215,7 +215,7 @@ const RequestMedicinesDialog = ({
 									type="number"
 									hiddenLabel
 									size="small"
-									{...register('morningDose', { required: true })}
+									{...register('morningDose', {})}
 								/>
 							</Stack>
 
@@ -240,7 +240,7 @@ const RequestMedicinesDialog = ({
 									type="number"
 									hiddenLabel
 									size="small"
-									{...register('middayDose', { required: true })}
+									{...register('middayDose', {})}
 								/>
 							</Stack>
 							<Stack direction={'row'} spacing={2} alignItems={'center'}>
@@ -264,7 +264,7 @@ const RequestMedicinesDialog = ({
 									type="number"
 									hiddenLabel
 									size="small"
-									{...register('eveningDose', { required: true })}
+									{...register('eveningDose', {})}
 								/>
 							</Stack>
 
@@ -289,7 +289,7 @@ const RequestMedicinesDialog = ({
 									type="number"
 									hiddenLabel
 									size="small"
-									{...register('nightDose', { required: true })}
+									{...register('nightDose', {})}
 								/>
 							</Stack>
 						</Stack>

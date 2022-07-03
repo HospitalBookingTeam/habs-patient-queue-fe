@@ -19,6 +19,7 @@ export interface MedicineDetailData {
 	eveningDose: number
 	nightDose: number
 	medicineId: number
+	medicineName: string
 }
 
 export interface MedicineRequestData {

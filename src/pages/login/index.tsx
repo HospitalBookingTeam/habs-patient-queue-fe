@@ -95,12 +95,12 @@ const Login = () => {
 						<TextField
 							type="text"
 							label={'Tài khoản'}
-							{...register('username', { required: true })}
+							{...register('username', {})}
 						/>
 						<TextField
 							type="password"
 							label={'Mật khẩu'}
-							{...register('password', { required: true })}
+							{...register('password', {})}
 						/>
 
 						<Controller
@@ -133,7 +133,7 @@ const Login = () => {
 									/>
 								)
 							}}
-							rules={{ required: true }}
+							rules={{}}
 							control={control}
 							defaultValue={null}
 						/>

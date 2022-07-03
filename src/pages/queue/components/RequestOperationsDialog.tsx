@@ -148,7 +148,7 @@ const RequestOperationsDialog = ({
 							name={'examOperationIds'}
 							control={control}
 							rules={{
-								required: true,
+								 ,
 							}}
 							render={({ field }) => (
 								<>
@@ -218,7 +218,7 @@ const RequestOperationsDialog = ({
 											/>
 										)
 									}}
-									rules={{ required: true }}
+									rules={{}}
 									control={control}
 								/>
 							</Box>

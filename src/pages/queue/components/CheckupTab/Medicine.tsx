@@ -36,7 +36,7 @@ const Medicine = ({
 	icdList?: AutocompleteOption[]
 	isSave: boolean
 }) => {
-	const { register, control, handleSubmit } = useForm()
+	const { register, control, handleSubmit, reset } = useForm()
 	const [isRequestMedicinesOpen, setIsRequestMedicinesOpen] = useState(false)
 
 	console.log('data', data)
@@ -45,10 +45,13 @@ const Medicine = ({
 		(MedicineDetailData & Partial<MedicineData>)[]
 	>([])
 	const onSubmit = async (values: any) => {
+		console.log('values', values)
 		try {
 			await Promise.all([
 				await apiHelper.put(`checkup-records/${data?.id}`, {
 					icdDiseaseId: values?.icdDisease?.value,
+					id: data?.id,
+					patientId: data?.patientId,
 				}),
 				await apiHelper.post(`checkup-records/${data?.id}/prescription`, {
 					note: values?.note,
@@ -79,6 +82,18 @@ const Medicine = ({
 		if (!isSave) return
 		handleSubmit(onSubmit)()
 	}, [isSave])
+
+	useEffect(() => {
+		if (!data) return
+		setMedicineList(data?.prescription?.details)
+		reset({
+			note: data?.prescription?.note,
+			icdDisease: {
+				value: data?.icdDiseaseId,
+				label: `${data?.icdCode} - ${data?.icdDiseaseName}`,
+			},
+		})
+	}, [data])
 
 	return (
 		<Stack
@@ -135,7 +150,7 @@ const Medicine = ({
 								/>
 							)
 						}}
-						rules={{ required: true }}
+						rules={{}}
 						control={control}
 					/>
 				</Stack>
@@ -155,7 +170,7 @@ const Medicine = ({
 									{medicineList?.map((medicine) => (
 										<TableRow key={medicine.medicineId}>
 											<TableCell component="th" scope="row">
-												{medicine?.name}
+												{medicine?.name ?? medicine?.medicineName}
 											</TableCell>
 											<TableCell align="right">{medicine.quantity}</TableCell>
 											<TableCell>{medicine.usage}</TableCell>
@@ -171,7 +186,7 @@ const Medicine = ({
 						multiline
 						type="text"
 						rows={3}
-						{...register('note', { required: true })}
+						{...register('note', {})}
 					/>
 				</Stack>
 			</form>

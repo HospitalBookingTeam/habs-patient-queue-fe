@@ -73,17 +73,17 @@ const Checkup = ({
 					<TextField
 						label="Nhịp tim"
 						type="number"
-						{...register('bloodPressure', { required: true })}
+						{...register('bloodPressure', {})}
 					/>
 					<TextField
 						label="Huyết áp"
 						type="number"
-						{...register('pulse', { required: true })}
+						{...register('pulse', {})}
 					/>
 					<TextField
 						label="Nhiệt độ"
 						type="number"
-						{...register('temperature', { required: true })}
+						{...register('temperature', {})}
 					/>
 				</Stack>
 
@@ -92,14 +92,14 @@ const Checkup = ({
 					multiline
 					type="text"
 					rows={3}
-					{...register('doctorAdvice', { required: true })}
+					{...register('doctorAdvice', {})}
 				/>
 				<TextField
 					label="Chẩn đoán cận lâm sàng"
 					multiline
 					type="text"
 					rows={3}
-					{...register('diagnosis', { required: true })}
+					{...register('diagnosis', {})}
 				/>
 			</Stack>
 		</form>

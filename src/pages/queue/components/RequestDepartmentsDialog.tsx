@@ -192,7 +192,7 @@ const RequestDepartmentDialog = ({
 										/>
 									)
 								}}
-								rules={{ required: true }}
+								rules={{}}
 								control={control}
 							/>
 						</Box>
