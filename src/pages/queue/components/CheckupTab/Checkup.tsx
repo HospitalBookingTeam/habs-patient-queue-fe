@@ -1,20 +1,24 @@
-import { Box, Button, Stack, TextField } from '@mui/material'
+import { Autocomplete, Box, Button, Stack, TextField } from '@mui/material'
 import React, { useCallback, useEffect } from 'react'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
+import { AutocompleteOption } from '../../../../entities/base'
 import { CheckupRecordData } from '../../../../entities/record'
 import apiHelper from '../../../../utils/apiHelper'
 
 const Checkup = ({
-	data,
 	isSave,
+	data,
+	icdList,
 }: {
-	data?: CheckupRecordData
 	isSave: boolean
+	data?: CheckupRecordData
+	icdList?: AutocompleteOption[]
 }) => {
 	const {
 		register,
 		handleSubmit,
 		reset,
+		control,
 		formState: { isDirty },
 	} = useForm({
 		defaultValues: {
@@ -23,6 +27,7 @@ const Checkup = ({
 			pulse: 0,
 			doctorAdvice: '',
 			diagnosis: '',
+			icdDisease: { label: '', value: 0 },
 		},
 	})
 
@@ -44,6 +49,7 @@ const Checkup = ({
 					diagnosis,
 					id: data?.id,
 					patientId: data?.patientId,
+					icdDiseaseId: values?.icdDisease?.value,
 				})
 			} catch (err) {
 				console.log(err)
@@ -52,10 +58,19 @@ const Checkup = ({
 		[data]
 	)
 
+	const getOpObj = (option: any) => {
+		if (!option?.value) option = icdList?.find((op) => op.label === option)
+		return option
+	}
+
 	useEffect(() => {
 		reset(
 			{
 				...data,
+				icdDisease: {
+					value: data?.icdDiseaseId,
+					label: `${data?.icdCode} - ${data?.icdDiseaseName}`,
+				},
 			},
 			{ keepDirty: true }
 		)
@@ -86,6 +101,42 @@ const Checkup = ({
 						{...register('temperature', {})}
 					/>
 				</Stack>
+
+				<Controller
+					name="icdDisease"
+					render={({ field: { ref, ...field }, fieldState: { error } }) => {
+						return (
+							<Autocomplete
+								{...field}
+								options={icdList ?? []}
+								getOptionLabel={(option) =>
+									getOpObj(option) ? getOpObj(option)?.label : ''
+								}
+								isOptionEqualToValue={(option, value) => {
+									return option.value === getOpObj(value)?.value
+								}}
+								sx={{ width: '100%' }}
+								renderInput={(params) => {
+									return (
+										<TextField
+											{...params}
+											inputRef={ref}
+											label="Chuẩn đoán"
+											error={!!error}
+											helperText={error?.message}
+										/>
+									)
+								}}
+								onChange={(e, value) => field.onChange(value)}
+								onInputChange={(_, data) => {
+									if (data) field.onChange(data)
+								}}
+							/>
+						)
+					}}
+					rules={{}}
+					control={control}
+				/>
 
 				<TextField
 					label="Lời khuyên bác sĩ"

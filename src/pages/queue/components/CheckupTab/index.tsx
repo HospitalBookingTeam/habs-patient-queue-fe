@@ -97,7 +97,7 @@ const CheckupTab = ({
 						Khoa: <span style={{ color: 'black' }}>{data?.departmentName}</span>
 					</Typography>
 
-					<Checkup data={data} isSave={isSave} />
+					<Checkup data={data} icdList={icdList} isSave={isSave} />
 				</Stack>
 
 				<Stack

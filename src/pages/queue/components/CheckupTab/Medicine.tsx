@@ -47,27 +47,19 @@ const Medicine = ({
 	const onSubmit = async (values: any) => {
 		console.log('values', values)
 		try {
-			await Promise.all([
-				await apiHelper.put(`checkup-records/${data?.id}`, {
-					icdDiseaseId: values?.icdDisease?.value,
-					id: data?.id,
-					patientId: data?.patientId,
-				}),
-				await apiHelper.post(`checkup-records/${data?.id}/prescription`, {
-					note: values?.note,
-					details: medicineList?.map((medicine) => ({
-						usage: medicine?.usage,
-						quantity: medicine.quantity,
-						morningDose: medicine.morningDose,
-						middayDose: medicine.middayDose,
-						eveningDose: medicine.eveningDose,
-						nightDose: medicine.nightDose,
-						medicineId: medicine.medicineId,
-					})),
-				}),
-			])
-
-			setToastOpen(true)
+			await apiHelper.post(`checkup-records/${data?.id}/prescription`, {
+				note: values?.note,
+				details: medicineList?.map((medicine) => ({
+					usage: medicine?.usage,
+					quantity: medicine.quantity,
+					morningDose: medicine.morningDose,
+					middayDose: medicine.middayDose,
+					eveningDose: medicine.eveningDose,
+					nightDose: medicine.nightDose,
+					medicineId: medicine.medicineId,
+				})),
+			}),
+				setToastOpen(true)
 		} catch (error) {
 			console.log(error)
 		}
@@ -118,44 +110,6 @@ const Medicine = ({
 
 			<form onSubmit={handleSubmit(onSubmit)}>
 				<Stack spacing={2}>
-					<Controller
-						name="icdDisease"
-						render={({ field: { ref, ...field }, fieldState: { error } }) => {
-							return (
-								<Autocomplete
-									{...field}
-									options={icdList ?? []}
-									getOptionLabel={(option) =>
-										getOpObj(option) ? getOpObj(option)?.label : ''
-									}
-									isOptionEqualToValue={(option, value) => {
-										return option.value === getOpObj(value)?.value
-									}}
-									sx={{ width: '100%' }}
-									renderInput={(params) => {
-										return (
-											<TextField
-												{...params}
-												inputRef={ref}
-												label="Chuẩn đoán"
-												error={!!error}
-												helperText={error?.message}
-											/>
-										)
-									}}
-									onChange={(e, value) => field.onChange(value)}
-									onInputChange={(_, data) => {
-										if (data) field.onChange(data)
-									}}
-								/>
-							)
-						}}
-						rules={{}}
-						control={control}
-					/>
-				</Stack>
-
-				<Stack spacing={2} mt={4}>
 					{medicineList && medicineList?.length > 0 && (
 						<TableContainer component={Paper}>
 							<Table sx={{ minWidth: 700 }} aria-label="customized table">
