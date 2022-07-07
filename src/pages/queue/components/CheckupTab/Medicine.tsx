@@ -2,6 +2,7 @@ import {
 	Alert,
 	Autocomplete,
 	Button,
+	IconButton,
 	Paper,
 	Snackbar,
 	Stack,
@@ -26,6 +27,8 @@ import {
 import { CheckupRecordData, DetailData } from '../../../../entities/record'
 import apiHelper from '../../../../utils/apiHelper'
 import RequestMedicinesDialog from '../RequestMedicinesDialog'
+import { uniq, filter } from 'lodash'
+import { DeleteSharp, Edit } from '@mui/icons-material'
 
 const Medicine = ({
 	data,
@@ -39,11 +42,14 @@ const Medicine = ({
 	const { register, control, handleSubmit, reset } = useForm()
 	const [isRequestMedicinesOpen, setIsRequestMedicinesOpen] = useState(false)
 
-	console.log('data', data)
 	const [toastOpen, setToastOpen] = useState(false)
 	const [medicineList, setMedicineList] = useState<
 		(MedicineDetailData & Partial<MedicineData>)[]
 	>([])
+	const [currentEditMedData, setCurrentEditMedData] = useState<
+		(MedicineDetailData & Partial<MedicineData>) | undefined
+	>(undefined)
+
 	const onSubmit = async (values: any) => {
 		console.log('values', values)
 		try {
@@ -77,7 +83,7 @@ const Medicine = ({
 
 	useEffect(() => {
 		if (!data) return
-		setMedicineList(data?.prescription?.details)
+		setMedicineList(data?.prescription?.details ?? [])
 		reset({
 			note: data?.prescription?.note,
 			icdDisease: {
@@ -101,7 +107,10 @@ const Medicine = ({
 						type="button"
 						color={'info'}
 						variant="contained"
-						onClick={() => setIsRequestMedicinesOpen(true)}
+						onClick={() => {
+							setIsRequestMedicinesOpen(true)
+							setCurrentEditMedData(undefined)
+						}}
 					>
 						Thêm thuốc
 					</Button>
@@ -118,6 +127,7 @@ const Medicine = ({
 										<TableCell>Tên</TableCell>
 										<TableCell align="right">Số lượng</TableCell>
 										<TableCell>HDSD</TableCell>
+										<TableCell></TableCell>
 									</TableRow>
 								</TableHead>
 								<TableBody>
@@ -128,6 +138,32 @@ const Medicine = ({
 											</TableCell>
 											<TableCell align="right">{medicine.quantity}</TableCell>
 											<TableCell>{medicine.usage}</TableCell>
+											<TableCell>
+												<Stack
+													direction="row"
+													spacing={2}
+													alignItems="center"
+													justifyContent="flex-end"
+												>
+													<IconButton
+														onClick={() => {
+															setCurrentEditMedData(medicine)
+															setIsRequestMedicinesOpen(true)
+														}}
+													>
+														<Edit />
+													</IconButton>
+													<IconButton
+														onClick={() =>
+															setMedicineList((list) =>
+																filter(list, (item) => item.id !== medicine.id)
+															)
+														}
+													>
+														<DeleteSharp />
+													</IconButton>
+												</Stack>
+											</TableCell>
 										</TableRow>
 									))}
 								</TableBody>
@@ -149,7 +185,12 @@ const Medicine = ({
 				id={data?.id ?? 0}
 				open={isRequestMedicinesOpen}
 				closeModal={() => setIsRequestMedicinesOpen(false)}
-				onAdd={(detail) => setMedicineList((list) => [...list, detail])}
+				onAdd={(detail) => {
+					console.log('detail', detail)
+					setMedicineList((list) => uniq([...list, detail]))
+					setCurrentEditMedData(undefined)
+				}}
+				medicineData={currentEditMedData}
 			/>
 
 			<Snackbar

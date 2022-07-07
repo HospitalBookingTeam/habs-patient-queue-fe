@@ -33,11 +33,13 @@ const RequestMedicinesDialog = ({
 	open,
 	closeModal,
 	onAdd,
+	medicineData,
 }: {
 	id: number
 	open: boolean
 	closeModal: () => void
 	onAdd: (details: MedicineDetailData & Partial<MedicineData>) => void
+	medicineData?: MedicineDetailData & Partial<MedicineData>
 }) => {
 	const [data, setData] = useState<MedicineData[] | undefined>(undefined)
 
@@ -65,37 +67,15 @@ const RequestMedicinesDialog = ({
 		},
 	})
 
-	console.log('id', id)
-
-	useEffect(() => {
-		const queryData = async () => {
-			try {
-				const { data: _data }: { data: MedicineData[] } = await apiHelper.get(
-					`medicines`
-				)
-
-				setData(_data)
-			} catch (error) {
-				console.log(error)
-			}
-		}
-		queryData()
-	}, [])
-
-	useEffect(() => {
-		reset()
-	}, [open])
-
 	const usageRef = register('usage')
 	const onSubmit = async (values: any) => {
 		try {
-			console.log('values', values)
 			const medicine = data?.find(
 				(item) => item.id === Number(values?.medicine?.id)
 			)
-			console.log('medicine', medicine)
 			onAdd({
 				...medicine,
+				medicineName: medicine?.name ?? '',
 				usage: values?.usage,
 				quantity: Number(values?.quantity),
 				morningDose: Number(values?.morningDose),
@@ -126,9 +106,41 @@ const RequestMedicinesDialog = ({
 	}
 
 	const getOpObj = (option: any) => {
-		if (!option?.name) option = data?.find((op) => op.id === option)
+		if (!option?.name) option = data?.find((op) => op.name === option)
 		return option
 	}
+
+	useEffect(() => {
+		const queryData = async () => {
+			try {
+				const { data: _data }: { data: MedicineData[] } = await apiHelper.get(
+					`medicines`
+				)
+
+				setData(_data)
+			} catch (error) {
+				console.log(error)
+			}
+		}
+		queryData()
+	}, [])
+
+	useEffect(() => {
+		if (!open) return
+		if (!medicineData) {
+			reset({}, { keepValues: false })
+			setIsMorning(false)
+			setIsMidday(false)
+			setIsEvening(false)
+			setIsNight(false)
+			return
+		}
+
+		reset({
+			...medicineData,
+			medicine: { id: medicineData?.id, name: medicineData?.name },
+		})
+	}, [open])
 
 	return (
 		<Dialog open={open} onClose={closeModal} maxWidth="md" fullWidth>

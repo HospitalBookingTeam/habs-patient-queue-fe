@@ -139,18 +139,18 @@ const Checkup = ({
 				/>
 
 				<TextField
-					label="Lời khuyên bác sĩ"
-					multiline
-					type="text"
-					rows={3}
-					{...register('doctorAdvice', {})}
-				/>
-				<TextField
 					label="Chẩn đoán cận lâm sàng"
 					multiline
 					type="text"
 					rows={3}
 					{...register('diagnosis', {})}
+				/>
+				<TextField
+					label="Lời khuyên bác sĩ"
+					multiline
+					type="text"
+					rows={3}
+					{...register('doctorAdvice', {})}
 				/>
 			</Stack>
 		</form>

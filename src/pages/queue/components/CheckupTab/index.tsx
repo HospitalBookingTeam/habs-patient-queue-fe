@@ -93,10 +93,22 @@ const CheckupTab = ({
 					mb={4}
 				>
 					<Typography color={'GrayText'}>Thông tin khám bệnh</Typography>
-					<Typography color={'GrayText'}>
-						Khoa: <span style={{ color: 'black' }}>{data?.departmentName}</span>
-					</Typography>
-
+					<Stack spacing={2}>
+						<Stack direction="row" spacing={4}>
+							<Typography color={'GrayText'} flex="0 1 15%">
+								Khoa:
+							</Typography>
+							<Typography fontWeight="bold" flex="1">
+								{data?.departmentName}
+							</Typography>
+						</Stack>
+						<Stack direction="row" spacing={4}>
+							<Typography color={'GrayText'} flex="0 1 15%">
+								Triệu chứng:
+							</Typography>
+							<Typography flex="1">{data?.clinicalSymptom ?? '---'}</Typography>
+						</Stack>
+					</Stack>
 					<Checkup data={data} icdList={icdList} isSave={isSave} />
 				</Stack>
 

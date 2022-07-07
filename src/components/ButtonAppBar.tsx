@@ -3,8 +3,11 @@ import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import Link from '../Link'
+import useAuth from '../hooks/useAuth'
+import { Stack } from '@mui/material'
 
 export default function ButtonAppBar() {
+	const { logout, information } = useAuth()
 	return (
 		<AppBar
 			position="fixed"
@@ -12,16 +15,14 @@ export default function ButtonAppBar() {
 		>
 			<Toolbar>
 				<Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-					<Button variant="contained" component={Link} noLinkStyle href="/">
-						Logo
+					Bệnh viện Nhi đồng 2 - Bác sĩ
+				</Typography>
+				<Stack direction="row" spacing={4} alignItems="center">
+					<Typography>BS. {information?.name}</Typography>
+					<Button color="inherit" variant="contained" onClick={logout}>
+						Đăng xuất
 					</Button>
-				</Typography>
-				<Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-					Bệnh viện Nhi đồng 2
-				</Typography>
-				<Button color="inherit" variant="contained">
-					Đăng xuất
-				</Button>
+				</Stack>
 			</Toolbar>
 		</AppBar>
 	)
