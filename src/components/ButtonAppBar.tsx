@@ -3,11 +3,21 @@ import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import Link from '../Link'
-import useAuth from '../hooks/useAuth'
+import useAuth, { AuthInformation } from '../hooks/useAuth'
 import { Stack } from '@mui/material'
+import { useEffect, useState } from 'react'
 
 export default function ButtonAppBar() {
 	const { logout, information } = useAuth()
+	const [doctorInfo, setDoctorInfo] = useState<AuthInformation | undefined>(
+		undefined
+	)
+
+	useEffect(() => {
+		if (!information) return
+		setDoctorInfo(information)
+	}, [information])
+
 	return (
 		<AppBar
 			position="fixed"
@@ -18,7 +28,7 @@ export default function ButtonAppBar() {
 					Bệnh viện Nhi đồng 2 - Bác sĩ
 				</Typography>
 				<Stack direction="row" spacing={4} alignItems="center">
-					<Typography>BS. {information?.name}</Typography>
+					<Typography>BS. {doctorInfo?.name ?? '---'}</Typography>
 					<Button color="inherit" variant="contained" onClick={logout}>
 						Đăng xuất
 					</Button>

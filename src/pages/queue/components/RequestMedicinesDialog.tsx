@@ -28,6 +28,15 @@ import {
 import { DetailData } from '../../../entities/record'
 import { StyledDialogTitle } from '../../../components/StyledModal'
 
+const DEFAULT_VALUES = {
+	medicine: { id: 0, name: '' },
+	quantity: 1,
+	morningDose: 0,
+	middayDose: 0,
+	eveningDose: 0,
+	nightDose: 0,
+	usage: '',
+}
 const RequestMedicinesDialog = ({
 	id,
 	open,
@@ -56,15 +65,7 @@ const RequestMedicinesDialog = ({
 		setValue,
 		formState: { isDirty },
 	} = useForm({
-		defaultValues: {
-			medicine: { id: 0, name: '' },
-			quantity: 1,
-			morningDose: 0,
-			middayDose: 0,
-			eveningDose: 0,
-			nightDose: 0,
-			usage: '',
-		},
+		defaultValues: DEFAULT_VALUES,
 	})
 
 	const usageRef = register('usage')
@@ -73,6 +74,8 @@ const RequestMedicinesDialog = ({
 			const medicine = data?.find(
 				(item) => item.id === Number(values?.medicine?.id)
 			)
+			console.log('values', values)
+			console.log('medicine', medicine)
 			onAdd({
 				...medicine,
 				medicineName: medicine?.name ?? '',
@@ -82,7 +85,7 @@ const RequestMedicinesDialog = ({
 				middayDose: Number(values?.middayDose),
 				eveningDose: Number(values?.eveningDose),
 				nightDose: Number(values?.nightDose),
-				medicineId: Number(values?.medicine?.id),
+				medicineId: Number(values?.medicine?.id ?? values?.medicineId),
 			})
 			// await apiHelper.post(`checkup-records/${id}/prescription`, {
 			// 	note: values?.usage,
@@ -128,7 +131,7 @@ const RequestMedicinesDialog = ({
 	useEffect(() => {
 		if (!open) return
 		if (!medicineData) {
-			reset({}, { keepValues: false })
+			reset({ ...DEFAULT_VALUES })
 			setIsMorning(false)
 			setIsMidday(false)
 			setIsEvening(false)
@@ -136,9 +139,31 @@ const RequestMedicinesDialog = ({
 			return
 		}
 
-		reset({
+		console.log('medicineData', {
 			...medicineData,
 			medicine: { id: medicineData?.id, name: medicineData?.name },
+		})
+		if (Number(medicineData?.morningDose)) {
+			setIsMorning(true)
+		}
+		if (Number(medicineData?.middayDose)) {
+			setIsMidday(true)
+		}
+		if (Number(medicineData?.eveningDose)) {
+			setIsEvening(true)
+		}
+		if (Number(medicineData?.nightDose)) {
+			setIsNight(true)
+		}
+		reset({
+			...medicineData,
+			usage: medicineData?.usage,
+			quantity: Number(medicineData?.quantity),
+			morningDose: Number(medicineData?.morningDose),
+			middayDose: Number(medicineData?.middayDose),
+			eveningDose: Number(medicineData?.eveningDose),
+			nightDose: Number(medicineData?.nightDose),
+			medicine: { id: medicineData?.id ?? 0, name: medicineData?.name ?? '' },
 		})
 	}, [open])
 
@@ -209,6 +234,7 @@ const RequestMedicinesDialog = ({
 							<Stack direction={'row'} spacing={2} alignItems={'center'}>
 								<Checkbox
 									value={isMorning}
+									checked={isMorning}
 									onChange={(_, checked) => {
 										setIsMorning(checked)
 										if (!checked) {
@@ -234,6 +260,7 @@ const RequestMedicinesDialog = ({
 							<Stack direction={'row'} spacing={2} alignItems={'center'}>
 								<Checkbox
 									value={isMidday}
+									checked={isMidday}
 									onChange={(_, checked) => {
 										setIsMidday(checked)
 										if (!checked) {
@@ -258,6 +285,7 @@ const RequestMedicinesDialog = ({
 							<Stack direction={'row'} spacing={2} alignItems={'center'}>
 								<Checkbox
 									value={isEvening}
+									checked={isEvening}
 									onChange={(_, checked) => {
 										setIsEvening(checked)
 										if (!checked) {
@@ -283,6 +311,7 @@ const RequestMedicinesDialog = ({
 							<Stack direction={'row'} spacing={2} alignItems={'center'}>
 								<Checkbox
 									value={isNight}
+									checked={isNight}
 									onChange={(_, checked) => {
 										setIsNight(checked)
 										if (!checked) {

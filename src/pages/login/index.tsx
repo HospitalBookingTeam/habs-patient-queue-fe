@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useSetRecoilState } from 'recoil'
 import apiHelper from '../../utils/apiHelper'
-import { authAtom } from '../../hooks/useAuth'
+import useAuth, { authAtom } from '../../hooks/useAuth'
 
 const Login = () => {
 	const [roomIdOptions, setRoomIdOptions] = useState([
@@ -15,7 +15,7 @@ const Login = () => {
 	])
 	const { register, handleSubmit, control } = useForm()
 	const router = useRouter()
-	const setAuthData = useSetRecoilState(authAtom)
+	const { login, isAuthenticated } = useAuth()
 
 	useEffect(() => {
 		const queryRoomOptions = async () => {
@@ -33,6 +33,10 @@ const Login = () => {
 
 		queryRoomOptions()
 	}, [])
+
+	useEffect(() => {
+		if (isAuthenticated) router.push('/queue')
+	}, [isAuthenticated])
 
 	const getOpObj = (option: any) => {
 		if (!option?.value) option = roomIdOptions.find((op) => op.value === option)
@@ -52,12 +56,7 @@ const Login = () => {
 					roomId,
 				})
 				.then((response) => response?.data)
-			setAuthData({
-				token: loginData?.token,
-				isAuthenticated: true,
-				roomId,
-				information: loginData?.information,
-			})
+			login(loginData?.token, roomId, loginData?.information)
 			router.push('/')
 		} catch (error) {
 			console.log(error)

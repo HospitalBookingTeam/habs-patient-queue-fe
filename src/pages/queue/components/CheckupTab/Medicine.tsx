@@ -27,9 +27,10 @@ import {
 import { CheckupRecordData, DetailData } from '../../../../entities/record'
 import apiHelper from '../../../../utils/apiHelper'
 import RequestMedicinesDialog from '../RequestMedicinesDialog'
-import { uniq, filter } from 'lodash'
+import { uniq, filter, uniqBy } from 'lodash'
 import { DeleteSharp, Edit } from '@mui/icons-material'
 
+export type MedData = MedicineDetailData & Partial<MedicineData>
 const Medicine = ({
 	data,
 	icdList,
@@ -43,11 +44,9 @@ const Medicine = ({
 	const [isRequestMedicinesOpen, setIsRequestMedicinesOpen] = useState(false)
 
 	const [toastOpen, setToastOpen] = useState(false)
-	const [medicineList, setMedicineList] = useState<
-		(MedicineDetailData & Partial<MedicineData>)[]
-	>([])
+	const [medicineList, setMedicineList] = useState<MedData[]>([])
 	const [currentEditMedData, setCurrentEditMedData] = useState<
-		(MedicineDetailData & Partial<MedicineData>) | undefined
+		MedData | undefined
 	>(undefined)
 
 	const onSubmit = async (values: any) => {
@@ -74,6 +73,33 @@ const Medicine = ({
 	const getOpObj = (option: any) => {
 		if (!option?.value) option = icdList?.find((op) => op.label === option)
 		return option
+	}
+
+	const renderDoseContent = (med: MedData) => {
+		let morning = ''
+		let midday = ''
+		let evening = ''
+		let night = ''
+
+		if (med.morningDose > 0) {
+			morning = `${med.morningDose} sáng`
+		}
+		if (med.middayDose > 0) {
+			midday = `${med.middayDose} trưa`
+		}
+		if (med.eveningDose > 0) {
+			evening = `${med.eveningDose} chiều`
+		}
+		if (med.nightDose > 0) {
+			night = `${med.nightDose} tối`
+		}
+		return `${morning}${
+			morning !== '' && (midday !== '' || evening !== '' || night !== '')
+				? ', '
+				: ''
+		}${midday}${
+			midday !== '' && evening !== '' && night !== '' ? ', ' : ''
+		}${evening}${evening !== '' && night !== '' ? ', ' : ''}${night}`
 	}
 
 	useEffect(() => {
@@ -126,6 +152,7 @@ const Medicine = ({
 									<TableRow>
 										<TableCell>Tên</TableCell>
 										<TableCell align="right">Số lượng</TableCell>
+										<TableCell>Liều dùng</TableCell>
 										<TableCell>HDSD</TableCell>
 										<TableCell></TableCell>
 									</TableRow>
@@ -137,6 +164,7 @@ const Medicine = ({
 												{medicine?.name ?? medicine?.medicineName}
 											</TableCell>
 											<TableCell align="right">{medicine.quantity}</TableCell>
+											<TableCell>{renderDoseContent(medicine)}</TableCell>
 											<TableCell>{medicine.usage}</TableCell>
 											<TableCell>
 												<Stack
@@ -187,7 +215,12 @@ const Medicine = ({
 				closeModal={() => setIsRequestMedicinesOpen(false)}
 				onAdd={(detail) => {
 					console.log('detail', detail)
-					setMedicineList((list) => uniq([...list, detail]))
+					setMedicineList((list) =>
+						uniqBy([...list, detail], (item: MedData) => {
+							console.log(item)
+							return item.medicineId
+						})
+					)
 					setCurrentEditMedData(undefined)
 				}}
 				medicineData={currentEditMedData}
