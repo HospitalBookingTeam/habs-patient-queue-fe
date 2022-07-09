@@ -11,6 +11,8 @@ import useAuth from '../hooks/useAuth'
 import Login from '../pages/login'
 import { useRouter } from 'next/router'
 import Image from 'next/image'
+import useToast from '../hooks/useToast'
+import { ErrorDialog } from './Modal'
 
 type Props = {
 	children: React.ReactNode
@@ -18,6 +20,7 @@ type Props = {
 
 const PageLayout: NextPage<Props> = ({ children }: Props) => {
 	const { isAuthenticated } = useAuth()
+	const { open, closeToast, toastData } = useToast()
 
 	const router = useRouter()
 
@@ -38,7 +41,6 @@ const PageLayout: NextPage<Props> = ({ children }: Props) => {
 					}}
 				>
 					<Box sx={{ display: 'flex' }}>
-						<Sidebar />
 						<Box
 							component="main"
 							sx={{ flexGrow: 1, p: 4, minHeight: '100vh' }}
@@ -52,6 +54,12 @@ const PageLayout: NextPage<Props> = ({ children }: Props) => {
 			<footer>
 				<Copyright />
 			</footer>
+
+			<ErrorDialog
+				open={!!open && toastData?.variant === 'error'}
+				handleClose={closeToast}
+				message={toastData?.message}
+			/>
 		</div>
 	)
 }

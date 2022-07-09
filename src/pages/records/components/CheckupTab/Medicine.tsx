@@ -16,18 +16,13 @@ import {
 } from '@mui/material'
 import { Box } from '@mui/system'
 import React, { useState } from 'react'
-import { Controller, useForm } from 'react-hook-form'
-import { AutocompleteOption } from '../../../../entities/base'
-import {
-	MedicineData,
-	MedicineDetailData,
-	MedicineRequestData,
-} from '../../../../entities/medicine'
+
 import {
 	CheckupRecordData,
 	DetailData,
 	PrescriptionData,
 } from '../../../../entities/record'
+import { renderDoseContent } from '../../../../utils/formats'
 
 const Medicine = ({ data }: { data?: CheckupRecordData }) => {
 	console.log('data', data)
@@ -53,6 +48,7 @@ const Medicine = ({ data }: { data?: CheckupRecordData }) => {
 									<TableRow>
 										<TableCell>Tên</TableCell>
 										<TableCell align="right">Số lượng</TableCell>
+										<TableCell>Liều dùng</TableCell>
 										<TableCell>HDSD</TableCell>
 									</TableRow>
 								</TableHead>
@@ -63,6 +59,7 @@ const Medicine = ({ data }: { data?: CheckupRecordData }) => {
 												{medicine?.medicineName}
 											</TableCell>
 											<TableCell align="right">{medicine.quantity}</TableCell>
+											<TableCell>{renderDoseContent(medicine)}</TableCell>
 											<TableCell>{medicine.usage}</TableCell>
 										</TableRow>
 									))}

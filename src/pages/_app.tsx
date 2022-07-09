@@ -12,9 +12,9 @@ import { RecoilRoot } from 'recoil'
 import { useRouter } from 'next/router'
 import Image from 'next/image'
 import Loading from '../components/Loading'
-import { pdfjs } from 'react-pdf'
 
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`
+import NextNProgress from 'nextjs-progressbar'
+import { ErrorDialog } from '../components/Modal'
 
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache()
@@ -79,7 +79,8 @@ export default function MyApp(props: MyAppProps) {
 				<ThemeProvider theme={theme}>
 					{/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
 					<CssBaseline />
-					{loading && <Loading />}
+					{/* {loading && <Loading />} */}
+					<NextNProgress />
 					<Component {...pageProps} />
 				</ThemeProvider>
 			</RecoilRoot>

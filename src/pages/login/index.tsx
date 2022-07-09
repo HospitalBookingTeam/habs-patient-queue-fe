@@ -22,7 +22,7 @@ const Login = () => {
 			try {
 				const response = await apiHelper.get('rooms')
 				const _roomIdOptions = response.data.map((room: any) => ({
-					label: room.roomNumber,
+					label: `Phòng ${room.roomNumber} - Tầng ${room.floor}`,
 					value: room.id,
 				}))
 				setRoomIdOptions(_roomIdOptions)

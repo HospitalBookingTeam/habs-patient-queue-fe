@@ -14,8 +14,8 @@ const Checkup = ({ data }: { data?: CheckupRecordData }) => {
 				<ReadonlyField label="Nhiệt độ" value={data?.temperature} />
 			</Stack>
 
-			<ReadonlyField label="Lời khuyên bác sĩ" value={data?.doctorAdvice} />
 			<ReadonlyField label="Chẩn đoán cận lâm sàng" value={data?.diagnosis} />
+			<ReadonlyField label="Lời khuyên bác sĩ" value={data?.doctorAdvice} />
 		</Stack>
 	)
 }

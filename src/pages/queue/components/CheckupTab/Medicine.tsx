@@ -29,6 +29,7 @@ import apiHelper from '../../../../utils/apiHelper'
 import RequestMedicinesDialog from '../RequestMedicinesDialog'
 import { uniq, filter, uniqBy } from 'lodash'
 import { DeleteSharp, Edit } from '@mui/icons-material'
+import { renderDoseContent } from '../../../../utils/formats'
 
 export type MedData = MedicineDetailData & Partial<MedicineData>
 const Medicine = ({
@@ -50,7 +51,6 @@ const Medicine = ({
 	>(undefined)
 
 	const onSubmit = async (values: any) => {
-		console.log('values', values)
 		try {
 			await apiHelper.post(`checkup-records/${data?.id}/prescription`, {
 				note: values?.note,
@@ -73,33 +73,6 @@ const Medicine = ({
 	const getOpObj = (option: any) => {
 		if (!option?.value) option = icdList?.find((op) => op.label === option)
 		return option
-	}
-
-	const renderDoseContent = (med: MedData) => {
-		let morning = ''
-		let midday = ''
-		let evening = ''
-		let night = ''
-
-		if (med.morningDose > 0) {
-			morning = `${med.morningDose} sáng`
-		}
-		if (med.middayDose > 0) {
-			midday = `${med.middayDose} trưa`
-		}
-		if (med.eveningDose > 0) {
-			evening = `${med.eveningDose} chiều`
-		}
-		if (med.nightDose > 0) {
-			night = `${med.nightDose} tối`
-		}
-		return `${morning}${
-			morning !== '' && (midday !== '' || evening !== '' || night !== '')
-				? ', '
-				: ''
-		}${midday}${
-			midday !== '' && evening !== '' && night !== '' ? ', ' : ''
-		}${evening}${evening !== '' && night !== '' ? ', ' : ''}${night}`
 	}
 
 	useEffect(() => {

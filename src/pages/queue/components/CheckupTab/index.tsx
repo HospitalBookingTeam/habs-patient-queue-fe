@@ -7,11 +7,11 @@ import {
 } from '@mui/material'
 import { Box } from '@mui/system'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { Controller, useForm } from 'react-hook-form'
-import PdfViewer from '../../../../components/PdfViewer'
 import { AutocompleteOption } from '../../../../entities/base'
 import { CheckupRecordData } from '../../../../entities/record'
+import useToast from '../../../../hooks/useToast'
 import apiHelper from '../../../../utils/apiHelper'
+import { ERROR_TRANSLATIONS } from '../../../../utils/constants'
 import { CheckupRecordStatus } from '../../../../utils/renderEnums'
 import EmergencyConfirmDialog from '../EmergencyConfirmDialog'
 import FinishRecordDialog from '../FinishRecordDialog'
@@ -34,6 +34,7 @@ const CheckupTab = ({
 	const [isFinishRecordOpen, setIsFinishRecordOpen] = useState(false)
 	const [isEmergencyOpen, setIsEmergencyOpen] = useState(false)
 	const [isSave, setIsSave] = useState(false)
+	const { toastError } = useToast()
 
 	const handleConfirmQueue = useCallback(async () => {
 		if (isEdit) {
@@ -45,7 +46,10 @@ const CheckupTab = ({
 			await apiHelper.post(`checkup-queue/confirm/${data?.id}`)
 			setIsEdit(true)
 		} catch (err) {
-			console.log(err)
+			console.error(err)
+			toastError({
+				message: ERROR_TRANSLATIONS[err as keyof typeof ERROR_TRANSLATIONS],
+			})
 		}
 	}, [isEdit, data])
 

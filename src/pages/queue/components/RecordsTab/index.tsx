@@ -12,12 +12,13 @@ const RecordTabs = ({ data }: { data?: CheckupRecordData }) => {
 	const [pageIndex, setPageIndex] = useState(1)
 	const [pageSize, setPageSize] = useState(5)
 	const [totalPages, setTotalPages] = useState(1)
+
 	useEffect(() => {
 		const queryData = async () => {
 			try {
 				const response = await apiHelper.get('checkup-records', {
 					params: {
-						'patient-id': 10000 /*data?.patientId*/,
+						'patient-id': data?.patientId,
 						pageIndex,
 						pageSize,
 					},
@@ -26,10 +27,10 @@ const RecordTabs = ({ data }: { data?: CheckupRecordData }) => {
 				setPageIndex(response?.data?.pageIndex)
 				setTotalPages(response?.data?.totalPage)
 			} catch (error) {
-				console.log(error)
+				console.error(error)
 			}
 		}
-		// if (!data) return
+		if (!data) return
 		queryData()
 	}, [data, pageIndex, pageSize])
 
@@ -38,8 +39,7 @@ const RecordTabs = ({ data }: { data?: CheckupRecordData }) => {
 			<Box mt={4} />
 
 			<Stack spacing={2} mb={3}>
-				{!!recordList &&
-					!!recordList?.length &&
+				{!!recordList && !!recordList?.length ? (
 					recordList?.map((record) => {
 						return (
 							<StyledLink href={`/records?id=${record.id}`} target="_blank">
@@ -62,9 +62,18 @@ const RecordTabs = ({ data }: { data?: CheckupRecordData }) => {
 								</Stack>
 							</StyledLink>
 						)
-					})}
+					})
+				) : (
+					<Box p={6} mx="auto">
+						<Typography>Chưa có dữ liệu</Typography>
+					</Box>
+				)}
 			</Stack>
-			<Stack justifyContent="center" mx="auto">
+			<Stack
+				justifyContent="center"
+				mx="auto"
+				display={!!recordList && !!recordList?.length ? 'flex' : 'none'}
+			>
 				<Pagination
 					sx={{ margin: '0 auto' }}
 					count={totalPages}
