@@ -46,8 +46,9 @@ const Item = styled(Link)(({ theme }) => ({
 	padding: '12px 1rem',
 	cursor: 'pointer',
 	position: 'relative',
+	transition: 'background 0.3s ease',
 	'&:hover': {
-		background: '#fff',
+		background: 'rgb(135, 234, 177)',
 	},
 	textDecoration: 'none',
 }))
@@ -59,6 +60,8 @@ const Queue: NextPage = () => {
 	const [queueData, setQueueData] =
 		useState<QueueDetailData[]>(DEFAULT_QUEUE_STATE)
 	const { roomId } = useAuth()
+
+	const isQueueNotEmpty = queueData && queueData?.length
 
 	useEffect(() => {
 		const queryQueueData = async () => {
@@ -79,11 +82,11 @@ const Queue: NextPage = () => {
 		<PageLayout>
 			<BasicMeta url={url} title={title} />
 			<OpenGraphMeta url={url} title={title} />
-			<Typography variant="h4" component="h1" gutterBottom>
-				Bệnh nhân chờ khám
-			</Typography>
 
-			<Box mt={3}>
+			<Paper sx={{ p: 3 }}>
+				<Typography variant="h4" component="h1" gutterBottom mb={3}>
+					Bệnh nhân chờ khám
+				</Typography>
 				<Stack
 					width={'100%'}
 					height={'100%'}
@@ -92,6 +95,7 @@ const Queue: NextPage = () => {
 					direction="row"
 					padding="12px 1rem"
 					color="GrayText"
+					display={isQueueNotEmpty ? 'flex' : 'none'}
 				>
 					<Typography flex="1 1 10%">STT</Typography>
 					<Typography textAlign={'left'} flex="1 1 60%">
@@ -106,7 +110,7 @@ const Queue: NextPage = () => {
 					divider={<Divider orientation="horizontal" flexItem />}
 					spacing={2}
 				>
-					{queueData &&
+					{isQueueNotEmpty ? (
 						queueData?.map((queue: QueueDetailData) => (
 							<Item key={queue?.numericalOrder} href={`/queue/${queue?.id}`}>
 								<Stack
@@ -137,9 +141,14 @@ const Queue: NextPage = () => {
 									</Typography>
 								</Stack>
 							</Item>
-						))}
+						))
+					) : (
+						<Box p={6} mx="auto">
+							<Typography>Chưa có dữ liệu</Typography>
+						</Box>
+					)}
 				</Stack>
-			</Box>
+			</Paper>
 		</PageLayout>
 	)
 }

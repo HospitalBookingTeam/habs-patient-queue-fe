@@ -13,6 +13,7 @@ import { useRouter } from 'next/router'
 import Image from 'next/image'
 import useToast from '../hooks/useToast'
 import { ErrorDialog } from './Modal'
+import styled from '@emotion/styled'
 
 type Props = {
 	children: React.ReactNode
@@ -33,7 +34,7 @@ const PageLayout: NextPage<Props> = ({ children }: Props) => {
 			<nav>
 				<ButtonAppBar />
 			</nav>
-			<main>
+			<StyledMain>
 				<Container
 					maxWidth="lg"
 					sx={{
@@ -50,7 +51,7 @@ const PageLayout: NextPage<Props> = ({ children }: Props) => {
 						</Box>
 					</Box>
 				</Container>
-			</main>
+			</StyledMain>
 			<footer>
 				<Copyright />
 			</footer>
@@ -63,5 +64,9 @@ const PageLayout: NextPage<Props> = ({ children }: Props) => {
 		</div>
 	)
 }
+
+const StyledMain = styled.main`
+	background-color: #dfe7eb;
+`
 
 export default PageLayout

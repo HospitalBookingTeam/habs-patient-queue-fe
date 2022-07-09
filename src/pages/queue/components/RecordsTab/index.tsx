@@ -49,7 +49,7 @@ const RecordTabs = ({ data }: { data?: CheckupRecordData }) => {
 									alignItems="center"
 								>
 									<Stack spacing={2}>
-										<Typography color="GrayText">
+										<Typography color="GrayText" className="date">
 											{record?.date ? formatDate(record.date) : '---'}
 										</Typography>
 										<Typography>{record?.departmentName ?? '---'}</Typography>
@@ -58,7 +58,7 @@ const RecordTabs = ({ data }: { data?: CheckupRecordData }) => {
 										</Typography>
 									</Stack>
 
-									<ChevronRight />
+									<ChevronRight className="icon_right" />
 								</Stack>
 							</StyledLink>
 						)
@@ -92,6 +92,37 @@ const StyledLink = styled(Link)`
 	padding: 12px 1em;
 	border-radius: 8px;
 	color: #050505;
+	text-decoration: none;
+	transition: all 0.3s ease;
+
+	&:hover {
+		background: rgb(135, 234, 177);
+
+		& .date {
+			color: #050505;
+		}
+
+		& .icon_right {
+			animation: linear infinite alternate;
+			animation-name: run;
+			animation-duration: 2s;
+		}
+	}
+
+	@-webkit-keyframes run {
+		0% {
+			left: 0;
+			transform: translateX(0%);
+		}
+		50% {
+			left: -30%;
+			transform: translateX(30%);
+		}
+		100% {
+			left: 30%;
+			transform: translateX(-30%);
+		}
+	}
 `
 
 export default RecordTabs

@@ -7,6 +7,8 @@ import apiHelper from '../../utils/apiHelper'
 import {
 	Autocomplete,
 	Button,
+	IconButton,
+	Paper,
 	Stack,
 	Tab,
 	Tabs,
@@ -19,6 +21,7 @@ import TabPanel from '../../components/TabPanel'
 import PatientInfoTab from './components/PatientInfoTab'
 import CheckupTab from './components/CheckupTab'
 import RecordTabs from './components/RecordsTab'
+import { ChevronLeft } from '@mui/icons-material'
 
 const ATOM_KEY = 'checkup-record'
 
@@ -73,48 +76,59 @@ const QueueDetailPage = () => {
 
 	return (
 		<PageLayout>
-			<Stack
-				spacing={4}
-				direction={'row'}
-				alignItems={'center'}
-				justifyContent={'space-between'}
-				mb={3}
+			<Button
+				startIcon={<ChevronLeft />}
+				onClick={() => router.push('/queue')}
+				color="secondary"
+				sx={{ mb: 3 }}
 			>
-				<Typography variant="h5">
-					Bệnh nhân <span style={{ color: 'green' }}>{data?.patientName}</span>
-				</Typography>
-
-				{data?.isReExam && (
-					<Typography
-						sx={{
-							p: 2,
-							background: '#87eab1',
-							borderRadius: '8px',
-							fontSize: '13px',
-						}}
-					>
-						Tái khám
+				Quay lại
+			</Button>
+			<Paper sx={{ p: 3 }}>
+				<Stack
+					spacing={4}
+					direction={'row'}
+					alignItems={'center'}
+					justifyContent={'space-between'}
+					mb={3}
+				>
+					<Typography variant="h5">
+						Bệnh nhân{' '}
+						<span style={{ color: 'green' }}>{data?.patientName}</span>
 					</Typography>
-				)}
-			</Stack>
 
-			<Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-				<Tabs value={tab} onChange={handleChange}>
-					<Tab label="Thông tin cơ bản" {...a11yProps(0)} />
-					<Tab label="Hồ sơ người bệnh" {...a11yProps(1)} />
-					<Tab label="Khám" {...a11yProps(2)} />
-				</Tabs>
-			</Box>
+					{data?.isReExam && (
+						<Typography
+							sx={{
+								p: 2,
+								background: '#87eab1',
+								borderRadius: '8px',
+								fontSize: '13px',
+							}}
+						>
+							Tái khám
+						</Typography>
+					)}
+				</Stack>
 
-			<TabPanel value={tab} index={0}>
-				<PatientInfoTab patientData={data?.patientData} />
-			</TabPanel>
-			<TabPanel value={tab} index={1}>
-				<RecordTabs data={data} />
-			</TabPanel>
-			<TabPanel value={tab} index={2}>
-				<CheckupTab data={data} icdList={icdList} />
-			</TabPanel>
+				<Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+					<Tabs value={tab} onChange={handleChange}>
+						<Tab label="Thông tin cơ bản" {...a11yProps(0)} />
+						<Tab label="Hồ sơ người bệnh" {...a11yProps(1)} />
+						<Tab label="Khám" {...a11yProps(2)} />
+					</Tabs>
+				</Box>
+
+				<TabPanel value={tab} index={0}>
+					<PatientInfoTab patientData={data?.patientData} />
+				</TabPanel>
+				<TabPanel value={tab} index={1}>
+					<RecordTabs data={data} />
+				</TabPanel>
+				<TabPanel value={tab} index={2}>
+					<CheckupTab data={data} icdList={icdList} />
+				</TabPanel>
+			</Paper>
 		</PageLayout>
 	)
 }

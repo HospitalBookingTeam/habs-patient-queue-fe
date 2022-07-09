@@ -100,7 +100,9 @@ const Medicine = ({
 			sx={{ boxShadow: '2px 2px 2px 2px #00000040' }}
 		>
 			<Stack direction="row" justifyContent="space-between" alignItems="center">
-				<Typography color={'GrayText'}>Đơn thuốc</Typography>
+				<Typography color={'GrayText'} fontWeight="bold">
+					Đơn thuốc
+				</Typography>
 				<Box maxWidth={200}>
 					<Button
 						type="button"

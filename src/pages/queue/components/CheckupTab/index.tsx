@@ -96,7 +96,9 @@ const CheckupTab = ({
 					sx={{ boxShadow: '2px 2px 2px 2px #00000040' }}
 					mb={4}
 				>
-					<Typography color={'GrayText'}>Thông tin khám bệnh</Typography>
+					<Typography color={'GrayText'} fontWeight="bold">
+						Thông tin khám bệnh
+					</Typography>
 					<Stack spacing={2}>
 						<Stack direction="row" spacing={4}>
 							<Typography color={'GrayText'} flex="0 1 15%">

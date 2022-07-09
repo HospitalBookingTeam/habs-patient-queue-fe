@@ -19,7 +19,9 @@ const TestRecords = ({
 	return (
 		<Stack>
 			<Stack direction="row" justifyContent="space-between">
-				<Typography color={'GrayText'}>Các xét nghiệm</Typography>
+				<Typography color={'GrayText'} fontWeight="bold">
+					Các xét nghiệm
+				</Typography>
 				<Button
 					type="button"
 					color={'info'}

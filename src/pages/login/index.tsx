@@ -5,6 +5,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { useSetRecoilState } from 'recoil'
 import apiHelper from '../../utils/apiHelper'
 import useAuth, { authAtom } from '../../hooks/useAuth'
+import useToast from '../../hooks/useToast'
 
 const Login = () => {
 	const [roomIdOptions, setRoomIdOptions] = useState([
@@ -16,6 +17,7 @@ const Login = () => {
 	const { register, handleSubmit, control } = useForm()
 	const router = useRouter()
 	const { login, isAuthenticated } = useAuth()
+	const { toastError } = useToast()
 
 	useEffect(() => {
 		const queryRoomOptions = async () => {
@@ -59,7 +61,8 @@ const Login = () => {
 			login(loginData?.token, roomId, loginData?.information)
 			router.push('/')
 		} catch (error) {
-			console.log(error)
+			console.error(error)
+			toastError({ message: 'Đăng nhập bị lỗi. Vui lòng thử lại!' })
 		}
 	}
 
