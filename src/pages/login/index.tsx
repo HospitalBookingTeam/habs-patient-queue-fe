@@ -77,7 +77,7 @@ const Login = () => {
 					height: '100%',
 				}}
 			>
-				<h1>Chào mừng bạn</h1>
+				<h1>Bệnh viện Nhi Đồng 2</h1>
 
 				<form onSubmit={handleSubmit(onSubmit)}>
 					<Stack

@@ -5,7 +5,6 @@ import { CheckupRecordData } from '../../../../entities/record'
 import apiHelper from '../../../../utils/apiHelper'
 
 const Checkup = ({ data }: { data?: CheckupRecordData }) => {
-	console.log('data in checkup', data)
 	return (
 		<Stack spacing={4} mb={4}>
 			<Stack direction="row" flex={'1 1 auto'} spacing={4}>
