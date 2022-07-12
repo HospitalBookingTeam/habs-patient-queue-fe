@@ -1,26 +1,24 @@
 export enum CheckupRecordStatus {
 	'Chờ tái khám',
-	DA_DAT_LICH,
+	'Đã đặt lịch',
 	'Chờ khám',
 	'Đang khám',
-	CHO_THANH_TOAN_PHI_XN,
-	CHO_KQXN,
-	'Đã có KQXN',
-	KET_THUC,
-	CHUYEN_KHOA,
-	NHAP_VIEN,
-	DA_HUY,
-	DA_XOA,
+	'Chờ thanh toán phí xét nghiệm',
+	'Chờ kết quả xét nghiệm',
+	'Đã có kết quả xét nghiệm',
+	'Kết thúc',
+	'Chuyển khoa',
+	'Nhập viện',
+	'Đã hủy',
+	'Đã xóa',
 }
 
-export const renderEnumCheckupRecordStatus = (status: number) =>
-	CheckupRecordStatus[status]
+export const renderEnumCheckupRecordStatus = (status: number) => CheckupRecordStatus[status];
 
 export enum InsuranceSupportStatus {
-	KHONG_HO_TRO,
-	HO_TRO_MOT_PHAN,
-	HO_TRO_TOAN_PHAN,
+	'Không hỗ trợ',
+	'Hỗ trợ một phần',
+	'Hỗ trợ toàn phần',
 }
 
-export const renderEnumInsuranceStatus = (status: number) =>
-	InsuranceSupportStatus[status]
+export const renderEnumInsuranceStatus = (status: number) => InsuranceSupportStatus[status];
