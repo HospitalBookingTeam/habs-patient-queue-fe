@@ -84,9 +84,9 @@ const Queue: NextPage = () => {
 			<OpenGraphMeta url={url} title={title} />
 
 			<Paper sx={{ p: 3 }}>
-				<Typography variant="h4" component="h1" gutterBottom mb={3}>
+				<StyledGradientTypo fontWeight="medium" mb={3}>
 					Bệnh nhân chờ khám
-				</Typography>
+				</StyledGradientTypo>
 				<Stack
 					width={'100%'}
 					height={'100%'}
@@ -152,5 +152,12 @@ const Queue: NextPage = () => {
 		</PageLayout>
 	)
 }
+
+const StyledGradientTypo = styled(Typography)`
+	font-size: 32px;
+	background: -webkit-linear-gradient(#1ac88a, #2f9d67);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+`
 
 export default Queue
