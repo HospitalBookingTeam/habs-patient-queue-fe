@@ -1,6 +1,6 @@
-import { Autocomplete, Box, Button, Stack, TextField } from '@mui/material'
-import React, { useCallback, useEffect } from 'react'
-import { Controller, useForm } from 'react-hook-form'
+import { Autocomplete, Stack, TextField } from '@mui/material'
+import { useCallback, useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
 import { AutocompleteOption } from '../../../../entities/base'
 import { CheckupRecordData } from '../../../../entities/record'
 import apiHelper from '../../../../utils/apiHelper'
@@ -18,7 +18,6 @@ const Checkup = ({
     register,
     handleSubmit,
     reset,
-    control,
     formState: { isDirty },
   } = useForm({
     defaultValues: {
@@ -27,9 +26,16 @@ const Checkup = ({
       pulse: 0,
       doctorAdvice: '',
       diagnosis: '',
-      icdDisease: { label: '', value: 0 },
     },
   })
+
+  const [icdDisease, setIcdDisease] = useState<AutocompleteOption | null>(null)
+
+  useEffect(() => {
+    if (!data) return
+    const option = icdList?.find((op) => op.value === data.icdDiseaseId)
+    setIcdDisease(!!option ? option : null)
+  }, [data])
 
   const handleUpdateCheckupRecord = useCallback(
     async (values: any) => {
@@ -49,28 +55,19 @@ const Checkup = ({
           diagnosis,
           id: data?.id,
           patientId: data?.patientId,
-          icdDiseaseId: values?.icdDisease?.value,
+          icdDiseaseId: icdDisease?.value,
         })
       } catch (err) {
         console.log(err)
       }
     },
-    [data]
+    [data, icdDisease]
   )
-
-  const getOpObj = (option: any) => {
-    if (!option?.value) option = icdList?.find((op) => op.label === option)
-    return option
-  }
 
   useEffect(() => {
     reset(
       {
         ...data,
-        icdDisease: {
-          value: data?.icdDiseaseId,
-          label: `${data?.icdCode} - ${data?.icdDiseaseName}`,
-        },
       },
       { keepDirty: true }
     )
@@ -102,40 +99,20 @@ const Checkup = ({
           />
         </Stack>
 
-        <Controller
-          name="icdDisease"
-          render={({ field: { ref, ...field }, fieldState: { error } }) => {
+        <Autocomplete
+          value={icdDisease}
+          onChange={(_, value) => { setIcdDisease(value) }}
+          options={icdList ?? []}
+          sx={{ width: '100%' }}
+          getOptionLabel={(option) => option.label}
+          renderInput={(params) => {
             return (
-              <Autocomplete
-                {...field}
-                options={icdList ?? []}
-                getOptionLabel={(option) =>
-                  getOpObj(option) ? getOpObj(option)?.label : ''
-                }
-                isOptionEqualToValue={(option, value) => {
-                  return option.value === getOpObj(value)?.value
-                }}
-                sx={{ width: '100%' }}
-                renderInput={(params) => {
-                  return (
-                    <TextField
-                      {...params}
-                      inputRef={ref}
-                      label="Chẩn đoán"
-                      error={!!error}
-                      helperText={error?.message}
-                    />
-                  )
-                }}
-                onChange={(e, value) => field.onChange(value)}
-                onInputChange={(_, data) => {
-                  if (data) field.onChange(data)
-                }}
+              <TextField
+                {...params}
+                label="Chẩn đoán"
               />
             )
           }}
-          rules={{}}
-          control={control}
         />
 
         <TextField
