@@ -19,6 +19,8 @@ import {
 	renderEnumCheckupRecordStatus,
 } from '../../utils/renderEnums'
 import { getCookie } from 'cookies-next'
+import moment from 'moment'
+import { formatDate, getGreetingTime } from '../../utils/formats'
 
 export type QueueDetailData = {
 	id: number
@@ -98,10 +100,11 @@ const Queue: NextPage = () => {
 					display={isQueueNotEmpty ? 'flex' : 'none'}
 				>
 					<Typography flex="1 1 10%">STT</Typography>
-					<Typography textAlign={'left'} flex="1 1 60%">
+					<Typography textAlign={'left'} flex="1 1 40%">
 						Họ Tên
 					</Typography>
 					<Typography flex="1 1 30%">Trạng thái</Typography>
+					<Typography flex="1 1 20%">Thời gian dự kiến</Typography>
 				</Stack>
 
 				{/* List */}
@@ -126,7 +129,7 @@ const Queue: NextPage = () => {
 									<Typography
 										fontWeight={'bold'}
 										textAlign={'left'}
-										flex="1 1 60%"
+										flex="1 1 40%"
 									>
 										{queue?.patientName}
 									</Typography>
@@ -139,6 +142,9 @@ const Queue: NextPage = () => {
 												? 'Đã có kết quả xét nghiệm (tái khám)'
 												: renderEnumCheckupRecordStatus(queue?.status)
 											: renderEnumCheckupRecordStatus(queue?.status)}
+									</Typography>
+									<Typography flex="1 1 20%" textAlign={'left'}>
+										{formatDate(queue?.estimatedStartTime, 'HH:mm')}
 									</Typography>
 								</Stack>
 							</Item>

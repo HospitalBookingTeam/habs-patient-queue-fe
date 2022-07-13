@@ -136,7 +136,7 @@ const Medicine = ({
 									{medicineList?.map((medicine) => (
 										<TableRow key={medicine.medicineId}>
 											<TableCell component="th" scope="row">
-												{medicine?.name ?? medicine?.medicineName}
+												{medicine?.medicineName ?? medicine?.name}
 											</TableCell>
 											<TableCell align="right">{medicine.quantity}</TableCell>
 											<TableCell>{renderDoseContent(medicine)}</TableCell>
@@ -189,13 +189,17 @@ const Medicine = ({
 				open={isRequestMedicinesOpen}
 				closeModal={() => setIsRequestMedicinesOpen(false)}
 				onAdd={(detail) => {
-					console.log('detail', detail)
-					setMedicineList((list) =>
-						uniqBy([...list, detail], (item: MedData) => {
-							console.log(item)
-							return item.medicineId
-						})
-					)
+					setMedicineList((list) => {
+						const isExist = list?.findIndex(
+							(item) => item.medicineId === detail.medicineId
+						)
+						if (isExist >= 0)
+							return list?.map((item: MedData) => {
+								if (item.medicineId === detail.medicineId) return detail
+								return item
+							})
+						return [...list, detail]
+					})
 					setCurrentEditMedData(undefined)
 				}}
 				medicineData={currentEditMedData}

@@ -22,7 +22,9 @@ const CheckupTab = ({ data }: { data?: CheckupRecordData }) => {
 				mb={4}
 			>
 				<Stack spacing={2}>
-					<Typography color={'GrayText'}>Thông tin khám bệnh</Typography>
+					<Typography color={'GrayText'} fontWeight={'bold'}>
+						Thông tin khám bệnh
+					</Typography>
 					<Stack direction="row" spacing={2}>
 						<Typography color={'GrayText'} width={'15%'}>
 							Tình trạng:

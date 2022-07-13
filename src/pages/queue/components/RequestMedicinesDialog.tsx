@@ -63,19 +63,19 @@ const RequestMedicinesDialog = ({
 		control,
 		reset,
 		setValue,
-		formState: { isDirty },
+		formState: { errors },
 	} = useForm({
 		defaultValues: DEFAULT_VALUES,
+		mode: 'onChange',
 	})
 
 	const usageRef = register('usage')
 	const onSubmit = async (values: any) => {
 		try {
 			const medicine = data?.find(
-				(item) => item.id === Number(values?.medicine?.id)
+				(item) => item.id === Number(values?.medicine?.id ?? values?.medicineId)
 			)
-			console.log('values', values)
-			console.log('medicine', medicine)
+
 			onAdd({
 				...medicine,
 				medicineName: medicine?.name ?? '',
@@ -102,7 +102,7 @@ const RequestMedicinesDialog = ({
 			// 	],
 			// })
 		} catch (error) {
-			console.log(error)
+			console.error(error)
 		} finally {
 			closeModal()
 		}
@@ -139,10 +139,6 @@ const RequestMedicinesDialog = ({
 			return
 		}
 
-		console.log('medicineData', {
-			...medicineData,
-			medicine: { id: medicineData?.id, name: medicineData?.name },
-		})
 		if (Number(medicineData?.morningDose)) {
 			setIsMorning(true)
 		}
@@ -186,6 +182,7 @@ const RequestMedicinesDialog = ({
 									return (
 										<Autocomplete
 											{...field}
+											disabled={!!medicineData}
 											options={
 												data?.map((option) => ({
 													id: option.id,
@@ -225,7 +222,8 @@ const RequestMedicinesDialog = ({
 								<TextField
 									label="Số lượng"
 									type="number"
-									{...register('quantity', {})}
+									error={!!errors?.quantity}
+									{...register('quantity', { min: 0 })}
 								/>
 							</Box>
 						</Stack>
@@ -253,7 +251,8 @@ const RequestMedicinesDialog = ({
 									type="number"
 									hiddenLabel
 									size="small"
-									{...register('morningDose', {})}
+									error={!!errors?.morningDose}
+									{...register('morningDose', { min: 0 })}
 								/>
 							</Stack>
 
@@ -279,7 +278,8 @@ const RequestMedicinesDialog = ({
 									type="number"
 									hiddenLabel
 									size="small"
-									{...register('middayDose', {})}
+									error={!!errors?.middayDose}
+									{...register('middayDose', { min: 0 })}
 								/>
 							</Stack>
 							<Stack direction={'row'} spacing={2} alignItems={'center'}>
@@ -304,7 +304,8 @@ const RequestMedicinesDialog = ({
 									type="number"
 									hiddenLabel
 									size="small"
-									{...register('eveningDose', {})}
+									error={!!errors?.eveningDose}
+									{...register('eveningDose', { min: 0 })}
 								/>
 							</Stack>
 
@@ -330,7 +331,8 @@ const RequestMedicinesDialog = ({
 									type="number"
 									hiddenLabel
 									size="small"
-									{...register('nightDose', {})}
+									error={!!errors?.nightDose}
+									{...register('nightDose', { min: 0 })}
 								/>
 							</Stack>
 						</Stack>

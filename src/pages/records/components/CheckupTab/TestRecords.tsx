@@ -9,7 +9,9 @@ import { formatDate } from '../../../../utils/formats'
 const TestRecords = ({ testRecords }: { testRecords?: TestRecordData[] }) => {
 	return (
 		<Stack>
-			<Typography color={'GrayText'}>Các xét nghiệm</Typography>
+			<Typography color={'GrayText'} fontWeight={'bold'}>
+				Các xét nghiệm
+			</Typography>
 			<Stack spacing={4} mb={4}>
 				{testRecords && testRecords?.length > 0 ? (
 					testRecords?.map((test) => <TestRecord key={test.id} record={test} />)
@@ -58,7 +60,20 @@ const TestRecord = ({ record }: { record: TestRecordData }) => {
 				</Stack>
 			</Button>
 			<Collapse in={isExpanded}>
-				<Stack spacing={2} mt={2}>
+				<Stack
+					spacing={2}
+					py={3}
+					justifyContent={'center'}
+					mt={2}
+					display={!record?.resultFileLink ? 'flex' : 'none !important'}
+				>
+					<Typography>Chưa có kết quả</Typography>
+				</Stack>
+				<Stack
+					spacing={2}
+					mt={2}
+					display={record?.resultFileLink ? 'flex' : 'none !important'}
+				>
 					<Link
 						target="_blank"
 						href={record?.resultFileLink}
@@ -68,7 +83,7 @@ const TestRecord = ({ record }: { record: TestRecordData }) => {
 					</Link>
 					<iframe
 						src={`${record?.resultFileLink}#toolbar=0`}
-						width={720}
+						width={'100%'}
 						height="560"
 						allow="autoplay"
 					/>

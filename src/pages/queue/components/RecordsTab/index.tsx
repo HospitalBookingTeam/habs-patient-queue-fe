@@ -42,7 +42,11 @@ const RecordTabs = ({ data }: { data?: CheckupRecordData }) => {
 				{!!recordList && !!recordList?.length ? (
 					recordList?.map((record) => {
 						return (
-							<StyledLink href={`/records?id=${record.id}`} target="_blank">
+							<StyledLink
+								href={`/records?id=${record.id}`}
+								target="_blank"
+								key={record.id}
+							>
 								<Stack
 									direction="row"
 									justifyContent="space-between"

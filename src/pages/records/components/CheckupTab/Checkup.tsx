@@ -8,9 +8,12 @@ const Checkup = ({ data }: { data?: CheckupRecordData }) => {
 	return (
 		<Stack spacing={4} mb={4}>
 			<Stack direction="row" flex={'1 1 auto'} spacing={4}>
-				<ReadonlyField label={'Nhịp tim'} value={data?.pulse} />
-				<ReadonlyField label="Huyết áp" value={data?.bloodPressure} />
-				<ReadonlyField label="Nhiệt độ" value={data?.temperature} />
+				<ReadonlyField label={'Nhịp tim'} value={`${data?.pulse} nhịp/phút`} />
+				<ReadonlyField label="Huyết áp" value={`${data?.bloodPressure} mmHg`} />
+				<ReadonlyField
+					label="Nhiệt độ"
+					value={<span>{data?.temperature} &#8451;</span>}
+				/>
 			</Stack>
 
 			<ReadonlyField label="Chẩn đoán cận lâm sàng" value={data?.diagnosis} />

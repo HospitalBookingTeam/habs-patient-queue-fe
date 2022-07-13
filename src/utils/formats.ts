@@ -1,4 +1,4 @@
-import moment from 'moment'
+import moment, { Moment } from 'moment'
 import { MedData } from '../pages/queue/components/CheckupTab/Medicine'
 
 export const formatDate = (date: string, format = 'DD/MM/YYYY') => {
@@ -19,18 +19,40 @@ export const renderDoseContent = (med: MedData) => {
 	let night = ''
 
 	if (med.morningDose > 0) {
-		morning = `${med.morningDose} sáng`
+		morning = `Sáng: ${med.morningDose}`
 	}
 	if (med.middayDose > 0) {
-		midday = `${med.middayDose} trưa`
+		midday = `Trưa: ${med.middayDose}`
 	}
 	if (med.eveningDose > 0) {
-		evening = `${med.eveningDose} chiều`
+		evening = `Chiều: ${med.eveningDose}`
 	}
 	if (med.nightDose > 0) {
-		night = `${med.nightDose} tối`
+		night = `Tối: ${med.nightDose}`
 	}
 	return [morning, midday, evening, night]
 		.filter((day) => day !== '')
-		.join(', ')
+		.join('; ')
+}
+
+export function getGreetingTime(m: Moment) {
+	var g = null //return g
+
+	if (!m || !m.isValid()) {
+		return
+	} //if we can't find a valid or filled moment, we return.
+
+	var split_afternoon = 12 //24hr time to split the afternoon
+	var split_evening = 17 //24hr time to split the evening
+	var currentHour = parseFloat(m.format('HH'))
+
+	if (currentHour >= split_afternoon && currentHour <= split_evening) {
+		g = 'Chiều'
+	} else if (currentHour >= split_evening) {
+		g = 'Tối'
+	} else {
+		g = 'Sáng'
+	}
+
+	return g
 }
