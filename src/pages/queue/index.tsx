@@ -134,8 +134,9 @@ const Queue: NextPage = () => {
 										{queue?.isReExam
 											? queue?.status === CheckupRecordStatus['Chờ khám']
 												? 'Tái khám'
-												: queue?.status === CheckupRecordStatus['Đã có KQXN']
-												? 'Đã có KQXN(tái khám)'
+												: queue?.status ===
+												  CheckupRecordStatus['Đã có kết quả xét nghiệm']
+												? 'Đã có kết quả xét nghiệm (tái khám)'
 												: renderEnumCheckupRecordStatus(queue?.status)
 											: renderEnumCheckupRecordStatus(queue?.status)}
 									</Typography>
