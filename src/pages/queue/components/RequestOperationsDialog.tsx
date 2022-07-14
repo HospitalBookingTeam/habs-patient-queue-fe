@@ -29,6 +29,7 @@ import { StyledDialogTitle } from '../../../components/StyledModal'
 import { useRouter } from 'next/router'
 import { TestResponseData } from '../../../entities/test'
 
+type ExamOperationIdsData = OperationData & { value: number; label: string }
 const RequestOperationsDialog = ({
 	id,
 	open,
@@ -38,29 +39,45 @@ const RequestOperationsDialog = ({
 	open: boolean
 	closeModal: () => void
 }) => {
-	const [data, setData] = useState<
-		(OperationData & { value: number; label: string })[] | undefined
-	>(undefined)
+	const [data, setData] = useState<ExamOperationIdsData[] | undefined>(
+		undefined
+	)
+	const [totalPrice, setTotalPrice] = useState<number | undefined>(undefined)
 
 	const [responseData, setResponseData] = useState<TestResponseData[]>([])
 	const [showResponse, setShowResponse] = useState(false)
 
+	const [examOperationIds, setExamOperationIds] = useState<
+		ExamOperationIdsData[]
+	>([])
+
 	const [isConfirmed, setIsConfirmed] = useState(false)
 	const router = useRouter()
 	const {
-		register,
-		watch,
 		handleSubmit,
-		control,
-		reset,
+
 		formState: { isDirty },
-	} = useForm<{
-		examOperationIds: (OperationData & { value: number; label: string })[]
-	}>({
-		defaultValues: {
-			examOperationIds: [],
-		},
-	})
+	} = useForm()
+
+	const onSubmit = async () => {
+		try {
+			const resp = await apiHelper.post(`checkup-records/${id}/tests`, {
+				examOperationIds: examOperationIds?.map((e) => e.id),
+			})
+
+			setResponseData(resp?.data)
+		} catch (error) {
+			console.error(error)
+		} finally {
+			setIsConfirmed(false)
+			setShowResponse(true)
+		}
+	}
+
+	const getOpObj = (option: any) => {
+		if (!option?.value) option = data?.find((op) => op.name === option)
+		return option
+	}
 
 	useEffect(() => {
 		const queryData = async () => {
@@ -83,38 +100,19 @@ const RequestOperationsDialog = ({
 	useEffect(() => {
 		setIsConfirmed(false)
 		setShowResponse(false)
-		reset()
+		setExamOperationIds([])
 	}, [open])
 
-	const onSubmit = async ({
-		examOperationIds,
-	}: {
-		examOperationIds: (OperationData & { value: number; label: string })[]
-	}) => {
-		try {
-			const resp = await apiHelper.post(`checkup-records/${id}/tests`, {
-				examOperationIds: examOperationIds?.map((e) => e.id),
-			})
-
-			setResponseData(resp?.data)
-		} catch (error) {
-			console.log(error)
-		} finally {
-			setIsConfirmed(false)
-			setShowResponse(true)
+	useEffect(() => {
+		if (examOperationIds?.length && Array.isArray(examOperationIds)) {
+			setTotalPrice(
+				examOperationIds?.reduce((prev, curr) => {
+					return Number(Number(prev + Number(curr.price)).toFixed(0))
+				}, 0)
+			)
 		}
-	}
+	}, [examOperationIds])
 
-	const getOpObj = (option: any) => {
-		if (!option?.value) option = data?.find((op) => op.name === option)
-		return option
-	}
-
-	const examOperationsIdWatch = watch('examOperationIds')
-
-	const totalPrice = examOperationsIdWatch?.reduce((prev, curr) => {
-		return Number(Number(prev + Number(curr.price)).toFixed(0))
-	}, 0)
 	return (
 		<Dialog
 			open={open}
@@ -179,47 +177,21 @@ const RequestOperationsDialog = ({
 							)}
 						/> */}
 							<Box width={'100%'} display={!isConfirmed ? 'block' : 'none'}>
-								<Controller
-									name="examOperationIds"
-									render={({
-										field: { ref, ...field },
-										fieldState: { error },
-									}) => {
-										return (
-											<Autocomplete
-												{...field}
-												multiple
-												options={data ?? []}
-												getOptionLabel={(option) => {
-													return getOpObj(option) ? getOpObj(option)?.name : ''
-												}}
-												isOptionEqualToValue={(option, value) => {
-													return option.id === getOpObj(value)?.id
-												}}
-												sx={{ width: '100%' }}
-												renderInput={(params) => {
-													return (
-														<TextField
-															{...params}
-															inputRef={ref}
-															label="Loại xét nghiệm"
-															error={!!error}
-															helperText={error?.message}
-														/>
-													)
-												}}
-												onChange={(e, value) => {
-													console.log('value', value)
-													field.onChange(value)
-												}}
-												onInputChange={(_, data) => {
-													if (data) field.onChange(data)
-												}}
-											/>
-										)
+								<Autocomplete
+									multiple
+									options={data ?? []}
+									getOptionLabel={(option) => {
+										return getOpObj(option) ? getOpObj(option)?.name : ''
 									}}
-									rules={{}}
-									control={control}
+									sx={{ width: '100%' }}
+									renderInput={(params) => {
+										return <TextField {...params} label="Loại xét nghiệm" />
+									}}
+									value={examOperationIds}
+									onChange={(e, value) => {
+										console.log('value', value)
+										setExamOperationIds(value)
+									}}
 								/>
 							</Box>
 
@@ -229,7 +201,7 @@ const RequestOperationsDialog = ({
 								spacing={4}
 								sx={{
 									mb: 4,
-									display: examOperationsIdWatch?.length > 0 ? 'flex' : 'none',
+									display: examOperationIds?.length > 0 ? 'flex' : 'none',
 									pb: 2,
 								}}
 								alignItems={'center'}
@@ -246,37 +218,40 @@ const RequestOperationsDialog = ({
 									Giá
 								</Typography>
 							</Stack>
-							{examOperationsIdWatch?.map((item, index) => (
-								<Stack
-									direction="row"
-									spacing={4}
-									key={`${item.id}`}
-									alignItems={'center'}
-								>
-									<Typography width={'5%'} textAlign="right">
-										{index + 1}
-									</Typography>
-									<Typography width={'25%'}>{item.name}</Typography>
-									<Typography width={'25%'}>
-										{renderEnumInsuranceStatus(item.insuranceStatus)}
-									</Typography>
-									<Typography width={'30%'}>{item.note}</Typography>
-									<Typography
-										fontWeight={'bold'}
-										width={'15%'}
-										textAlign="right"
+							{!!examOperationIds?.length &&
+								Array.isArray(examOperationIds) &&
+								examOperationIds?.map((item, index) => (
+									<Stack
+										direction="row"
+										spacing={4}
+										key={`${item.id}`}
+										alignItems={'center'}
 									>
-										{formatCurrency(item.price)}
-									</Typography>
-								</Stack>
-							))}
+										<Typography width={'5%'} textAlign="right">
+											{index + 1}
+										</Typography>
+										<Typography width={'25%'}>{item.name}</Typography>
+										<Typography width={'25%'}>
+											{renderEnumInsuranceStatus(item.insuranceStatus)}
+										</Typography>
+										<Typography width={'30%'}>{item.note}</Typography>
+										<Typography
+											fontWeight={'bold'}
+											width={'15%'}
+											textAlign="right"
+										>
+											{formatCurrency(item.price)}
+										</Typography>
+									</Stack>
+								))}
 
 							<Stack
 								direction="row"
 								spacing={4}
 								sx={{
 									mb: 4,
-									display: examOperationsIdWatch?.length > 0 ? 'flex' : 'none',
+									display:
+										examOperationIds?.length > 0 ? 'flex' : 'none !important',
 									py: 2,
 								}}
 								alignItems={'center'}
@@ -290,7 +265,7 @@ const RequestOperationsDialog = ({
 									fontSize="20px"
 									textAlign="right"
 								>
-									{formatCurrency(totalPrice)}
+									{formatCurrency(totalPrice ?? 0)}
 								</Typography>
 							</Stack>
 						</Stack>

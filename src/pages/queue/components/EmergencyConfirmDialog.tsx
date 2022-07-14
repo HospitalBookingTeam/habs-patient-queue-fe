@@ -34,7 +34,7 @@ const EmergencyConfirmDialog = ({
 		try {
 			setLoading(true)
 			await apiHelper.put(`checkup-records/${data.id}`, {
-				status: CheckupRecordStatus.NHAP_VIEN,
+				status: CheckupRecordStatus['Nhập viện'],
 				id: data.id,
 				patientId: data.patientId,
 			})
