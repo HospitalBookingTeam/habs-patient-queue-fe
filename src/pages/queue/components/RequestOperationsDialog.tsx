@@ -50,6 +50,7 @@ const RequestOperationsDialog = ({
 	const [examOperationIds, setExamOperationIds] = useState<
 		ExamOperationIdsData[]
 	>([])
+	const [isError, setIsError] = useState(false)
 
 	const [isConfirmed, setIsConfirmed] = useState(false)
 	const router = useRouter()
@@ -189,10 +190,17 @@ const RequestOperationsDialog = ({
 									}}
 									value={examOperationIds}
 									onChange={(e, value) => {
-										console.log('value', value)
+										if (value?.length > 0 && Array.isArray(value)) {
+											setIsError(false)
+										}
 										setExamOperationIds(value)
 									}}
 								/>
+								{isError && (
+									<span style={{ color: 'red' }}>
+										Vui lòng chọn loại xét nghiệm
+									</span>
+								)}
 							</Box>
 
 							<Box mt={'40px !important'} />
@@ -285,7 +293,14 @@ const RequestOperationsDialog = ({
 							type="button"
 							variant="contained"
 							sx={{ display: !isConfirmed ? 'block' : 'none' }}
-							onClick={() => setIsConfirmed(true)}
+							onClick={() => {
+								if (examOperationIds?.length < 1) {
+									setIsError(true)
+									return
+								}
+								setIsError(false)
+								setIsConfirmed(true)
+							}}
 						>
 							Tiếp tục
 						</Button>
