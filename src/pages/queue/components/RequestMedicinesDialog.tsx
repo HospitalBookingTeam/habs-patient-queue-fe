@@ -6,7 +6,16 @@ import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
-import { Controller, useForm } from 'react-hook-form'
+import {
+	Controller,
+	FieldValues,
+	FormProvider,
+	FormState,
+	useForm,
+	useFormContext,
+	UseFormRegister,
+	UseFormReset,
+} from 'react-hook-form'
 import apiHelper from '../../../utils/apiHelper'
 import { DepartmentData } from '../../../entities/department'
 import { AutocompleteOption } from '../../../entities/base'
@@ -27,9 +36,12 @@ import {
 } from '../../../entities/medicine'
 import { DetailData } from '../../../entities/record'
 import { StyledDialogTitle } from '../../../components/StyledModal'
+import ControlledAutocomplete, {
+	Option,
+} from '../../../components/FormElements/ControlledAutocomplete'
 
 const DEFAULT_VALUES = {
-	medicine: { id: 0, name: '' },
+	medicine: undefined,
 	quantity: 1,
 	morningDose: 0,
 	middayDose: 0,
@@ -60,20 +72,29 @@ const RequestMedicinesDialog = ({
 	const {
 		register,
 		handleSubmit,
-		control,
 		reset,
 		setValue,
-		formState: { errors },
-	} = useForm({
+		formState: { errors, ...formState },
+		...methods
+	} = useForm<{
+		medicine: Option
+		quantity: number
+		morningDose: number
+		middayDose: number
+		eveningDose: number
+		nightDose: number
+		usage: string
+	}>({
 		defaultValues: DEFAULT_VALUES,
-		mode: 'onChange',
+		mode: 'all',
 	})
 
 	const usageRef = register('usage')
 	const onSubmit = async (values: any) => {
 		try {
 			const medicine = data?.find(
-				(item) => item.id === Number(values?.medicine?.id ?? values?.medicineId)
+				(item) =>
+					item.id === Number(values?.medicine?.value ?? values?.medicineId)
 			)
 
 			onAdd({
@@ -85,7 +106,7 @@ const RequestMedicinesDialog = ({
 				middayDose: Number(values?.middayDose),
 				eveningDose: Number(values?.eveningDose),
 				nightDose: Number(values?.nightDose),
-				medicineId: Number(values?.medicine?.id ?? values?.medicineId),
+				medicineId: Number(values?.medicine?.value ?? values?.medicineId),
 			})
 			// await apiHelper.post(`checkup-records/${id}/prescription`, {
 			// 	note: values?.usage,
@@ -108,11 +129,6 @@ const RequestMedicinesDialog = ({
 		}
 	}
 
-	const getOpObj = (option: any) => {
-		if (!option?.name) option = data?.find((op) => op.name === option)
-		return option
-	}
-
 	useEffect(() => {
 		const queryData = async () => {
 			try {
@@ -122,7 +138,7 @@ const RequestMedicinesDialog = ({
 
 				setData(_data)
 			} catch (error) {
-				console.log(error)
+				console.error(error)
 			}
 		}
 		queryData()
@@ -159,7 +175,10 @@ const RequestMedicinesDialog = ({
 			middayDose: Number(medicineData?.middayDose),
 			eveningDose: Number(medicineData?.eveningDose),
 			nightDose: Number(medicineData?.nightDose),
-			medicine: { id: medicineData?.id ?? 0, name: medicineData?.name ?? '' },
+			medicine: {
+				value: medicineData?.id?.toString() ?? '',
+				label: medicineData?.name ?? '',
+			},
 		})
 	}, [open])
 
@@ -170,193 +189,166 @@ const RequestMedicinesDialog = ({
 				<DialogContentText mb={4}>
 					Vui lòng chọn đơn thuốc phù hợp.
 				</DialogContentText>
-				<form onSubmit={handleSubmit(onSubmit)}>
-					<Stack spacing={4}>
-						<Stack spacing={2} direction="row">
-							<Controller
-								name="medicine"
-								render={({
-									field: { ref, ...field },
-									fieldState: { error },
-								}) => {
-									return (
-										<Autocomplete
-											{...field}
-											disabled={!!medicineData}
-											options={
-												data?.map((option) => ({
-													id: option.id,
-													name: option.name,
-												})) ?? []
+				<FormProvider
+					{...methods}
+					handleSubmit={handleSubmit}
+					reset={reset}
+					formState={{ ...formState, errors }}
+					register={register}
+					setValue={setValue}
+				>
+					<form>
+						<Stack spacing={4}>
+							<Stack spacing={2} direction="row">
+								<ControlledAutocomplete
+									name="medicine"
+									label={'Thuốc'}
+									style={{ width: '350px' }}
+									rules={{ required: true }}
+									options={
+										data?.map((option) => ({
+											value: option.id?.toString(),
+											label: option.name,
+										})) ?? []
+									}
+								/>
+
+								<Box maxWidth={250}>
+									<TextField
+										label="Số lượng"
+										type="number"
+										error={!!errors?.quantity}
+										{...register('quantity', { min: 0 })}
+									/>
+								</Box>
+							</Stack>
+
+							<Stack spacing={4} direction="row">
+								<Stack direction={'row'} spacing={2} alignItems={'center'}>
+									<Checkbox
+										value={isMorning}
+										checked={isMorning}
+										onChange={(_, checked) => {
+											setIsMorning(checked)
+											if (!checked) {
+												setValue('morningDose', 0)
 											}
-											getOptionLabel={(option) =>
-												getOpObj(option) ? getOpObj(option)?.name : ''
+										}}
+									/>
+
+									<Typography>Sáng</Typography>
+
+									<TextField
+										sx={{
+											display: isMorning ? 'block' : 'none !important',
+											maxWidth: '100px',
+										}}
+										type="number"
+										hiddenLabel
+										size="small"
+										error={!!errors?.morningDose}
+										{...register('morningDose', { min: 0 })}
+									/>
+								</Stack>
+
+								<Stack direction={'row'} spacing={2} alignItems={'center'}>
+									<Checkbox
+										value={isMidday}
+										checked={isMidday}
+										onChange={(_, checked) => {
+											setIsMidday(checked)
+											if (!checked) {
+												setValue('middayDose', 0)
 											}
-											isOptionEqualToValue={(option, value) => {
-												return option.id === getOpObj(value)?.id
-											}}
-											sx={{ width: '100%' }}
-											renderInput={(params) => {
-												return (
-													<TextField
-														{...params}
-														inputRef={ref}
-														label="Thuốc"
-														error={!!error}
-														helperText={error?.message}
-													/>
-												)
-											}}
-											onChange={(e, value) => field.onChange(value)}
-											onInputChange={(_, data) => {
-												if (data) field.onChange(data)
-											}}
-										/>
-									)
-								}}
-								rules={{}}
-								control={control}
+										}}
+									/>
+
+									<Typography>Trưa</Typography>
+
+									<TextField
+										sx={{
+											display: isMidday ? 'block' : 'none !important',
+											maxWidth: '100px',
+										}}
+										type="number"
+										hiddenLabel
+										size="small"
+										error={!!errors?.middayDose}
+										{...register('middayDose', { min: 0 })}
+									/>
+								</Stack>
+								<Stack direction={'row'} spacing={2} alignItems={'center'}>
+									<Checkbox
+										value={isEvening}
+										checked={isEvening}
+										onChange={(_, checked) => {
+											setIsEvening(checked)
+											if (!checked) {
+												setValue('eveningDose', 0)
+											}
+										}}
+									/>
+
+									<Typography>Chiều</Typography>
+
+									<TextField
+										sx={{
+											display: isEvening ? 'block' : 'none !important',
+											maxWidth: '100px',
+										}}
+										type="number"
+										hiddenLabel
+										size="small"
+										error={!!errors?.eveningDose}
+										{...register('eveningDose', { min: 0 })}
+									/>
+								</Stack>
+
+								<Stack direction={'row'} spacing={2} alignItems={'center'}>
+									<Checkbox
+										value={isNight}
+										checked={isNight}
+										onChange={(_, checked) => {
+											setIsNight(checked)
+											if (!checked) {
+												setValue('nightDose', 0)
+											}
+										}}
+									/>
+
+									<Typography>Tối</Typography>
+
+									<TextField
+										sx={{
+											display: isNight ? 'block' : 'none !important',
+											maxWidth: '100px',
+										}}
+										type="number"
+										hiddenLabel
+										size="small"
+										error={!!errors?.nightDose}
+										{...register('nightDose', { min: 0 })}
+									/>
+								</Stack>
+							</Stack>
+
+							<TextField
+								label="Hướng dẫn"
+								multiline
+								type="text"
+								rows={3}
+								{...usageRef}
+								onChange={(e) => usageRef?.onChange(e)}
 							/>
-
-							<Box maxWidth={250}>
-								<TextField
-									label="Số lượng"
-									type="number"
-									error={!!errors?.quantity}
-									{...register('quantity', { min: 0 })}
-								/>
-							</Box>
 						</Stack>
-
-						<Stack spacing={4} direction="row">
-							<Stack direction={'row'} spacing={2} alignItems={'center'}>
-								<Checkbox
-									value={isMorning}
-									checked={isMorning}
-									onChange={(_, checked) => {
-										setIsMorning(checked)
-										if (!checked) {
-											setValue('morningDose', 0)
-										}
-									}}
-								/>
-
-								<Typography>Sáng</Typography>
-
-								<TextField
-									sx={{
-										display: isMorning ? 'block' : 'none !important',
-										maxWidth: '100px',
-									}}
-									type="number"
-									hiddenLabel
-									size="small"
-									error={!!errors?.morningDose}
-									{...register('morningDose', { min: 0 })}
-								/>
-							</Stack>
-
-							<Stack direction={'row'} spacing={2} alignItems={'center'}>
-								<Checkbox
-									value={isMidday}
-									checked={isMidday}
-									onChange={(_, checked) => {
-										setIsMidday(checked)
-										if (!checked) {
-											setValue('middayDose', 0)
-										}
-									}}
-								/>
-
-								<Typography>Trưa</Typography>
-
-								<TextField
-									sx={{
-										display: isMidday ? 'block' : 'none !important',
-										maxWidth: '100px',
-									}}
-									type="number"
-									hiddenLabel
-									size="small"
-									error={!!errors?.middayDose}
-									{...register('middayDose', { min: 0 })}
-								/>
-							</Stack>
-							<Stack direction={'row'} spacing={2} alignItems={'center'}>
-								<Checkbox
-									value={isEvening}
-									checked={isEvening}
-									onChange={(_, checked) => {
-										setIsEvening(checked)
-										if (!checked) {
-											setValue('eveningDose', 0)
-										}
-									}}
-								/>
-
-								<Typography>Chiều</Typography>
-
-								<TextField
-									sx={{
-										display: isEvening ? 'block' : 'none !important',
-										maxWidth: '100px',
-									}}
-									type="number"
-									hiddenLabel
-									size="small"
-									error={!!errors?.eveningDose}
-									{...register('eveningDose', { min: 0 })}
-								/>
-							</Stack>
-
-							<Stack direction={'row'} spacing={2} alignItems={'center'}>
-								<Checkbox
-									value={isNight}
-									checked={isNight}
-									onChange={(_, checked) => {
-										setIsNight(checked)
-										if (!checked) {
-											setValue('nightDose', 0)
-										}
-									}}
-								/>
-
-								<Typography>Tối</Typography>
-
-								<TextField
-									sx={{
-										display: isNight ? 'block' : 'none !important',
-										maxWidth: '100px',
-									}}
-									type="number"
-									hiddenLabel
-									size="small"
-									error={!!errors?.nightDose}
-									{...register('nightDose', { min: 0 })}
-								/>
-							</Stack>
-						</Stack>
-
-						<TextField
-							label="Hướng dẫn"
-							multiline
-							type="text"
-							rows={3}
-							{...usageRef}
-							onChange={(e) => usageRef?.onChange(e)}
-						/>
-					</Stack>
-				</form>
+					</form>
+				</FormProvider>
 			</DialogContent>
 			<DialogActions>
-				<Button onClick={closeModal} color="warning" type="button">
+				<Button onClick={closeModal} color="warning">
 					Huỷ
 				</Button>
-				<Button
-					type="submit"
-					variant="contained"
-					onClick={() => handleSubmit(onSubmit)()}
-				>
+				<Button variant="contained" onClick={() => handleSubmit(onSubmit)()}>
 					Xác nhận
 				</Button>
 			</DialogActions>
