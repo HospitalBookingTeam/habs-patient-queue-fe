@@ -22,8 +22,6 @@ const ErrorDialog = ({
 	message?: ReactNode
 	title?: ReactNode
 }) => {
-	console.log('message', message)
-	console.log('open', open)
 	return (
 		<Dialog onClose={handleClose} maxWidth="xs" open={open}>
 			<StyledDialogTitle background="red" color="white">
