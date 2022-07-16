@@ -9,11 +9,12 @@ import useToast from '../../hooks/useToast'
 import ControlledAutocomplete, {
 	Option,
 } from '../../components/FormElements/ControlledAutocomplete'
+import { RoomData } from '../../entities/room'
 
 type LoginFormData = {
 	username: string
 	password: string
-	room: Option
+	room: Option & RoomData
 }
 const Login = () => {
 	const [roomIdOptions, setRoomIdOptions] = useState<Option[] | undefined>(
@@ -35,11 +36,12 @@ const Login = () => {
 		const queryRoomOptions = async () => {
 			try {
 				const response = await apiHelper.get('rooms')
-				const _roomIdOptions = response.data.map((room: any) => ({
+				const _roomIdOptions = response.data.map((room: RoomData) => ({
 					label: `${room.roomTypeName} ${room.departmentName?.toLowerCase()} ${
 						room.roomNumber
 					} - Tầng ${room.floor}`,
 					value: room.id?.toString(),
+					...room,
 				}))
 				setRoomIdOptions(_roomIdOptions)
 			} catch (error) {
@@ -57,7 +59,7 @@ const Login = () => {
 	const onSubmit = async ({
 		username,
 		password,
-		room: { value: roomId },
+		room: { value: roomId, label, ...room },
 	}: LoginFormData) => {
 		try {
 			const loginData: any = await apiHelper
@@ -67,7 +69,7 @@ const Login = () => {
 					roomId: Number(roomId),
 				})
 				.then((response) => response?.data)
-			login(loginData?.token, Number(roomId), loginData?.information)
+			login(loginData?.token, Number(roomId), room, loginData?.information)
 			router.push('/')
 		} catch (error) {
 			console.error(error)

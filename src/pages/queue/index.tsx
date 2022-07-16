@@ -17,10 +17,12 @@ import styled from '@emotion/styled'
 import {
 	CheckupRecordStatus,
 	renderEnumCheckupRecordStatus,
+	translateCheckupRecordStatus,
 } from '../../utils/renderEnums'
 import { getCookie } from 'cookies-next'
 import moment from 'moment'
 import { formatDate, getGreetingTime } from '../../utils/formats'
+import { RoomData } from '../../entities/room'
 
 export type QueueDetailData = {
 	id: number
@@ -61,7 +63,8 @@ const Queue: NextPage = () => {
 
 	const [queueData, setQueueData] =
 		useState<QueueDetailData[]>(DEFAULT_QUEUE_STATE)
-	const { roomId } = useAuth()
+	const [roomData, setRoomData] = useState<RoomData | undefined>(undefined)
+	const { roomId, room } = useAuth()
 
 	const isQueueNotEmpty = queueData && queueData?.length
 
@@ -73,12 +76,16 @@ const Queue: NextPage = () => {
 				})
 				setQueueData(response?.data)
 			} catch (error) {
-				console.log(error)
+				console.error(error)
 			}
 		}
 		if (!roomId) return
 		queryQueueData()
 	}, [roomId])
+
+	useEffect(() => {
+		setRoomData(room)
+	}, [room])
 
 	return (
 		<PageLayout>
@@ -87,7 +94,9 @@ const Queue: NextPage = () => {
 
 			<Paper sx={{ p: 3 }}>
 				<StyledGradientTypo fontWeight="medium" mb={3}>
-					Bệnh nhân chờ khám
+					Bệnh nhân chờ khám - {roomData?.roomTypeName ?? '---'}{' '}
+					{roomData?.departmentName?.toLowerCase()}{' '}
+					{roomData?.roomNumber ?? '---'} - Tầng {roomData?.floor ?? '---'}
 				</StyledGradientTypo>
 				<Stack
 					width={'100%'}
@@ -100,11 +109,16 @@ const Queue: NextPage = () => {
 					display={isQueueNotEmpty ? 'flex' : 'none'}
 				>
 					<Typography flex="1 1 10%">STT</Typography>
-					<Typography textAlign={'left'} flex="1 1 40%">
+					<Typography
+						textAlign={'left'}
+						flex={roomData?.isGeneralRoom ? '1 1 40%' : '1 1 60%'}
+					>
 						Họ Tên
 					</Typography>
 					<Typography flex="1 1 30%">Trạng thái</Typography>
-					<Typography flex="1 1 20%">Thời gian dự kiến</Typography>
+					{roomData?.isGeneralRoom && (
+						<Typography flex="1 1 20%">Thời gian dự kiến</Typography>
+					)}
 				</Stack>
 
 				{/* List */}
@@ -129,23 +143,21 @@ const Queue: NextPage = () => {
 									<Typography
 										fontWeight={'bold'}
 										textAlign={'left'}
-										flex="1 1 40%"
+										flex={roomData?.isGeneralRoom ? '1 1 40%' : '1 1 60%'}
 									>
 										{queue?.patientName}
 									</Typography>
 									<Typography flex="1 1 30%" textAlign={'left'}>
-										{queue?.isReExam
-											? queue?.status === CheckupRecordStatus['Chờ khám']
-												? 'Tái khám'
-												: queue?.status ===
-												  CheckupRecordStatus['Đã có kết quả xét nghiệm']
-												? 'Đã có kết quả xét nghiệm (tái khám)'
-												: renderEnumCheckupRecordStatus(queue?.status)
-											: renderEnumCheckupRecordStatus(queue?.status)}
+										{translateCheckupRecordStatus(
+											queue?.status,
+											queue?.isReExam
+										)}
 									</Typography>
-									<Typography flex="1 1 20%" textAlign={'left'}>
-										{formatDate(queue?.estimatedStartTime, 'HH:mm')}
-									</Typography>
+									{roomData?.isGeneralRoom && (
+										<Typography flex="1 1 20%" textAlign={'left'}>
+											{formatDate(queue?.estimatedStartTime, 'HH:mm')}
+										</Typography>
+									)}
 								</Stack>
 							</Item>
 						))

@@ -56,8 +56,8 @@ const CheckupTab = ({
 
 	useEffect(() => {
 		if (
-			data?.status === CheckupRecordStatus['Đang khám'] ||
-			data?.status === CheckupRecordStatus['Đã có kết quả xét nghiệm']
+			data?.status === CheckupRecordStatus.DANG_KHAM ||
+			data?.status === CheckupRecordStatus.DA_CO_KET_QUA_XN
 		) {
 			setIsEdit(true)
 		}

@@ -34,7 +34,7 @@ const FinishRecordDialog = ({
 		try {
 			setLoading(true)
 			await apiHelper.put(`checkup-records/${data.id}`, {
-				status: CheckupRecordStatus['Kết thúc'],
+				status: CheckupRecordStatus.KET_THUC,
 				id: data.id,
 				patientId: data.patientId,
 			})
