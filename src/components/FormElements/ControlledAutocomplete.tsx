@@ -42,11 +42,14 @@ export default function ControlledAutocomplete({
 				return (
 					<Autocomplete
 						{...field}
+						disabled={rest?.disabled}
 						multiple={multiple}
 						handleHomeEndKeys
 						options={options}
 						getOptionLabel={getOptionLabel}
-						isOptionEqualToValue={(option, value) => isEqual(option, value)}
+						isOptionEqualToValue={(option, value) =>
+							isEqual(option.value, value.value)
+						}
 						renderInput={(params) => (
 							<TextField
 								{...params}
@@ -56,15 +59,8 @@ export default function ControlledAutocomplete({
 								helperText={error?.message}
 							/>
 						)}
-						onChange={(e, value) => field.onChange(value)}
-						onInputChange={(_, data) => {
-							if (multiple) {
-								if (!!data && Array.isArray(data)) {
-									field.onChange(data)
-								}
-								return
-							}
-							if (data) field.onChange(data)
+						onChange={(e, value) => {
+							field.onChange(value)
 						}}
 					/>
 				)

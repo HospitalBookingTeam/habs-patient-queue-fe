@@ -86,7 +86,7 @@ const RequestMedicinesDialog = ({
 		usage: string
 	}>({
 		defaultValues: DEFAULT_VALUES,
-		mode: 'all',
+		mode: 'onChange',
 	})
 
 	const usageRef = register('usage')
@@ -98,7 +98,6 @@ const RequestMedicinesDialog = ({
 			)
 
 			onAdd({
-				...medicine,
 				medicineName: medicine?.name ?? '',
 				usage: values?.usage,
 				quantity: Number(values?.quantity),
@@ -167,8 +166,8 @@ const RequestMedicinesDialog = ({
 		if (Number(medicineData?.nightDose)) {
 			setIsNight(true)
 		}
+
 		reset({
-			...medicineData,
 			usage: medicineData?.usage,
 			quantity: Number(medicineData?.quantity),
 			morningDose: Number(medicineData?.morningDose),
@@ -176,11 +175,11 @@ const RequestMedicinesDialog = ({
 			eveningDose: Number(medicineData?.eveningDose),
 			nightDose: Number(medicineData?.nightDose),
 			medicine: {
-				value: medicineData?.id?.toString() ?? '',
-				label: medicineData?.name ?? '',
+				value: medicineData?.medicineId?.toString(),
+				label: medicineData?.medicineName,
 			},
 		})
-	}, [open])
+	}, [open, medicineData])
 
 	return (
 		<Dialog open={open} onClose={closeModal} maxWidth="md" fullWidth>
@@ -211,6 +210,7 @@ const RequestMedicinesDialog = ({
 											label: option.name,
 										})) ?? []
 									}
+									disabled={!!medicineData}
 								/>
 
 								<Box maxWidth={250}>

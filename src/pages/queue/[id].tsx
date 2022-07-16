@@ -22,6 +22,7 @@ import PatientInfoTab from './components/PatientInfoTab'
 import CheckupTab from './components/CheckupTab'
 import RecordTabs from './components/RecordsTab'
 import { ChevronLeft } from '@mui/icons-material'
+import { Option } from '../../components/FormElements/ControlledAutocomplete'
 
 const ATOM_KEY = 'checkup-record'
 
@@ -42,9 +43,7 @@ const QueueDetailPage = () => {
 	const { id } = router.query
 
 	const [data, setData] = useState<CheckupRecordData | undefined>(undefined)
-	const [icdList, setIcdList] = useState<
-		{ value: number; label: string }[] | undefined
-	>(undefined)
+	const [icdList, setIcdList] = useState<Option[] | undefined>(undefined)
 
 	const [tab, setTab] = React.useState(0)
 
@@ -61,7 +60,7 @@ const QueueDetailPage = () => {
 				])
 				setIcdList(
 					IcdResponse?.data?.map((icd: IcdData) => ({
-						value: icd.id,
+						value: icd.id?.toString(),
 						label: `${icd.code} - ${icd.name}`,
 					}))
 				)

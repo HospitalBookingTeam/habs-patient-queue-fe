@@ -1,10 +1,20 @@
 import { Autocomplete, Stack, TextField } from '@mui/material'
 import { useCallback, useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { AutocompleteOption } from '../../../../entities/base'
+import { FormProvider, useForm } from 'react-hook-form'
+import ControlledAutocomplete, {
+	Option,
+} from '../../../../components/FormElements/ControlledAutocomplete'
 import { CheckupRecordData } from '../../../../entities/record'
 import apiHelper from '../../../../utils/apiHelper'
 
+type CheckupFormData = {
+	bloodPressure: number
+	temperature: number
+	pulse: number
+	doctorAdvice: string
+	diagnosis: string
+	icdDisease: Option
+}
 const Checkup = ({
 	isSave,
 	data,
@@ -12,41 +22,36 @@ const Checkup = ({
 }: {
 	isSave: boolean
 	data?: CheckupRecordData
-	icdList?: AutocompleteOption[]
+	icdList?: Option[]
 }) => {
 	const {
 		register,
 		handleSubmit,
 		reset,
-		formState: { isDirty, errors },
-	} = useForm({
+		formState: { errors, ...formState },
+		...methods
+	} = useForm<CheckupFormData>({
 		defaultValues: {
-			bloodPressure: 0,
-			temperature: 0,
-			pulse: 0,
+			bloodPressure: undefined,
+			temperature: undefined,
+			pulse: undefined,
 			doctorAdvice: '',
 			diagnosis: '',
+			icdDisease: undefined,
 		},
 		mode: 'onChange',
 	})
 
-	const [icdDisease, setIcdDisease] = useState<AutocompleteOption | null>(null)
-
-	useEffect(() => {
-		if (!data) return
-		const option = icdList?.find((op) => op.value === data.icdDiseaseId)
-		setIcdDisease(!!option ? option : null)
-	}, [data])
-
 	const handleUpdateCheckupRecord = useCallback(
-		async (values: any) => {
+		async (values: CheckupFormData) => {
 			const {
 				bloodPressure,
 				pulse,
 				temperature,
 				doctorAdvice,
 				diagnosis,
-			}: CheckupRecordData = values
+				icdDisease,
+			} = values
 			try {
 				await apiHelper.put(`checkup-records/${data?.id}`, {
 					bloodPressure: Number(bloodPressure),
@@ -62,7 +67,7 @@ const Checkup = ({
 				console.error(err)
 			}
 		},
-		[data, icdDisease]
+		[data]
 	)
 
 	useEffect(() => {
@@ -87,58 +92,61 @@ const Checkup = ({
 	}, [isSave])
 
 	return (
-		<form onSubmit={handleSubmit(handleUpdateCheckupRecord)}>
-			<Stack spacing={4} mb={4}>
-				<Stack direction="row" flex={'1 1 auto'} spacing={4}>
+		<FormProvider
+			{...methods}
+			formState={{ ...formState, errors }}
+			reset={reset}
+			register={register}
+			handleSubmit={handleSubmit}
+		>
+			<form onSubmit={handleSubmit(handleUpdateCheckupRecord)}>
+				<Stack spacing={4} mb={4}>
+					<Stack direction="row" flex={'1 1 auto'} spacing={4}>
+						<TextField
+							label="Nhịp tim"
+							type="number"
+							error={!!errors?.bloodPressure}
+							{...register('bloodPressure', { min: 0 })}
+						/>
+						<TextField
+							label="Huyết áp"
+							type="number"
+							error={!!errors?.pulse}
+							{...register('pulse', { min: 0 })}
+						/>
+						<TextField
+							label="Nhiệt độ"
+							type="number"
+							error={!!errors?.temperature}
+							{...register('temperature', { min: 0 })}
+						/>
+					</Stack>
+
+					<ControlledAutocomplete
+						name="icdDisease"
+						label={'Chẩn đoán'}
+						style={{ width: '100%' }}
+						rules={{}}
+						options={icdList ?? []}
+					/>
+
 					<TextField
-						label="Nhịp tim"
-						type="number"
-						error={!!errors?.bloodPressure}
-						{...register('bloodPressure', { min: 0 })}
+						label="Chẩn đoán cận lâm sàng"
+						multiline
+						type="text"
+						rows={3}
+						{...register('diagnosis', {})}
 					/>
 					<TextField
-						label="Huyết áp"
-						type="number"
-						error={!!errors?.pulse}
-						{...register('pulse', { min: 0 })}
-					/>
-					<TextField
-						label="Nhiệt độ"
-						type="number"
-						error={!!errors?.temperature}
-						{...register('temperature', { min: 0 })}
+						label="Lời khuyên bác sĩ"
+						multiline
+						type="text"
+						rows={3}
+						{...register('doctorAdvice', {})}
 					/>
 				</Stack>
-
-				<Autocomplete
-					value={icdDisease}
-					onChange={(_, value) => {
-						setIcdDisease(value)
-					}}
-					options={icdList ?? []}
-					sx={{ width: '100%' }}
-					getOptionLabel={(option) => option.label}
-					renderInput={(params) => {
-						return <TextField {...params} label="Chẩn đoán" />
-					}}
-				/>
-
-				<TextField
-					label="Chẩn đoán cận lâm sàng"
-					multiline
-					type="text"
-					rows={3}
-					{...register('diagnosis', {})}
-				/>
-				<TextField
-					label="Lời khuyên bác sĩ"
-					multiline
-					type="text"
-					rows={3}
-					{...register('doctorAdvice', {})}
-				/>
-			</Stack>
-		</form>
+			</form>
+		</FormProvider>
 	)
 }
 

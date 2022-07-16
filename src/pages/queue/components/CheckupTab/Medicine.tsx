@@ -53,6 +53,7 @@ const Medicine = ({
 	const onSubmit = async (values: any) => {
 		try {
 			await apiHelper.post(`checkup-records/${data?.id}/prescription`, {
+				id: data?.id,
 				note: values?.note,
 				details: medicineList?.map((medicine) => ({
 					usage: medicine?.usage,

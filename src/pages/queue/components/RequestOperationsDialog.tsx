@@ -59,6 +59,7 @@ const RequestOperationsDialog = ({
 	const onSubmit = async ({ examOperations }: { examOperations: Option[] }) => {
 		try {
 			const resp = await apiHelper.post(`checkup-records/${id}/tests`, {
+				id,
 				examOperationIds: examOperations?.map((e) => Number(e.value)),
 			})
 
