@@ -167,18 +167,27 @@ const CheckupTab = ({
 					<RequestDepartmentDialog
 						id={data.id}
 						open={isRequestDepartmentsOpen}
-						closeModal={() => setIsRequestDepartmentsOpen(false)}
+						closeModal={() => {
+							setIsRequestDepartmentsOpen(false)
+						}}
+						saveProgress={() => setIsSave(true)}
 					/>
 
 					<FinishRecordDialog
 						data={data}
 						open={isFinishRecordOpen}
-						closeModal={() => setIsFinishRecordOpen(false)}
+						closeModal={() => {
+							setIsFinishRecordOpen(false)
+						}}
+						saveProgress={() => setIsSave(true)}
 					/>
 					<EmergencyConfirmDialog
 						data={data}
 						open={isEmergencyOpen}
-						closeModal={() => setIsEmergencyOpen(false)}
+						closeModal={() => {
+							setIsEmergencyOpen(false)
+						}}
+						saveProgress={() => setIsSave(true)}
 					/>
 				</>
 			)}

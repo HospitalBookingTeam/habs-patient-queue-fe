@@ -30,10 +30,12 @@ const RequestOperationsDialog = ({
 	id,
 	open,
 	closeModal,
+	saveProgress,
 }: {
 	id: number
 	open: boolean
 	closeModal: () => void
+	saveProgress?: () => void
 }) => {
 	const [data, setData] = useState<ExamOperationIdsData[] | undefined>(
 		undefined
@@ -68,6 +70,7 @@ const RequestOperationsDialog = ({
 			console.error(error)
 		} finally {
 			setIsConfirmed(false)
+			saveProgress?.()
 			setShowResponse(true)
 		}
 	}

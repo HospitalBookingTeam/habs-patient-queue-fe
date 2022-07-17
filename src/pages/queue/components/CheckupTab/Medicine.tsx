@@ -160,7 +160,7 @@ const Medicine = ({
 													<IconButton
 														onClick={() =>
 															setMedicineList((list) =>
-																filter(list, (item) => item.id !== medicine.id)
+																filter(list, (item) => item.medicineId !== medicine.medicineId)
 															)
 														}
 													>

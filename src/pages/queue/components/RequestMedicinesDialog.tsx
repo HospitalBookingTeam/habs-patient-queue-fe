@@ -218,7 +218,7 @@ const RequestMedicinesDialog = ({
 										label="Số lượng"
 										type="number"
 										error={!!errors?.quantity}
-										{...register('quantity', { min: 0 })}
+										{...register('quantity', { min: '0' })}
 									/>
 								</Box>
 							</Stack>
@@ -247,7 +247,7 @@ const RequestMedicinesDialog = ({
 										hiddenLabel
 										size="small"
 										error={!!errors?.morningDose}
-										{...register('morningDose', { min: 0 })}
+										{...register('morningDose', { min: '0' })}
 									/>
 								</Stack>
 
@@ -274,7 +274,7 @@ const RequestMedicinesDialog = ({
 										hiddenLabel
 										size="small"
 										error={!!errors?.middayDose}
-										{...register('middayDose', { min: 0 })}
+										{...register('middayDose', { min: '0' })}
 									/>
 								</Stack>
 								<Stack direction={'row'} spacing={2} alignItems={'center'}>
@@ -300,7 +300,7 @@ const RequestMedicinesDialog = ({
 										hiddenLabel
 										size="small"
 										error={!!errors?.eveningDose}
-										{...register('eveningDose', { min: 0 })}
+										{...register('eveningDose', { min: '0' })}
 									/>
 								</Stack>
 
@@ -327,7 +327,7 @@ const RequestMedicinesDialog = ({
 										hiddenLabel
 										size="small"
 										error={!!errors?.nightDose}
-										{...register('nightDose', { min: 0 })}
+										{...register('nightDose', { min: '0' })}
 									/>
 								</Stack>
 							</Stack>

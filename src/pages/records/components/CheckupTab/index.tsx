@@ -65,7 +65,17 @@ const CheckupTab = ({ data }: { data?: CheckupRecordData }) => {
 				<TestRecords testRecords={data?.testRecords} />
 			</Stack>
 
-			<Box id="medicine" mt={4}>
+			<Box
+				id="medicine"
+				mt={4}
+				display={
+					data?.prescription &&
+					data?.prescription?.details &&
+					data?.prescription?.details?.length
+						? 'block'
+						: 'none !important'
+				}
+			>
 				<Medicine data={data} />
 			</Box>
 		</div>

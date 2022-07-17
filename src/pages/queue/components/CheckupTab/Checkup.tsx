@@ -106,19 +106,19 @@ const Checkup = ({
 							label="Nhịp tim"
 							type="number"
 							error={!!errors?.bloodPressure}
-							{...register('bloodPressure', { min: 0 })}
+							{...register('bloodPressure', { min: '0' })}
 						/>
 						<TextField
 							label="Huyết áp"
 							type="number"
 							error={!!errors?.pulse}
-							{...register('pulse', { min: 0 })}
+							{...register('pulse', { min: '0' })}
 						/>
 						<TextField
 							label="Nhiệt độ"
 							type="number"
 							error={!!errors?.temperature}
-							{...register('temperature', { min: 0 })}
+							{...register('temperature', { min: '0' })}
 						/>
 					</Stack>
 

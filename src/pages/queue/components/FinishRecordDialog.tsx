@@ -22,10 +22,12 @@ const FinishRecordDialog = ({
 	data,
 	open,
 	closeModal,
+	saveProgress,
 }: {
 	data: CheckupRecordData
 	open: boolean
 	closeModal: () => void
+	saveProgress?: () => void
 }) => {
 	const [toastOpen, setToastOpen] = useState(false)
 	const router = useRouter()
@@ -42,6 +44,7 @@ const FinishRecordDialog = ({
 			console.error(error)
 		} finally {
 			closeModal()
+			saveProgress?.()
 			setLoading(false)
 			setToastOpen(true)
 			router.push('/queue')

@@ -108,16 +108,15 @@ const Queue: NextPage = () => {
 					color="GrayText"
 					display={isQueueNotEmpty ? 'flex' : 'none'}
 				>
-					<Typography flex="1 1 10%">STT</Typography>
-					<Typography
-						textAlign={'left'}
-						flex={roomData?.isGeneralRoom ? '1 1 40%' : '1 1 60%'}
-					>
+					<Typography flex="0 1 5%" textAlign={'center'}>
+						STT
+					</Typography>
+					<Typography textAlign={'left'} flex={'2 1 auto'} pl={2}>
 						Họ Tên
 					</Typography>
-					<Typography flex="1 1 30%">Trạng thái</Typography>
+					<Typography flex="0 1 30%">Trạng thái</Typography>
 					{roomData?.isGeneralRoom && (
-						<Typography flex="1 1 20%">Thời gian dự kiến</Typography>
+						<Typography flex="0 1 20%">Thời gian dự kiến</Typography>
 					)}
 				</Stack>
 
@@ -137,24 +136,25 @@ const Queue: NextPage = () => {
 									justifyContent={'space-between'}
 									direction="row"
 								>
-									<Typography flex="1 1 10%" textAlign={'left'}>
+									<Typography flex="0 1 5%" textAlign={'center'}>
 										{queue?.numericalOrder}
 									</Typography>
 									<Typography
 										fontWeight={'bold'}
 										textAlign={'left'}
-										flex={roomData?.isGeneralRoom ? '1 1 40%' : '1 1 60%'}
+										flex={'2 1 auto'}
+										pl={2}
 									>
 										{queue?.patientName}
 									</Typography>
-									<Typography flex="1 1 30%" textAlign={'left'}>
+									<Typography flex="0 1 30%" textAlign={'left'}>
 										{translateCheckupRecordStatus(
 											queue?.status,
 											queue?.isReExam
 										)}
 									</Typography>
 									{roomData?.isGeneralRoom && (
-										<Typography flex="1 1 20%" textAlign={'left'}>
+										<Typography flex="0 1 20%" textAlign={'left'}>
 											{formatDate(queue?.estimatedStartTime, 'HH:mm')}
 										</Typography>
 									)}

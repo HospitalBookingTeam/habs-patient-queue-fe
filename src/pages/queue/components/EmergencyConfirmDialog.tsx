@@ -22,14 +22,17 @@ const EmergencyConfirmDialog = ({
 	data,
 	open,
 	closeModal,
+	saveProgress,
 }: {
 	data: CheckupRecordData
 	open: boolean
 	closeModal: () => void
+	saveProgress?: () => void
 }) => {
 	const [toastOpen, setToastOpen] = useState(false)
 	const router = useRouter()
 	const [loading, setLoading] = useState(false)
+
 	const onConfirm = async () => {
 		try {
 			setLoading(true)
@@ -42,6 +45,7 @@ const EmergencyConfirmDialog = ({
 			console.error(error)
 		} finally {
 			closeModal()
+			saveProgress?.()
 			setLoading(false)
 			setToastOpen(true)
 			router.push('/queue')

@@ -32,10 +32,12 @@ const RequestDepartmentDialog = ({
 	id,
 	open,
 	closeModal,
+	saveProgress,
 }: {
 	id: number
 	open: boolean
 	closeModal: () => void
+	saveProgress?: () => void
 }) => {
 	const [data, setData] = useState<
 		(AutocompleteOption & { symptom?: string })[] | undefined
@@ -102,6 +104,7 @@ const RequestDepartmentDialog = ({
 			console.error(error)
 		} finally {
 			setIsConfirmed(false)
+			saveProgress?.()
 			setShowResponse(true)
 		}
 	}
@@ -296,4 +299,5 @@ const StyledInput = styled.textarea`
 	width: 80%;
 	resize: none;
 	border-radius: 8px;
+	font-family: 'Roboto';
 `

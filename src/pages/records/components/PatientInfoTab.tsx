@@ -29,7 +29,9 @@ const PatientInfoTab = ({ patientData }: { patientData?: PatientData }) => {
 							Ngày sinh
 						</Typography>
 						<Typography variant="body2">
-							{formatDate(patientData?.dateOfBirth ?? '')}
+							{patientData?.dateOfBirth
+								? formatDate(patientData?.dateOfBirth)
+								: '---'}
 						</Typography>
 					</Stack>
 
@@ -52,7 +54,11 @@ const PatientInfoTab = ({ patientData }: { patientData?: PatientData }) => {
 							Giới tính
 						</Typography>
 						<Typography variant="body2">
-							{patientData?.gender === 0 ? 'Nam' : 'Nữ'}
+							{patientData?.gender
+								? patientData?.gender === 0
+									? 'Nam'
+									: 'Nữ'
+								: '---'}
 						</Typography>
 					</Stack>
 
