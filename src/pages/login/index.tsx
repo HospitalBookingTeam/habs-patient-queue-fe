@@ -123,12 +123,12 @@ const Login = () => {
 							<TextField
 								type="text"
 								label={'Tài khoản'}
-								{...register('username', {})}
+								{...register('username', { required: true })}
 							/>
 							<TextField
 								type="password"
 								label={'Mật khẩu'}
-								{...register('password', {})}
+								{...register('password', { required: true })}
 							/>
 
 							<ControlledAutocomplete
