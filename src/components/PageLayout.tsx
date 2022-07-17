@@ -1,4 +1,4 @@
-import * as React from 'react'
+import { useState, useEffect } from 'react'
 import type { NextPage } from 'next'
 import Container from '@mui/material/Container'
 import Box from '@mui/material/Box'
@@ -22,10 +22,9 @@ type Props = {
 const PageLayout: NextPage<Props> = ({ children }: Props) => {
 	const { isAuthenticated } = useAuth()
 	const { open, closeToast, toastData } = useToast()
-
 	const router = useRouter()
 
-	React.useEffect(() => {
+	useEffect(() => {
 		if (!isAuthenticated) router.push('/login')
 	}, [router, isAuthenticated])
 
@@ -34,6 +33,7 @@ const PageLayout: NextPage<Props> = ({ children }: Props) => {
 			<nav>
 				<ButtonAppBar />
 			</nav>
+
 			<StyledMain>
 				<Container
 					maxWidth="lg"
@@ -55,7 +55,6 @@ const PageLayout: NextPage<Props> = ({ children }: Props) => {
 			<footer>
 				<Copyright />
 			</footer>
-
 			<ErrorDialog
 				open={!!open && toastData?.variant === 'error'}
 				handleClose={closeToast}

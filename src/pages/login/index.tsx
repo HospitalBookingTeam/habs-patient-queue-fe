@@ -10,6 +10,8 @@ import ControlledAutocomplete, {
 	Option,
 } from '../../components/FormElements/ControlledAutocomplete'
 import { RoomData } from '../../entities/room'
+import PageLayout from '../../components/PageLayout'
+import { ErrorDialog } from '../../components/Modal'
 
 type LoginFormData = {
 	username: string
@@ -30,7 +32,7 @@ const Login = () => {
 	})
 	const router = useRouter()
 	const { login, isAuthenticated } = useAuth()
-	const { toastError } = useToast()
+	const { toastError, open, closeToast, toastData } = useToast()
 
 	useEffect(() => {
 		const queryRoomOptions = async () => {
@@ -78,7 +80,13 @@ const Login = () => {
 	}
 
 	return (
-		<Box height="100vh" sx={{ background: '#f9f9f9' }}>
+		<Stack
+			alignContent={'center'}
+			justifyContent={'center'}
+			height={'100vh'}
+			width={'100vw'}
+			sx={{ background: '#f9f9f9' }}
+		>
 			<Stack
 				spacing={4}
 				direction={'column'}
@@ -88,7 +96,9 @@ const Login = () => {
 				mx="auto"
 				p={4}
 				sx={{
-					height: '100%',
+					width: '100%',
+					background: '#fff',
+					borderRadius: '12px',
 				}}
 			>
 				<h1>Bệnh viện Nhi Đồng 2</h1>
@@ -141,7 +151,13 @@ const Login = () => {
 					</form>
 				</FormProvider>
 			</Stack>
-		</Box>
+
+			<ErrorDialog
+				open={!!open && toastData?.variant === 'error'}
+				handleClose={closeToast}
+				message={toastData?.message}
+			/>
+		</Stack>
 	)
 }
 
