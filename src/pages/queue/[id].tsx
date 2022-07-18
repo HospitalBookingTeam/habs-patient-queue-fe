@@ -54,12 +54,12 @@ const QueueDetailPage = () => {
 	useEffect(() => {
 		const queryData = async () => {
 			try {
-				const [dataResponse, IcdResponse] = await Promise.all([
+				const [dataResponse, icdResponse] = await Promise.all([
 					apiHelper.get(`checkup-records/${id}`),
 					apiHelper.get(`icd`),
 				])
 				setIcdList(
-					IcdResponse?.data?.map((icd: IcdData) => ({
+					icdResponse?.data?.map((icd: IcdData) => ({
 						value: icd.id?.toString(),
 						label: `${icd.code} - ${icd.name}`,
 					}))

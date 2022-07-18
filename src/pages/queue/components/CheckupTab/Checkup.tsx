@@ -76,6 +76,12 @@ const Checkup = ({
 			bloodPressure: data?.bloodPressure || undefined,
 			pulse: data?.pulse || undefined,
 			temperature: data?.temperature || undefined,
+			icdDisease: data?.icdDiseaseId
+				? {
+						value: data?.icdDiseaseId?.toString(),
+						label: `${data?.icdCode} - ${data?.icdDiseaseName}`,
+				  }
+				: undefined,
 		}
 
 		reset(
