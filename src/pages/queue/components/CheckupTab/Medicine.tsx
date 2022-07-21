@@ -71,11 +71,6 @@ const Medicine = ({
 		}
 	}
 
-	const getOpObj = (option: any) => {
-		if (!option?.value) option = icdList?.find((op) => op.label === option)
-		return option
-	}
-
 	useEffect(() => {
 		if (!isSave) return
 		handleSubmit(onSubmit)()
@@ -160,7 +155,11 @@ const Medicine = ({
 													<IconButton
 														onClick={() =>
 															setMedicineList((list) =>
-																filter(list, (item) => item.medicineId !== medicine.medicineId)
+																filter(
+																	list,
+																	(item) =>
+																		item.medicineId !== medicine.medicineId
+																)
 															)
 														}
 													>

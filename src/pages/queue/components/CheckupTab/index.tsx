@@ -18,6 +18,7 @@ import EmergencyConfirmDialog from '../EmergencyConfirmDialog'
 import FinishRecordDialog from '../FinishRecordDialog'
 import RequestDepartmentDialog from '../RequestDepartmentsDialog'
 import RequestOperationsDialog from '../RequestOperationsDialog'
+import RequestReExamDialog from '../RequestReExamDialog'
 import Checkup from './Checkup'
 import Medicine from './Medicine'
 import TestRecords from './TestRecords'
@@ -34,6 +35,8 @@ const CheckupTab = ({
 		useState(false)
 	const [isFinishRecordOpen, setIsFinishRecordOpen] = useState(false)
 	const [isEmergencyOpen, setIsEmergencyOpen] = useState(false)
+	const [isReExamOpen, setIsReExamOpen] = useState(false)
+
 	const [isSave, setIsSave] = useState(false)
 	const { toastError } = useToast()
 
@@ -136,6 +139,14 @@ const CheckupTab = ({
 				<Stack direction={'row'} justifyContent={'flex-end'} spacing={2} mt={4}>
 					<Button
 						type="button"
+						color={'info'}
+						variant="contained"
+						onClick={() => setIsReExamOpen(true)}
+					>
+						Đặt lịch tái khám
+					</Button>
+					<Button
+						type="button"
 						color={'secondary'}
 						variant="contained"
 						onClick={() => setIsRequestDepartmentsOpen(true)}
@@ -164,6 +175,11 @@ const CheckupTab = ({
 
 			{!!data && (
 				<>
+					<RequestReExamDialog
+						data={data}
+						open={isReExamOpen}
+						closeModal={() => setIsReExamOpen(false)}
+					/>
 					<RequestDepartmentDialog
 						id={data.id}
 						open={isRequestDepartmentsOpen}
