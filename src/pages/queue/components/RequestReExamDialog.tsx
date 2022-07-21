@@ -135,7 +135,12 @@ const RequestReExamDialog = ({
 			<StyledDialogTitle>
 				{isConfirmed ? 'Xác nhận tái khám' : 'Thông tin tái khám'}
 			</StyledDialogTitle>
-			<Box width="100%">
+			<DialogContent>
+				<DialogContentText mb={4}>
+					{isConfirmed
+						? 'Vui lòng xác nhận tái khám dưới đây'
+						: 'Vui lòng điền thông tin tái khám'}
+				</DialogContentText>
 				<FormProvider
 					{...methods}
 					watch={watch}
@@ -145,158 +150,151 @@ const RequestReExamDialog = ({
 					register={register}
 				>
 					<form onSubmit={handleSubmit(onSubmit)}>
-						<DialogContent>
-							<DialogContentText mb={4}>
-								{isConfirmed
-									? 'Vui lòng xác nhận tái khám dưới đây'
-									: 'Vui lòng điền thông tin tái khám'}
-							</DialogContentText>
-
-							<Stack spacing={2}>
-								<Box>
-									<ControlledDatepicker
-										name="reExamDate"
-										label={'Ngày tái khám dự kiến'}
-										rules={{ required: true }}
-										dateProps={{
-											disablePast: true,
-											minDate: moment().add(1, 'days').toDate(),
-											readOnly: isConfirmed,
-										}}
-									/>
-								</Box>
-								<Box width={'100%'} display={!isConfirmed ? 'block' : 'none'}>
-									<ControlledAutocomplete
-										name="examOperations"
-										multiple
-										label={'Loại xét nghiệm'}
-										style={{ width: '100%' }}
-										rules={{ required: true }}
-										options={data ?? []}
-									/>
-								</Box>
-
-								<Box mt={'40px !important'} />
-								<Stack
-									direction="row"
-									spacing={4}
-									sx={{
-										mb: 4,
-										display: examOperationsWatch?.length > 0 ? 'flex' : 'none',
-										pb: 2,
+						<Stack spacing={2}>
+							<Box>
+								<ControlledDatepicker
+									name="reExamDate"
+									label={'Ngày tái khám dự kiến'}
+									rules={{ required: true }}
+									dateProps={{
+										disablePast: true,
+										minDate: moment().add(1, 'days').toDate(),
+										readOnly: isConfirmed,
 									}}
-									alignItems={'center'}
-									borderBottom={'1px solid lightgray'}
-									color="GrayText"
-								>
-									<Typography width={'5%'} textAlign="right">
-										STT
-									</Typography>
-									<Typography width={'25%'}>Tên</Typography>
-									<Typography width={'25%'}>BHYT</Typography>
-									<Typography width={'30%'}>Ghi chú</Typography>
-									<Typography width={'15%'} textAlign="right">
-										Giá
-									</Typography>
-								</Stack>
-								{!!examOperationsWatch?.length &&
-									Array.isArray(examOperationsWatch) &&
-									examOperationsWatch?.map((item, index) => (
-										<Stack
-											direction="row"
-											spacing={4}
-											key={`${item.id}`}
-											alignItems={'center'}
-										>
-											<Typography width={'5%'} textAlign="right">
-												{index + 1}
-											</Typography>
-											<Typography width={'25%'}>{item.name}</Typography>
-											<Typography width={'25%'}>
-												{renderEnumInsuranceStatus(item.insuranceStatus)}
-											</Typography>
-											<Typography width={'30%'}>{item.note}</Typography>
-											<Typography
-												fontWeight={'bold'}
-												width={'15%'}
-												textAlign="right"
-											>
-												{formatCurrency(item.price)}
-											</Typography>
-										</Stack>
-									))}
-
-								<Stack
-									direction="row"
-									spacing={4}
-									sx={{
-										mb: 4,
-										display:
-											examOperationsWatch?.length > 0
-												? 'flex'
-												: 'none !important',
-										py: 2,
-									}}
-									alignItems={'center'}
-									justifyContent={'flex-end'}
-									borderTop={'1px solid lightgray'}
-								>
-									<Typography textAlign="right">Tổng cộng</Typography>
-									<Typography
-										width={'200px'}
-										fontWeight="bold"
-										fontSize="20px"
-										textAlign="right"
-									>
-										{formatCurrency(totalPrice ?? 0)}
-									</Typography>
-								</Stack>
-
-								<TextField
-									label="Ghi chú"
-									multiline
-									type="text"
-									rows={3}
-									disabled={isConfirmed}
-									{...register('note', {})}
 								/>
-							</Stack>
-						</DialogContent>
-						<DialogActions>
-							<Button
-								onClick={closeModal}
-								color="warning"
-								type="button"
-								disabled={isLoading}
-							>
-								Huỷ
-							</Button>
-							<Button
-								type="submit"
-								variant="contained"
-								sx={{ display: isConfirmed ? 'block' : 'none' }}
-							>
-								Xác nhận
-							</Button>
-							<LoadingButton
-								type="button"
-								variant="contained"
-								loading={isLoading}
-								sx={{ display: !isConfirmed ? 'block' : 'none' }}
-								onClick={async () => {
-									const result = await trigger(['examOperations', 'reExamDate'])
-									if (!result) {
-										return
-									}
-									setIsConfirmed(true)
+							</Box>
+							<Box width={'100%'} display={!isConfirmed ? 'block' : 'none'}>
+								<ControlledAutocomplete
+									name="examOperations"
+									multiple
+									label={'Loại xét nghiệm'}
+									style={{ width: '100%' }}
+									rules={{ required: true }}
+									options={data ?? []}
+								/>
+							</Box>
+
+							<Box mt={'40px !important'} />
+							<Stack
+								direction="row"
+								spacing={4}
+								sx={{
+									mb: 4,
+									display: examOperationsWatch?.length > 0 ? 'flex' : 'none',
+									pb: 2,
 								}}
+								alignItems={'center'}
+								borderBottom={'1px solid lightgray'}
+								color="GrayText"
 							>
-								Tiếp tục
-							</LoadingButton>
-						</DialogActions>
+								<Typography width={'5%'} textAlign="right">
+									STT
+								</Typography>
+								<Typography width={'25%'}>Tên</Typography>
+								<Typography width={'25%'}>BHYT</Typography>
+								<Typography width={'30%'}>Ghi chú</Typography>
+								<Typography width={'15%'} textAlign="right">
+									Giá
+								</Typography>
+							</Stack>
+							{!!examOperationsWatch?.length &&
+								Array.isArray(examOperationsWatch) &&
+								examOperationsWatch?.map((item, index) => (
+									<Stack
+										direction="row"
+										spacing={4}
+										key={`${item.id}`}
+										alignItems={'center'}
+									>
+										<Typography width={'5%'} textAlign="right">
+											{index + 1}
+										</Typography>
+										<Typography width={'25%'}>{item.name}</Typography>
+										<Typography width={'25%'}>
+											{renderEnumInsuranceStatus(item.insuranceStatus)}
+										</Typography>
+										<Typography width={'30%'}>{item.note}</Typography>
+										<Typography
+											fontWeight={'bold'}
+											width={'15%'}
+											textAlign="right"
+										>
+											{formatCurrency(item.price)}
+										</Typography>
+									</Stack>
+								))}
+
+							<Stack
+								direction="row"
+								spacing={4}
+								sx={{
+									mb: 4,
+									display:
+										examOperationsWatch?.length > 0
+											? 'flex'
+											: 'none !important',
+									py: 2,
+								}}
+								alignItems={'center'}
+								justifyContent={'flex-end'}
+								borderTop={'1px solid lightgray'}
+							>
+								<Typography textAlign="right">Tổng cộng</Typography>
+								<Typography
+									width={'200px'}
+									fontWeight="bold"
+									fontSize="20px"
+									textAlign="right"
+								>
+									{formatCurrency(totalPrice ?? 0)}
+								</Typography>
+							</Stack>
+
+							<TextField
+								label="Ghi chú"
+								multiline
+								type="text"
+								rows={3}
+								disabled={isConfirmed}
+								{...register('note', {})}
+							/>
+						</Stack>
 					</form>
 				</FormProvider>
-			</Box>
+			</DialogContent>
+			<DialogActions>
+				<Button
+					onClick={closeModal}
+					color="warning"
+					type="button"
+					disabled={isLoading}
+				>
+					Huỷ
+				</Button>
+				<Button
+					type="submit"
+					variant="contained"
+					onClick={() => handleSubmit(onSubmit)()}
+					sx={{ display: isConfirmed ? 'block' : 'none' }}
+				>
+					Xác nhận
+				</Button>
+				<LoadingButton
+					type="button"
+					variant="contained"
+					loading={isLoading}
+					sx={{ display: !isConfirmed ? 'block' : 'none' }}
+					onClick={async () => {
+						const result = await trigger(['examOperations', 'reExamDate'])
+						if (!result) {
+							return
+						}
+						setIsConfirmed(true)
+					}}
+				>
+					Tiếp tục
+				</LoadingButton>
+			</DialogActions>
 		</Dialog>
 	)
 }

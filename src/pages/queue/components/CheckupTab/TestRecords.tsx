@@ -44,6 +44,7 @@ const TestRecords = ({
 			{!!data && (
 				<RequestOperationsDialog
 					id={data.id}
+					data={data.testRecords}
 					open={isRequestOperationsOpen}
 					closeModal={() => setIsRequestOperationsOpen(false)}
 				/>

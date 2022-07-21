@@ -24,16 +24,19 @@ import { TestResponseData } from '../../../entities/test'
 import ControlledAutocomplete, {
 	Option,
 } from '../../../components/FormElements/ControlledAutocomplete'
+import { TestRecordData } from '../../../entities/record'
 
 type ExamOperationIdsData = OperationData & Option
 const RequestOperationsDialog = ({
 	id,
+	data: testRecords,
 	open,
 	closeModal,
 	saveProgress,
 }: {
 	id: number
 	open: boolean
+	data: TestRecordData[]
 	closeModal: () => void
 	saveProgress?: () => void
 }) => {
@@ -74,7 +77,7 @@ const RequestOperationsDialog = ({
 			setShowResponse(true)
 		}
 	}
-
+	console.log('testRecords', testRecords)
 	useEffect(() => {
 		const queryData = async () => {
 			try {
@@ -83,18 +86,23 @@ const RequestOperationsDialog = ({
 				)
 
 				setData(
-					_data.map((item) => ({
-						...item,
-						value: item.id?.toString(),
-						label: item.name,
-					}))
+					_data
+						.filter(
+							(item) =>
+								testRecords?.findIndex((r) => r.operationId === item.id) < 0
+						)
+						.map((item) => ({
+							...item,
+							value: item.id?.toString(),
+							label: item.name,
+						}))
 				)
 			} catch (error) {
 				console.error(error)
 			}
 		}
 		queryData()
-	}, [])
+	}, [testRecords])
 
 	useEffect(() => {
 		setIsConfirmed(false)
@@ -131,22 +139,23 @@ const RequestOperationsDialog = ({
 					? 'Xác nhận xét nghiệm'
 					: 'Chọn xét nghiệm'}
 			</StyledDialogTitle>
-			<Box display={showResponse ? 'none' : 'block'} width="100%">
-				<FormProvider
-					{...methods}
-					watch={watch}
-					trigger={trigger}
-					handleSubmit={handleSubmit}
-					reset={reset}
-				>
-					<form onSubmit={handleSubmit(onSubmit)}>
-						<DialogContent>
-							<DialogContentText mb={4}>
-								{isConfirmed
-									? 'Vui lòng xác nhận xét nghiệm cho phiên khám này'
-									: 'Vui lòng chọn loại xét nghiệm cho người bệnh'}
-							</DialogContentText>
-
+			<DialogContent>
+				<Box display={showResponse ? 'none' : 'block'} width="100%">
+					<DialogContentText mb={4}>
+						{showResponse
+							? 'Người bệnh cần hoàn thành các xét nghiệm sau'
+							: isConfirmed
+							? 'Vui lòng xác nhận xét nghiệm cho phiên khám này'
+							: 'Vui lòng chọn loại xét nghiệm cho người bệnh'}
+					</DialogContentText>
+					<FormProvider
+						{...methods}
+						watch={watch}
+						trigger={trigger}
+						handleSubmit={handleSubmit}
+						reset={reset}
+					>
+						<form onSubmit={handleSubmit(onSubmit)}>
 							<Stack spacing={2}>
 								<Box width={'100%'} display={!isConfirmed ? 'block' : 'none'}>
 									<ControlledAutocomplete
@@ -235,44 +244,10 @@ const RequestOperationsDialog = ({
 									</Typography>
 								</Stack>
 							</Stack>
-						</DialogContent>
-						<DialogActions>
-							<Button onClick={closeModal} color="warning" type="button">
-								Huỷ
-							</Button>
-							<Button
-								type="submit"
-								variant="contained"
-								sx={{ display: isConfirmed ? 'block' : 'none' }}
-							>
-								Xác nhận
-							</Button>
-							<Button
-								type="button"
-								variant="contained"
-								sx={{ display: !isConfirmed ? 'block' : 'none' }}
-								onClick={async () => {
-									const result = await trigger('examOperations')
-									if (!result) {
-										return
-									}
-									setIsConfirmed(true)
-								}}
-							>
-								Tiếp tục
-							</Button>
-						</DialogActions>
-					</form>
-				</FormProvider>
-			</Box>
-
-			<Box display={showResponse ? 'block' : 'none'}>
-				<DialogContent>
-					<Stack mb={4}>
-						<DialogContentText>
-							Người bệnh cần hoàn thành các xét nghiệm sau
-						</DialogContentText>
-					</Stack>
+						</form>
+					</FormProvider>
+				</Box>
+				<Box display={showResponse ? 'block' : 'none'}>
 					<Stack spacing={2}>
 						{!!responseData &&
 							!!responseData?.length &&
@@ -298,8 +273,35 @@ const RequestOperationsDialog = ({
 								</Card>
 							))}
 					</Stack>
-				</DialogContent>
-			</Box>
+				</Box>
+			</DialogContent>
+			<DialogActions style={{ display: showResponse ? 'none' : 'flex' }}>
+				<Button onClick={closeModal} color="warning" type="button">
+					Huỷ
+				</Button>
+				<Button
+					type="submit"
+					variant="contained"
+					onClick={() => handleSubmit(onSubmit)()}
+					sx={{ display: isConfirmed ? 'block' : 'none' }}
+				>
+					Xác nhận
+				</Button>
+				<Button
+					type="button"
+					variant="contained"
+					sx={{ display: !isConfirmed ? 'block' : 'none' }}
+					onClick={async () => {
+						const result = await trigger('examOperations')
+						if (!result) {
+							return
+						}
+						setIsConfirmed(true)
+					}}
+				>
+					Tiếp tục
+				</Button>
+			</DialogActions>
 		</Dialog>
 	)
 }
