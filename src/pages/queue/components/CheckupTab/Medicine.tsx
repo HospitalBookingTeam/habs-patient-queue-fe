@@ -30,6 +30,7 @@ import RequestMedicinesDialog from '../RequestMedicinesDialog'
 import { uniq, filter, uniqBy } from 'lodash'
 import { DeleteSharp, Edit } from '@mui/icons-material'
 import { renderDoseContent } from '../../../../utils/formats'
+import { useMedicineState } from '../../../../hooks/useMedicine'
 
 export type MedData = MedicineDetailData & Partial<MedicineData>
 const Medicine = ({
@@ -41,7 +42,7 @@ const Medicine = ({
 	icdList?: AutocompleteOption[]
 	isSave: boolean
 }) => {
-	const { register, control, handleSubmit, reset } = useForm()
+	const { register, handleSubmit, reset } = useForm()
 	const [isRequestMedicinesOpen, setIsRequestMedicinesOpen] = useState(false)
 
 	const [toastOpen, setToastOpen] = useState(false)
@@ -50,8 +51,10 @@ const Medicine = ({
 		MedData | undefined
 	>(undefined)
 
+	const { setMedicineState } = useMedicineState()
 	const onSubmit = async (values: any) => {
 		try {
+			setMedicineState((state) => ({ ...state, isLoading: true }))
 			await apiHelper.post(`checkup-records/${data?.id}/prescription`, {
 				id: data?.id,
 				note: values?.note,
@@ -68,6 +71,8 @@ const Medicine = ({
 				setToastOpen(true)
 		} catch (error) {
 			console.log(error)
+		} finally {
+			setMedicineState((state) => ({ ...state, isLoading: false }))
 		}
 	}
 

@@ -39,6 +39,7 @@ import { StyledDialogTitle } from '../../../components/StyledModal'
 import ControlledAutocomplete, {
 	Option,
 } from '../../../components/FormElements/ControlledAutocomplete'
+import { LoadingButton } from '@mui/lab'
 
 const DEFAULT_VALUES = {
 	medicine: undefined,
@@ -63,6 +64,8 @@ const RequestMedicinesDialog = ({
 	medicineData?: MedicineDetailData & Partial<MedicineData>
 }) => {
 	const [data, setData] = useState<MedicineData[] | undefined>(undefined)
+
+	const [isLoading, setIsLoading] = useState(false)
 
 	const [isMorning, setIsMorning] = useState(false)
 	const [isMidday, setIsMidday] = useState(false)
@@ -92,6 +95,7 @@ const RequestMedicinesDialog = ({
 	const usageRef = register('usage')
 	const onSubmit = async (values: any) => {
 		try {
+			setIsLoading(true)
 			const medicine = data?.find(
 				(item) =>
 					item.id === Number(values?.medicine?.value ?? values?.medicineId)
@@ -107,23 +111,10 @@ const RequestMedicinesDialog = ({
 				nightDose: Number(values?.nightDose),
 				medicineId: Number(values?.medicine?.value ?? values?.medicineId),
 			})
-			// await apiHelper.post(`checkup-records/${id}/prescription`, {
-			// 	note: values?.usage,
-			// 	details: [
-			// 		{
-			// 			usage: medicine?.usage,
-			// 			quantity: Number(values?.quantity),
-			// 			morningDose: Number(values?.morningDose),
-			// 			middayDose: Number(values?.middayDose),
-			// 			eveningDose: Number(values?.eveningDose),
-			// 			nightDose: Number(values?.nightDose),
-			// 			medicineId: Number(values?.medicine?.id),
-			// 		},
-			// 	],
-			// })
 		} catch (error) {
 			console.error(error)
 		} finally {
+			setIsLoading(false)
 			closeModal()
 		}
 	}
@@ -345,12 +336,16 @@ const RequestMedicinesDialog = ({
 				</FormProvider>
 			</DialogContent>
 			<DialogActions>
-				<Button onClick={closeModal} color="warning">
+				<Button onClick={closeModal} color="warning" disabled={isLoading}>
 					Huỷ
 				</Button>
-				<Button variant="contained" onClick={() => handleSubmit(onSubmit)()}>
+				<LoadingButton
+					loading={isLoading}
+					variant="contained"
+					onClick={() => handleSubmit(onSubmit)()}
+				>
 					Xác nhận
-				</Button>
+				</LoadingButton>
 			</DialogActions>
 		</Dialog>
 	)

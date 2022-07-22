@@ -5,6 +5,7 @@ import ControlledAutocomplete, {
 	Option,
 } from '../../../../components/FormElements/ControlledAutocomplete'
 import { CheckupRecordData } from '../../../../entities/record'
+import { useCheckupState } from '../../../../hooks/useCheckup'
 import apiHelper from '../../../../utils/apiHelper'
 
 type CheckupFormData = {
@@ -42,6 +43,7 @@ const Checkup = ({
 		mode: 'onChange',
 	})
 
+	const { setCheckupState } = useCheckupState()
 	const handleUpdateCheckupRecord = useCallback(
 		async (values: CheckupFormData) => {
 			const {
@@ -53,6 +55,7 @@ const Checkup = ({
 				icdDisease,
 			} = values
 			try {
+				setCheckupState((state) => ({ ...state, isLoading: true }))
 				await apiHelper.put(`checkup-records/${data?.id}`, {
 					bloodPressure: Number(bloodPressure),
 					pulse: Number(pulse) || null,
@@ -65,6 +68,8 @@ const Checkup = ({
 				})
 			} catch (err) {
 				console.error(err)
+			} finally {
+				setCheckupState((state) => ({ ...state, isLoading: false }))
 			}
 		},
 		[data]

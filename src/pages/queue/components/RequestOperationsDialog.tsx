@@ -25,6 +25,7 @@ import ControlledAutocomplete, {
 	Option,
 } from '../../../components/FormElements/ControlledAutocomplete'
 import { TestRecordData } from '../../../entities/record'
+import { LoadingButton } from '@mui/lab'
 
 type ExamOperationIdsData = OperationData & Option
 const RequestOperationsDialog = ({
@@ -49,6 +50,8 @@ const RequestOperationsDialog = ({
 	const [showResponse, setShowResponse] = useState(false)
 
 	const [isConfirmed, setIsConfirmed] = useState(false)
+	const [isLoading, setIsLoading] = useState(false)
+
 	const router = useRouter()
 	const { handleSubmit, trigger, watch, reset, ...methods } = useForm<{
 		examOperations: ExamOperationIdsData[]
@@ -63,6 +66,7 @@ const RequestOperationsDialog = ({
 
 	const onSubmit = async ({ examOperations }: { examOperations: Option[] }) => {
 		try {
+			setIsLoading(true)
 			const resp = await apiHelper.post(`checkup-records/${id}/tests`, {
 				id,
 				examOperationIds: examOperations?.map((e) => Number(e.value)),
@@ -72,12 +76,13 @@ const RequestOperationsDialog = ({
 		} catch (error) {
 			console.error(error)
 		} finally {
+			setIsLoading(false)
 			setIsConfirmed(false)
 			saveProgress?.()
 			setShowResponse(true)
 		}
 	}
-	console.log('testRecords', testRecords)
+
 	useEffect(() => {
 		const queryData = async () => {
 			try {
@@ -276,17 +281,23 @@ const RequestOperationsDialog = ({
 				</Box>
 			</DialogContent>
 			<DialogActions style={{ display: showResponse ? 'none' : 'flex' }}>
-				<Button onClick={closeModal} color="warning" type="button">
+				<Button
+					onClick={closeModal}
+					color="warning"
+					type="button"
+					disabled={isLoading}
+				>
 					Huỷ
 				</Button>
-				<Button
+				<LoadingButton
+					loading={isLoading}
 					type="submit"
 					variant="contained"
 					onClick={() => handleSubmit(onSubmit)()}
 					sx={{ display: isConfirmed ? 'block' : 'none' }}
 				>
 					Xác nhận
-				</Button>
+				</LoadingButton>
 				<Button
 					type="button"
 					variant="contained"

@@ -12,7 +12,7 @@ import { useEffect, useState } from 'react'
 import apiHelper from '../../utils/apiHelper'
 import Error from 'next/error'
 import useAuth, { authAtom } from '../../hooks/useAuth'
-import { Divider, Paper, Stack } from '@mui/material'
+import { Divider, Paper, Skeleton, Stack } from '@mui/material'
 import styled from '@emotion/styled'
 import {
 	CheckupRecordStatus,
@@ -57,12 +57,26 @@ const Item = styled(Link)(({ theme }) => ({
 	textDecoration: 'none',
 }))
 
+const SkeletonItems = () => (
+	<>
+		<Skeleton height={40} width="100%"></Skeleton>
+		{Array(3)
+			.fill(0)
+			.map((_, index) => (
+				<Skeleton width="100%" key={index}>
+					<Item href="#" width="100%" />
+				</Skeleton>
+			))}
+	</>
+)
+
 const Queue: NextPage = () => {
 	const url = '/queue'
 	const title = 'Hàng chờ'
 
 	const [queueData, setQueueData] =
 		useState<QueueDetailData[]>(DEFAULT_QUEUE_STATE)
+	const [isLoadingQueue, setIsLoadingQueue] = useState(false)
 	const [roomData, setRoomData] = useState<RoomData | undefined>(undefined)
 	const { roomId, room } = useAuth()
 
@@ -71,12 +85,15 @@ const Queue: NextPage = () => {
 	useEffect(() => {
 		const queryQueueData = async () => {
 			try {
+				setIsLoadingQueue(true)
 				const response = await apiHelper.get('checkup-queue', {
 					params: { 'room-id': roomId },
 				})
 				setQueueData(response?.data)
 			} catch (error) {
 				console.error(error)
+			} finally {
+				setIsLoadingQueue(false)
 			}
 		}
 		if (!roomId) return
@@ -161,6 +178,8 @@ const Queue: NextPage = () => {
 								</Stack>
 							</Item>
 						))
+					) : isLoadingQueue ? (
+						<SkeletonItems />
 					) : (
 						<Box p={6} mx="auto">
 							<Typography>Chưa có dữ liệu</Typography>

@@ -27,6 +27,7 @@ import styled from '@emotion/styled'
 import { StyledDialogTitle } from '../../../components/StyledModal'
 import { useRouter } from 'next/router'
 import ControlledAutocomplete from '../../../components/FormElements/ControlledAutocomplete'
+import { LoadingButton } from '@mui/lab'
 
 const RequestDepartmentDialog = ({
 	id,
@@ -47,6 +48,9 @@ const RequestDepartmentDialog = ({
 
 	const [responseData, setResponseData] = useState<DepartmentResponseData[]>([])
 	const [toastOpen, setToastOpen] = useState(false)
+
+	const [isLoading, setIsLoading] = useState(false)
+
 	const router = useRouter()
 	const { handleSubmit, reset, setValue, watch, trigger, ...methods } =
 		useForm<{
@@ -74,9 +78,8 @@ const RequestDepartmentDialog = ({
 				console.error(error)
 			}
 		}
-		if (!id || !!data) return
 		queryData()
-	}, [id, data])
+	}, [])
 
 	useEffect(() => {
 		setIsConfirmed(false)
@@ -94,6 +97,7 @@ const RequestDepartmentDialog = ({
 			clinicalSymptom: item?.symptom ?? '',
 		}))
 		try {
+			setIsLoading(true)
 			const resp = await apiHelper.post(`checkup-records/${id}/redirect`, {
 				id,
 				details: redirectDepartmentIds,
@@ -103,6 +107,7 @@ const RequestDepartmentDialog = ({
 		} catch (error) {
 			console.error(error)
 		} finally {
+			setIsLoading(false)
 			setIsConfirmed(false)
 			saveProgress?.()
 			setShowResponse(true)
@@ -211,16 +216,22 @@ const RequestDepartmentDialog = ({
 							))}
 						</DialogContent>
 						<DialogActions>
-							<Button onClick={closeModal} color="warning" type="button">
+							<Button
+								onClick={closeModal}
+								color="warning"
+								type="button"
+								disabled={isLoading}
+							>
 								Huỷ
 							</Button>
-							<Button
+							<LoadingButton
+								loading={isLoading}
 								type="submit"
 								variant="contained"
 								sx={{ display: isConfirmed ? 'block' : 'none' }}
 							>
 								Xác nhận
-							</Button>
+							</LoadingButton>
 							<Button
 								type="button"
 								variant="contained"

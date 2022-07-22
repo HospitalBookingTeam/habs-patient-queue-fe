@@ -1,3 +1,4 @@
+import { LoadingButton } from '@mui/lab'
 import {
 	Autocomplete,
 	Button,
@@ -10,6 +11,8 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Option } from '../../../../components/FormElements/ControlledAutocomplete'
 import { AutocompleteOption } from '../../../../entities/base'
 import { CheckupRecordData } from '../../../../entities/record'
+import { useCheckupState } from '../../../../hooks/useCheckup'
+import { useMedicineState } from '../../../../hooks/useMedicine'
 import useToast from '../../../../hooks/useToast'
 import apiHelper from '../../../../utils/apiHelper'
 import { ERROR_TRANSLATIONS } from '../../../../utils/constants'
@@ -30,6 +33,8 @@ const CheckupTab = ({
 	icdList?: Option[]
 }) => {
 	const [isEdit, setIsEdit] = useState(false)
+	const [isLoadingEdit, setIsLoadingEdit] = useState(false)
+
 	const [isRequestDepartmentsOpen, setIsRequestDepartmentsOpen] =
 		useState(false)
 	const [isFinishRecordOpen, setIsFinishRecordOpen] = useState(false)
@@ -39,6 +44,13 @@ const CheckupTab = ({
 	const [isSave, setIsSave] = useState(false)
 	const { toastError } = useToast()
 
+	const {
+		medicineState: { isLoading: isMedicineLoading },
+	} = useMedicineState()
+	const {
+		checkupState: { isLoading: isCheckupLoading },
+	} = useCheckupState()
+
 	const handleConfirmQueue = useCallback(async () => {
 		if (isEdit) {
 			setIsEdit(false)
@@ -46,6 +58,7 @@ const CheckupTab = ({
 		}
 
 		try {
+			setIsLoadingEdit(true)
 			await apiHelper.post(`checkup-queue/confirm/${data?.id}`)
 			setIsEdit(true)
 		} catch (err) {
@@ -53,6 +66,8 @@ const CheckupTab = ({
 			toastError({
 				message: ERROR_TRANSLATIONS[err as keyof typeof ERROR_TRANSLATIONS],
 			})
+		} finally {
+			setIsLoadingEdit(false)
 		}
 	}, [isEdit, data])
 
@@ -72,13 +87,15 @@ const CheckupTab = ({
 		return () => clearTimeout(timeout)
 	}, [isSave])
 
+	const isBtnLoading = isCheckupLoading || isMedicineLoading || isLoadingEdit
 	return (
 		<div>
 			<Box textAlign="right" ml="auto" mb={2}>
-				<Button
+				<LoadingButton
 					type="button"
 					variant="contained"
 					color={'primary'}
+					loading={isBtnLoading}
 					onClick={() => {
 						if (!isEdit) {
 							handleConfirmQueue()
@@ -89,7 +106,7 @@ const CheckupTab = ({
 					disabled={!data}
 				>
 					{isEdit ? 'Lưu' : 'Bắt đầu khám'}
-				</Button>
+				</LoadingButton>
 			</Box>
 			<Box display={isEdit ? 'block' : 'none'}>
 				<Stack
