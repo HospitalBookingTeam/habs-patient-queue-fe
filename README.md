@@ -1,14 +1,3 @@
-# Next.js with TypeScript and MUI
+# habs-patient-queue-fe
 
-## How to use?
-
-Install and run:
-
-```sh
-npm install
-npm run dev
-```
-
-## What's next?
-
-Here are some [templates](https://mui.com/material-ui/getting-started/templates/) ehe.
+The public patient queue that people see while waiting for their turn
