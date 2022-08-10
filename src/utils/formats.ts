@@ -1,5 +1,5 @@
 import moment, { Moment } from 'moment'
-import { MedData } from '../pages/queue/components/CheckupTab/Medicine'
+import { ClipboardEvent } from 'react'
 
 export const formatDate = (date: string, format = 'DD/MM/YYYY') => {
 	return moment(date).format(format)
@@ -10,29 +10,6 @@ export const formatCurrency = (amount: number | string) => {
 		style: 'currency',
 		currency: 'VND',
 	}).format(Number(amount))
-}
-
-export const renderDoseContent = (med: MedData) => {
-	let morning = ''
-	let midday = ''
-	let evening = ''
-	let night = ''
-
-	if (med.morningDose > 0) {
-		morning = `Sáng: ${med.morningDose}`
-	}
-	if (med.middayDose > 0) {
-		midday = `Trưa: ${med.middayDose}`
-	}
-	if (med.eveningDose > 0) {
-		evening = `Chiều: ${med.eveningDose}`
-	}
-	if (med.nightDose > 0) {
-		night = `Tối: ${med.nightDose}`
-	}
-	return [morning, midday, evening, night]
-		.filter((day) => day !== '')
-		.join('; ')
 }
 
 export function getGreetingTime(m: Moment) {
@@ -56,3 +33,7 @@ export function getGreetingTime(m: Moment) {
 
 	return g
 }
+
+// export const isCustomEvent = (event: Event): event is ClipboardEvent<any> => {
+// 	return 'detail' in event
+// }

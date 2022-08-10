@@ -30,9 +30,9 @@ const PageLayout: NextPage<Props> = ({ children }: Props) => {
 
 	return (
 		<div className="root">
-			<nav>
+			{/* <nav>
 				<ButtonAppBar />
-			</nav>
+			</nav> */}
 
 			<StyledMain>
 				<Container
@@ -42,19 +42,16 @@ const PageLayout: NextPage<Props> = ({ children }: Props) => {
 					}}
 				>
 					<Box sx={{ display: 'flex' }}>
-						<Box
-							component="main"
-							sx={{ flexGrow: 1, p: 4, minHeight: '100vh' }}
-						>
-							<Toolbar />
+						<Box component="main" sx={{ flexGrow: 1, minHeight: '100vh' }}>
+							{/* <Toolbar /> */}
 							{children}
 						</Box>
 					</Box>
 				</Container>
 			</StyledMain>
-			<footer>
+			{/* <footer>
 				<Copyright />
-			</footer>
+			</footer> */}
 			<ErrorDialog
 				open={!!open && toastData?.variant === 'error'}
 				handleClose={closeToast}

@@ -2,27 +2,19 @@ import type { NextPage } from 'next'
 import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
-import Link from '../../Link'
 import PageLayout from '../../components/PageLayout'
 import BasicMeta from '../../components/meta/BasicMeta'
 import OpenGraphMeta from '../../components/meta/OpenGraphMeta'
-import { PaginationData } from '../../entities/base'
-import { atom, selectorFamily, useRecoilState, useRecoilValue } from 'recoil'
-import { useEffect, useState } from 'react'
+import { atom } from 'recoil'
+import { ClipboardEvent, useEffect, useState } from 'react'
 import apiHelper from '../../utils/apiHelper'
 import Error from 'next/error'
 import useAuth, { authAtom } from '../../hooks/useAuth'
 import { Divider, Paper, Skeleton, Stack } from '@mui/material'
-import styled from '@emotion/styled'
-import {
-	CheckupRecordStatus,
-	renderEnumCheckupRecordStatus,
-	translateCheckupRecordStatus,
-} from '../../utils/renderEnums'
-import { getCookie } from 'cookies-next'
-import moment from 'moment'
-import { formatDate, getGreetingTime } from '../../utils/formats'
+import { translateCheckupRecordStatus } from '../../utils/renderEnums'
+import { formatDate } from '../../utils/formats'
 import { RoomData } from '../../entities/room'
+import { Item, StyledGradientTypo } from './styled'
 
 export type QueueDetailData = {
 	id: number
@@ -41,30 +33,14 @@ export const queueAtom = atom<QueueDetailData[]>({
 	default: DEFAULT_QUEUE_STATE,
 })
 
-const Item = styled(Link)(({ theme }) => ({
-	textAlign: 'center',
-	color: '#1C1B1F',
-	height: 60,
-	lineHeight: '60px',
-	background: '#f9f9f9',
-	padding: '12px 1rem',
-	cursor: 'pointer',
-	position: 'relative',
-	transition: 'background 0.3s ease',
-	'&:hover': {
-		background: 'rgb(135, 234, 177)',
-	},
-	textDecoration: 'none',
-}))
-
 const SkeletonItems = () => (
 	<>
 		<Skeleton height={40} width="100%"></Skeleton>
 		{Array(3)
 			.fill(0)
 			.map((_, index) => (
-				<Skeleton width="100%" key={index}>
-					<Item href="#" width="100%" />
+				<Skeleton width="100%" height="100%" key={index}>
+					<Item />
 				</Skeleton>
 			))}
 	</>
@@ -78,9 +54,26 @@ const Queue: NextPage = () => {
 		useState<QueueDetailData[]>(DEFAULT_QUEUE_STATE)
 	const [isLoadingQueue, setIsLoadingQueue] = useState(false)
 	const [roomData, setRoomData] = useState<RoomData | undefined>(undefined)
-	const { roomId, room } = useAuth()
+	const { roomId, room, logout } = useAuth()
 
 	const isQueueNotEmpty = queueData && queueData?.length
+
+	const handlePasteQr = async (e: Event & any) => {
+		const qrCode = (e as ClipboardEvent).clipboardData.getData('text')
+		console.log('qrCode', qrCode)
+		try {
+			await apiHelper.post('checkin', {
+				qrCode,
+			})
+			if (!roomId) return
+			const response = await apiHelper.get('checkup-queue', {
+				params: { 'room-id': roomId },
+			})
+			setQueueData(response?.data)
+		} catch (error) {
+			console.error(error)
+		}
+	}
 
 	useEffect(() => {
 		const queryQueueData = async () => {
@@ -104,17 +97,41 @@ const Queue: NextPage = () => {
 		setRoomData(room)
 	}, [room])
 
+	useEffect(() => {
+		window.addEventListener('paste', handlePasteQr)
+
+		return () => {
+			window.removeEventListener('paste', handlePasteQr)
+		}
+	}, [])
+
 	return (
 		<PageLayout>
 			<BasicMeta url={url} title={title} />
 			<OpenGraphMeta url={url} title={title} />
 
-			<Paper sx={{ p: 3 }}>
-				<StyledGradientTypo fontWeight="medium" mb={3}>
-					Bệnh nhân chờ khám - {roomData?.roomTypeName ?? '---'}{' '}
-					{roomData?.departmentName?.toLowerCase()}{' '}
-					{roomData?.roomNumber ?? '---'} - Tầng {roomData?.floor ?? '---'}
-				</StyledGradientTypo>
+			<Paper sx={{ p: 3, minHeight: '100%' }}>
+				<Stack
+					justifyContent={'space-between'}
+					direction="row"
+					alignItems={'center'}
+					mb={3}
+				>
+					<StyledGradientTypo fontWeight="medium">
+						{roomData?.roomTypeName ?? '---'}{' '}
+						{roomData?.departmentName?.toLowerCase()}{' '}
+						{roomData?.roomNumber ?? '---'} - Tầng {roomData?.floor ?? '---'}
+					</StyledGradientTypo>
+
+					<Button
+						color="inherit"
+						variant="contained"
+						size="small"
+						onClick={logout}
+					>
+						Đăng xuất
+					</Button>
+				</Stack>
 				<Stack
 					width={'100%'}
 					height={'100%'}
@@ -144,8 +161,8 @@ const Queue: NextPage = () => {
 					spacing={2}
 				>
 					{isQueueNotEmpty ? (
-						queueData?.map((queue: QueueDetailData) => (
-							<Item key={queue?.numericalOrder} href={`/queue/${queue?.id}`}>
+						queueData?.map((queue: QueueDetailData, index) => (
+							<Item key={queue?.numericalOrder} isFirst={index === 0}>
 								<Stack
 									width={'100%'}
 									height={'100%'}
@@ -191,11 +208,12 @@ const Queue: NextPage = () => {
 	)
 }
 
-const StyledGradientTypo = styled(Typography)`
-	font-size: 32px;
-	background: -webkit-linear-gradient(#1ac88a, #2f9d67);
-	-webkit-background-clip: text;
-	-webkit-text-fill-color: transparent;
-`
-
 export default Queue
+
+/*
+[
+  "4c6f6c05-f331-4ac3-86d5-4aa17b2317cc",
+  "cdbda38f-0eca-428a-bc9b-b585282d98aa",
+  "683c4ad9-33b6-4d1e-a687-0704cfb287a2"
+]
+*/

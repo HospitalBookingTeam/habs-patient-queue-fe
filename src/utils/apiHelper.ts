@@ -5,6 +5,13 @@ const apiHelper = axios.create({
 	timeout: 120000,
 })
 
+export default apiHelper
+
+export const doctorApiHelper = axios.create({
+	baseURL: process.env.NEXT_PUBLIC_DOCTOR_API,
+	timeout: 120000,
+})
+
 apiHelper.interceptors.response.use(
 	(response) => {
 		return response
@@ -14,4 +21,11 @@ apiHelper.interceptors.response.use(
 	}
 )
 
-export default apiHelper
+doctorApiHelper.interceptors.response.use(
+	(response) => {
+		return response
+	},
+	(error) => {
+		return Promise.reject(error?.response?.data)
+	}
+)

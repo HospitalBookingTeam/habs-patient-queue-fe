@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import { Controller, FormProvider, useForm } from 'react-hook-form'
 import { useSetRecoilState } from 'recoil'
-import apiHelper from '../../utils/apiHelper'
+import apiHelper, { doctorApiHelper } from '../../utils/apiHelper'
 import useAuth, { authAtom } from '../../hooks/useAuth'
 import useToast from '../../hooks/useToast'
 import ControlledAutocomplete, {
@@ -14,7 +14,6 @@ import PageLayout from '../../components/PageLayout'
 import { ErrorDialog } from '../../components/Modal'
 
 type LoginFormData = {
-	username: string
 	password: string
 	room: Option & RoomData
 }
@@ -25,7 +24,6 @@ const Login = () => {
 	const { register, handleSubmit, ...methods } = useForm<LoginFormData>({
 		mode: 'onChange',
 		defaultValues: {
-			username: undefined,
 			password: undefined,
 			room: undefined,
 		},
@@ -37,7 +35,7 @@ const Login = () => {
 	useEffect(() => {
 		const queryRoomOptions = async () => {
 			try {
-				const response = await apiHelper.get('rooms')
+				const response = await doctorApiHelper.get('rooms')
 				const _roomIdOptions = response.data.map((room: RoomData) => ({
 					label: `${room.roomTypeName} ${room.departmentName?.toLowerCase()} ${
 						room.roomNumber
@@ -59,14 +57,12 @@ const Login = () => {
 	}, [isAuthenticated])
 
 	const onSubmit = async ({
-		username,
 		password,
 		room: { value: roomId, label, ...room },
 	}: LoginFormData) => {
 		try {
 			const loginData: any = await apiHelper
 				.post('login', {
-					username,
 					password,
 					roomId: Number(roomId),
 				})
@@ -120,11 +116,6 @@ const Login = () => {
 							}}
 							p={4}
 						>
-							<TextField
-								type="text"
-								label={'Tài khoản'}
-								{...register('username', { required: true })}
-							/>
 							<TextField
 								type="password"
 								label={'Mật khẩu'}
