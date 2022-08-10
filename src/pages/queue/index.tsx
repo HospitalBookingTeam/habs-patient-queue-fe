@@ -14,7 +14,7 @@ import { Divider, Paper, Skeleton, Stack } from '@mui/material'
 import { translateCheckupRecordStatus } from '../../utils/renderEnums'
 import { formatDate } from '../../utils/formats'
 import { RoomData } from '../../entities/room'
-import { Item, StyledGradientTypo } from './components/styled'
+import { Item, StyledGradientTypo } from '../../components/views/queue/styled'
 
 export type QueueDetailData = {
 	id: number
