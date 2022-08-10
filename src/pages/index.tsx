@@ -1,6 +1,5 @@
 import type { NextPage } from 'next'
 import Typography from '@mui/material/Typography'
-import Link from '../Link'
 import PageLayout from '../components/PageLayout'
 import BasicMeta from '../components/meta/BasicMeta'
 import OpenGraphMeta from '../components/meta/OpenGraphMeta'
