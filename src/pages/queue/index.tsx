@@ -5,16 +5,20 @@ import Button from '@mui/material/Button'
 import PageLayout from '../../components/PageLayout'
 import BasicMeta from '../../components/meta/BasicMeta'
 import OpenGraphMeta from '../../components/meta/OpenGraphMeta'
-import { atom } from 'recoil'
-import { ClipboardEvent, useEffect, useState } from 'react'
+import { ClipboardEvent, useEffect, useRef, useState } from 'react'
 import apiHelper from '../../utils/apiHelper'
 import Error from 'next/error'
-import useAuth, { authAtom } from '../../hooks/useAuth'
+import useAuth from '../../hooks/useAuth'
 import { Divider, Paper, Skeleton, Stack } from '@mui/material'
 import { translateCheckupRecordStatus } from '../../utils/renderEnums'
 import { formatDate } from '../../utils/formats'
 import { RoomData } from '../../entities/room'
-import { Item, StyledGradientTypo } from '../../components/views/queue/styled'
+import {
+	HiddenForm,
+	Item,
+	StyledGradientTypo,
+} from '../../components/views/queue/styled'
+import { useForm } from 'react-hook-form'
 
 export type QueueDetailData = {
 	id: number
@@ -27,11 +31,6 @@ export type QueueDetailData = {
 }
 
 const DEFAULT_QUEUE_STATE: QueueDetailData[] = []
-
-export const queueAtom = atom<QueueDetailData[]>({
-	key: 'queue',
-	default: DEFAULT_QUEUE_STATE,
-})
 
 const SkeletonItems = () => (
 	<>
@@ -55,12 +54,18 @@ const Queue: NextPage = () => {
 	const [isLoadingQueue, setIsLoadingQueue] = useState(false)
 	const [roomData, setRoomData] = useState<RoomData | undefined>(undefined)
 	const { roomId, room, logout } = useAuth()
+	const { handleSubmit, register, setFocus, watch, reset } = useForm({
+		defaultValues: {
+			qrCode: '',
+		},
+	})
+
+	const qrWatch = watch('qrCode')
 
 	const isQueueNotEmpty = queueData && queueData?.length
 
-	const handlePasteQr = async (e: Event & any) => {
-		const qrCode = (e as ClipboardEvent).clipboardData.getData('text')
-		console.log('qrCode', qrCode)
+	const onSubmit = async (values: { qrCode: string }) => {
+		const { qrCode } = values
 		try {
 			await apiHelper.post('checkin', {
 				qrCode,
@@ -72,6 +77,8 @@ const Queue: NextPage = () => {
 			setQueueData(response?.data)
 		} catch (error) {
 			console.error(error)
+		} finally {
+			reset()
 		}
 	}
 
@@ -98,18 +105,23 @@ const Queue: NextPage = () => {
 	}, [room])
 
 	useEffect(() => {
-		window.addEventListener('paste', handlePasteQr)
-
-		return () => {
-			window.removeEventListener('paste', handlePasteQr)
-		}
-	}, [])
+		if (!setFocus) return
+		setFocus('qrCode')
+	}, [setFocus])
 
 	return (
 		<PageLayout>
 			<BasicMeta url={url} title={title} />
 			<OpenGraphMeta url={url} title={title} />
-
+			<HiddenForm onSubmit={handleSubmit(onSubmit)}>
+				<input
+					{...register('qrCode')}
+					type="text"
+					onBlur={() => setFocus('qrCode')}
+					autoFocus
+				/>
+				<button hidden type="submit" />
+			</HiddenForm>
 			<Paper sx={{ p: 3, minHeight: '100%' }}>
 				<Stack
 					justifyContent={'space-between'}

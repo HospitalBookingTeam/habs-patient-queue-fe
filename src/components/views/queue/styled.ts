@@ -20,3 +20,8 @@ export const StyledGradientTypo = styled(Typography)`
 	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
 `
+
+export const HiddenForm = styled.form`
+	opacity: 0;
+	position: fixed;
+`
