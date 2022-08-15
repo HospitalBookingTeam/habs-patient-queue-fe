@@ -1,4 +1,13 @@
-import { Autocomplete, Box, Button, Stack, TextField } from '@mui/material'
+import {
+	Autocomplete,
+	Box,
+	Button,
+	FormControlLabel,
+	Radio,
+	RadioGroup,
+	Stack,
+	TextField,
+} from '@mui/material'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import { Controller, FormProvider, useForm } from 'react-hook-form'
@@ -12,15 +21,24 @@ import ControlledAutocomplete, {
 import { RoomData } from '../../entities/room'
 import PageLayout from '../../components/PageLayout'
 import { ErrorDialog } from '../../components/Modal'
+import { formatRoomListToOptionList } from '../../utils/formats'
 
 type LoginFormData = {
 	password: string
 	room: Option & RoomData
 }
+
+type DepartmentType = 'general' | 'test'
 const Login = () => {
-	const [roomIdOptions, setRoomIdOptions] = useState<Option[] | undefined>(
+	const [roomOptions, setRoomOptions] = useState<Option[] | undefined>(
 		undefined
 	)
+	const [testRoomOptions, setTestRoomOptions] = useState<Option[] | undefined>(
+		undefined
+	)
+	const [departmentType, setDepartmentType] =
+		useState<DepartmentType>('general')
+
 	const { register, handleSubmit, ...methods } = useForm<LoginFormData>({
 		mode: 'onChange',
 		defaultValues: {
@@ -35,15 +53,13 @@ const Login = () => {
 	useEffect(() => {
 		const queryRoomOptions = async () => {
 			try {
-				const response = await doctorApiHelper.get('rooms')
-				const _roomIdOptions = response.data.map((room: RoomData) => ({
-					label: `${room.roomTypeName} ${room.departmentName?.toLowerCase()} ${
-						room.roomNumber
-					} - Tầng ${room.floor}`,
-					value: room.id?.toString(),
-					...room,
-				}))
-				setRoomIdOptions(_roomIdOptions)
+				const [roomsResp, testRoomsResp] = await Promise.all([
+					doctorApiHelper.get('rooms'),
+					doctorApiHelper.get('rooms/exam-room'),
+				])
+
+				setRoomOptions(formatRoomListToOptionList(roomsResp.data))
+				setTestRoomOptions(formatRoomListToOptionList(testRoomsResp.data))
 			} catch (error) {
 				console.error(error)
 			}
@@ -93,7 +109,7 @@ const Login = () => {
 				p={4}
 				sx={{
 					width: '100%',
-					background: '#fff',
+					// background: '#fff',
 					borderRadius: '12px',
 				}}
 			>
@@ -122,12 +138,37 @@ const Login = () => {
 								{...register('password', { required: true })}
 							/>
 
+							<RadioGroup
+								aria-labelledby="department-radio-group"
+								name="department-radio-group"
+								value={departmentType}
+								onChange={(e) =>
+									setDepartmentType(e.target.value as DepartmentType)
+								}
+								row
+							>
+								<FormControlLabel
+									value={'general'}
+									control={<Radio />}
+									label="Đa khoa"
+								/>
+								<FormControlLabel
+									value={'test'}
+									control={<Radio />}
+									label="Xét nghiệm"
+								/>
+							</RadioGroup>
+
 							<ControlledAutocomplete
 								name="room"
 								label={'Phòng khám'}
 								style={{ minWidth: '100%' }}
 								rules={{ required: true }}
-								options={roomIdOptions ?? []}
+								options={
+									departmentType === 'general'
+										? roomOptions ?? []
+										: testRoomOptions ?? []
+								}
 							/>
 
 							<Button

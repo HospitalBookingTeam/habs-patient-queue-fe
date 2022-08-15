@@ -1,5 +1,7 @@
 import moment, { Moment } from 'moment'
 import { ClipboardEvent } from 'react'
+import { Option } from '../components/FormElements/ControlledAutocomplete'
+import { RoomData } from '../entities/room'
 
 export const formatDate = (date: string, format = 'DD/MM/YYYY') => {
 	return moment(date).format(format)
@@ -33,6 +35,15 @@ export function getGreetingTime(m: Moment) {
 
 	return g
 }
+
+export const formatRoomListToOptionList = (rooms: RoomData[]): Option[] =>
+	rooms.map((room: RoomData) => ({
+		label: `${room.roomTypeName}${
+			room?.departmentName ? ` ${room.departmentName.toLowerCase()}` : ''
+		} ${room.roomNumber} - Tầng ${room.floor}`,
+		value: room.id?.toString(),
+		...room,
+	}))
 
 // export const isCustomEvent = (event: Event): event is ClipboardEvent<any> => {
 // 	return 'detail' in event

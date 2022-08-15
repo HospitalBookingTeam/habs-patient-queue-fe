@@ -54,16 +54,33 @@ const Queue: NextPage = () => {
 	const [isLoadingQueue, setIsLoadingQueue] = useState(false)
 	const [roomData, setRoomData] = useState<RoomData | undefined>(undefined)
 	const { roomId, room, logout } = useAuth()
-	const { handleSubmit, register, setFocus, watch, reset } = useForm({
+	const { handleSubmit, register, setFocus, reset } = useForm({
 		defaultValues: {
 			qrCode: '',
 		},
 	})
 
-	const qrWatch = watch('qrCode')
-
 	const isQueueNotEmpty = queueData && queueData?.length
 
+	const getQueueData = async () => {
+		let resp
+
+		if (room?.isGeneralRoom) {
+			resp = await apiHelper.get('checkup-queue', {
+				params: { 'room-id': roomId },
+			})
+		} else {
+			const [testQueueResp, testQueueResultResp] = await Promise.all([
+				apiHelper.get('test-queue'),
+				apiHelper.get('test-queue/waiting-for-result'),
+			])
+			resp = {
+				data: { ...testQueueResp.data, ...testQueueResultResp.data },
+			}
+		}
+
+		return resp
+	}
 	const onSubmit = async (values: { qrCode: string }) => {
 		const { qrCode } = values
 		try {
@@ -71,10 +88,9 @@ const Queue: NextPage = () => {
 				qrCode,
 			})
 			if (!roomId) return
-			const response = await apiHelper.get('checkup-queue', {
-				params: { 'room-id': roomId },
-			})
-			setQueueData(response?.data)
+
+			const resp = await getQueueData()
+			setQueueData(resp?.data)
 		} catch (error) {
 			console.error(error)
 		} finally {
@@ -86,10 +102,9 @@ const Queue: NextPage = () => {
 		const queryQueueData = async () => {
 			try {
 				setIsLoadingQueue(true)
-				const response = await apiHelper.get('checkup-queue', {
-					params: { 'room-id': roomId },
-				})
-				setQueueData(response?.data)
+
+				const resp = await getQueueData()
+				setQueueData(resp?.data)
 			} catch (error) {
 				console.error(error)
 			} finally {
@@ -119,6 +134,7 @@ const Queue: NextPage = () => {
 					type="text"
 					onBlur={() => setFocus('qrCode')}
 					autoFocus
+					autoComplete="off"
 				/>
 				<button hidden type="submit" />
 			</HiddenForm>
