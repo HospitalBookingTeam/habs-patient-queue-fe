@@ -46,6 +46,11 @@ const useAuth = () => {
 
 	const logout = () => {
 		setAuthData(DEFAULT_STATE)
+		// apiHelper.interceptors.request.use((config) => {
+		// 	if (!config?.headers) return
+		// 	config.headers.Authorization = false
+		// 	return config
+		// })
 	}
 
 	const login = (
@@ -61,18 +66,14 @@ const useAuth = () => {
 			room: _room,
 			information: _information,
 		})
+		// apiHelper.interceptors.request.use((config) => {
+		// 	if (!config?.headers) return
+		// 	config.headers.Authorization = `Bearer ${_token}`
+		// 	console.log('config', config)
+		// 	return config
+		// })
+		router.push('/')
 	}
-
-	useEffect(() => {
-		if (!authData.isAuthenticated) {
-			return
-		}
-		apiHelper.interceptors.request.use((config) => {
-			if (!config?.headers) return
-			config.headers.Authorization = `Bearer ${authData.token}`
-			return config
-		})
-	}, [authData, router])
 
 	return { ...authData, logout, login, loading }
 }

@@ -84,7 +84,6 @@ const Login = () => {
 				})
 				.then((response) => response?.data)
 			login(loginData?.token, Number(roomId), room, loginData?.information)
-			router.push('/')
 		} catch (error) {
 			console.error(error)
 			toastError({ message: 'Đăng nhập bị lỗi. Vui lòng thử lại!' })
