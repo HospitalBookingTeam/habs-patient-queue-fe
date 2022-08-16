@@ -8,3 +8,7 @@ export const ERROR_TRANSLATIONS = {
 	'Invalid checkup record id':
 		'Lần khám đã khám xong hoặc không tồn tại. Vui lòng kiểm tra lại.',
 }
+
+export const ROOM_TYPE = {
+	EXAM: 10002,
+}

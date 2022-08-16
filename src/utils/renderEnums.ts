@@ -15,6 +15,18 @@ export enum CheckupRecordStatus {
 	DA_XOA,
 }
 
+export enum TestRecordStatus {
+	CHUA_DAT_LICH,
+	DA_DAT_LICH,
+	DA_THANH_TOAN,
+	CHECKED_IN,
+	DANG_TIEN_HANH,
+	CHO_KET_QUA,
+	HOAN_THANH,
+	DA_HUY,
+	DA_XOA,
+}
+
 export const CHECKUP_TRANSLATION: {
 	[key in keyof typeof CheckupRecordStatus]: string
 } = {
@@ -66,6 +78,28 @@ export const translateCheckupRecordStatus = (
 		: CHECKUP_TRANSLATION[
 				CheckupRecordStatus[status] as keyof typeof CheckupRecordStatus
 		  ]
+
+export const TEST_RECORD_TRANSLATION: {
+	[key in keyof typeof TestRecordStatus]: string
+} = {
+	CHUA_DAT_LICH: 'Chưa đặt lịch',
+	DA_DAT_LICH: 'Đã đặt lịch',
+	DA_THANH_TOAN: 'Chờ xét nghiệm',
+	CHECKED_IN: 'Đã checkin',
+	DANG_TIEN_HANH: 'Đang xét nghiệm',
+	CHO_KET_QUA: 'Chờ kết quả',
+	HOAN_THANH: 'Hoàn thành',
+	DA_HUY: 'Đã hủy',
+	DA_XOA: 'Đã xóa',
+}
+
+export const renderEnumTestRecordStatus = (status: number) =>
+	TestRecordStatus[status]
+
+export const translateTestRecordStatus = (status: number) =>
+	TEST_RECORD_TRANSLATION[
+		TestRecordStatus[status] as keyof typeof TestRecordStatus
+	]
 
 export enum InsuranceSupportStatus {
 	'Không hỗ trợ',

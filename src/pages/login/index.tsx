@@ -150,12 +150,12 @@ const Login = () => {
 								<FormControlLabel
 									value={'general'}
 									control={<Radio />}
-									label="Đa khoa"
+									label="Phòng khám"
 								/>
 								<FormControlLabel
 									value={'test'}
 									control={<Radio />}
-									label="Xét nghiệm"
+									label="Phòng xét nghiệm"
 								/>
 							</RadioGroup>
 

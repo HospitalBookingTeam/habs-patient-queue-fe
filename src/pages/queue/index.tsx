@@ -5,9 +5,8 @@ import Button from '@mui/material/Button'
 import PageLayout from '../../components/PageLayout'
 import BasicMeta from '../../components/meta/BasicMeta'
 import OpenGraphMeta from '../../components/meta/OpenGraphMeta'
-import { ClipboardEvent, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import apiHelper from '../../utils/apiHelper'
-import Error from 'next/error'
 import useAuth from '../../hooks/useAuth'
 import { Divider, Paper, Skeleton, Stack } from '@mui/material'
 import { translateCheckupRecordStatus } from '../../utils/renderEnums'
@@ -19,6 +18,14 @@ import {
 	StyledGradientTypo,
 } from '../../components/views/queue/styled'
 import { useForm } from 'react-hook-form'
+import { TestRecordData } from '../../entities/record'
+import {
+	TestQueueTitle,
+	QueueItem,
+	QueueTitle,
+	TestQueueItem,
+} from '../../components/views/queue'
+import { ROOM_TYPE } from '../../utils/constants'
 
 export type QueueDetailData = {
 	id: number
@@ -51,35 +58,35 @@ const Queue: NextPage = () => {
 
 	const [queueData, setQueueData] =
 		useState<QueueDetailData[]>(DEFAULT_QUEUE_STATE)
+	const [testQueueData, setTestQueueData] = useState<TestRecordData[]>([])
+
 	const [isLoadingQueue, setIsLoadingQueue] = useState(false)
 	const [roomData, setRoomData] = useState<RoomData | undefined>(undefined)
 	const { roomId, room, logout } = useAuth()
+
+	const isExamRoom = room?.roomTypeId === ROOM_TYPE.EXAM
 	const { handleSubmit, register, setFocus, reset } = useForm({
 		defaultValues: {
 			qrCode: '',
 		},
 	})
 
-	const isQueueNotEmpty = queueData && queueData?.length
+	const isQueueNotEmpty = isExamRoom
+		? queueData && !!queueData?.length
+		: testQueueData && !!testQueueData?.length
 
 	const getQueueData = async () => {
-		let resp
-
-		if (room?.isGeneralRoom) {
-			resp = await apiHelper.get('checkup-queue', {
+		if (isExamRoom) {
+			const resp = await apiHelper.get('checkup-queue', {
 				params: { 'room-id': roomId },
 			})
-		} else {
-			const [testQueueResp, testQueueResultResp] = await Promise.all([
-				apiHelper.get('test-queue'),
-				apiHelper.get('test-queue/waiting-for-result'),
-			])
-			resp = {
-				data: { ...testQueueResp.data, ...testQueueResultResp.data },
-			}
-		}
 
-		return resp
+			setQueueData(resp?.data)
+			return
+		}
+		const testQueueResp = await apiHelper.get('test-queue')
+
+		setTestQueueData(testQueueResp?.data)
 	}
 	const onSubmit = async (values: { qrCode: string }) => {
 		const { qrCode } = values
@@ -89,8 +96,7 @@ const Queue: NextPage = () => {
 			})
 			if (!roomId) return
 
-			const resp = await getQueueData()
-			setQueueData(resp?.data)
+			await getQueueData()
 		} catch (error) {
 			console.error(error)
 		} finally {
@@ -103,8 +109,7 @@ const Queue: NextPage = () => {
 			try {
 				setIsLoadingQueue(true)
 
-				const resp = await getQueueData()
-				setQueueData(resp?.data)
+				await getQueueData()
 			} catch (error) {
 				console.error(error)
 			} finally {
@@ -160,27 +165,14 @@ const Queue: NextPage = () => {
 						Đăng xuất
 					</Button>
 				</Stack>
-				<Stack
-					width={'100%'}
-					height={'100%'}
-					alignItems={'center'}
-					justifyContent={'space-between'}
-					direction="row"
-					padding="12px 1rem"
-					color="GrayText"
-					display={isQueueNotEmpty ? 'flex' : 'none'}
-				>
-					<Typography flex="0 1 5%" textAlign={'center'}>
-						STT
-					</Typography>
-					<Typography textAlign={'left'} flex={'2 1 auto'} pl={2}>
-						Họ Tên
-					</Typography>
-					<Typography flex="0 1 30%">Trạng thái</Typography>
-					{roomData?.isGeneralRoom && (
-						<Typography flex="0 1 20%">Thời gian dự kiến</Typography>
-					)}
-				</Stack>
+				{isExamRoom ? (
+					<QueueTitle
+						isQueueNotEmpty={isQueueNotEmpty}
+						isGeneralRoom={room?.isGeneralRoom}
+					/>
+				) : (
+					<TestQueueTitle />
+				)}
 
 				{/* List */}
 				<Stack
@@ -189,40 +181,24 @@ const Queue: NextPage = () => {
 					spacing={2}
 				>
 					{isQueueNotEmpty ? (
-						queueData?.map((queue: QueueDetailData, index) => (
-							<Item key={queue?.numericalOrder} isFirst={index === 0}>
-								<Stack
-									width={'100%'}
-									height={'100%'}
-									alignItems={'center'}
-									justifyContent={'space-between'}
-									direction="row"
-								>
-									<Typography flex="0 1 5%" textAlign={'center'}>
-										{queue?.numericalOrder}
-									</Typography>
-									<Typography
-										fontWeight={'bold'}
-										textAlign={'left'}
-										flex={'2 1 auto'}
-										pl={2}
-									>
-										{queue?.patientName}
-									</Typography>
-									<Typography flex="0 1 30%" textAlign={'left'}>
-										{translateCheckupRecordStatus(
-											queue?.status,
-											queue?.isReExam
-										)}
-									</Typography>
-									{roomData?.isGeneralRoom && (
-										<Typography flex="0 1 20%" textAlign={'left'}>
-											{formatDate(queue?.estimatedStartTime, 'HH:mm')}
-										</Typography>
-									)}
-								</Stack>
-							</Item>
-						))
+						isExamRoom ? (
+							queueData?.map((queue: QueueDetailData, index) => (
+								<QueueItem
+									key={queue.id}
+									item={queue}
+									isFirst={index === 0}
+									showStartTime={!!room?.isGeneralRoom}
+								/>
+							))
+						) : (
+							testQueueData?.map((item, index) => (
+								<TestQueueItem
+									key={item.id}
+									item={item}
+									isFirst={index === 0}
+								/>
+							))
+						)
 					) : isLoadingQueue ? (
 						<SkeletonItems />
 					) : (
